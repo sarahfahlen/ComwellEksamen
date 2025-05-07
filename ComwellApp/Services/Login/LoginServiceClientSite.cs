@@ -21,6 +21,8 @@ public class LoginServiceClientSite : ILoginService
     public static Bruger Frank = new Bruger
         { BrugerId = 3, Navn = "Frank", Adgangskode = "qwerty", Email = "Frank@mail.com", Telefon = 64572358 };
 
+    public static List<Bruger> users = new List<Bruger> { Kasper, Emil, Frank };
+    
     public async Task<Bruger?> GetUserLoggedIn()
     {
         Bruger? res = await localStorage.GetItemAsync<Bruger>("bruger");
@@ -39,9 +41,6 @@ public class LoginServiceClientSite : ILoginService
 
         return false;
     }
-
-    public static List<Bruger> users = new List<Bruger> { Kasper, Emil, Frank };
-
     protected virtual async Task<Bruger?> Validate(string email, string adgangskode)
     {
         foreach (Bruger u in users)
