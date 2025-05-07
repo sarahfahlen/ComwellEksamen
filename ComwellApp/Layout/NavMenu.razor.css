@@ -44,7 +44,7 @@
     cursor: pointer;
     transition: opacity 0.2s ease;
     padding-right: 1rem;
-}
+} 
 
 .menu-toggle:hover {
     opacity: 0.8;
