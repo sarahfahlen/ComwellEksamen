@@ -1,4 +1,4 @@
-/* Login page background */
+/* Login baggrund */
 .login-page-background {
     min-height: 100vh;
     width: 100vw;
@@ -9,86 +9,88 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ffffff;
+    background-color: #FDFBF8; /* Lys beige baggrund */
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* Login container */
+/* Login-boks */
 .login-container {
     max-width: 350px;
     margin: 4rem auto;
-    background-color: #ffffff;
+    background-color: #FFFFFF; /* Ren hvid boks */
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #D2B894; /* Beige kant */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     animation: fadeInScale 0.5s ease-out;
-    border: 1px solid #ccc;
 }
 
 /* Overskrift */
 h3 {
     text-align: center;
-    color: #1D3557;
+    color: #1C2B38; /* Mørkeblå tekst */
     margin-bottom: 1.5rem;
     font-weight: 600;
 }
 
-/* Label stil */
+/* Labels over felter */
 label {
     font-weight: 600;
-    color: #1D3557;
+    color: #1C2B38;
     display: block;
     margin-bottom: 0.5rem;
 }
 
-/* Input felt */
+/* Input felter */
 .form-control {
     border-radius: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #D2B894;
     padding: 0.5rem 0.75rem;
-    transition: border-color 0.2s ease-in-out;
-    max-width: 100%;
-    margin-bottom: 1rem;
     font-size: 1rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
+/* Når man klikker i input */
 .form-control:focus {
-    border-color: #457B9D;
+    border-color: #1C2B38;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(69, 123, 157, 0.2);
+    box-shadow: 0 0 0 3px rgba(28, 43, 56, 0.15);
 }
 
-/* Login-knap */
+/* Login knap */
 .btn-primary {
-    background-color: #1D3557;
-    border-color: #1D3557;
-    color: white;
+    background-color: #D2B894; /* Beige knap */
+    border: 1px solid #D2B894;
+    color: #1C2B38;
     font-weight: 600;
     padding: 0.5rem 1rem;
     border-radius: 10px;
     width: 100%;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     margin-top: 0.5rem;
 }
 
+/* Hover på knap */
 .btn-primary:hover {
-    background-color: #457B9D;
-    border-color: #457B9D;
+    background-color: #1C2B38; /* Mørk ved hover */
+    color: white;
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Klik på knap */
 .btn-primary:active {
     transform: translateY(0);
 }
 
 /* Fejlbesked */
 .error-message {
-    background-color: #fff0f0;
-    border-left: 4px solid #e74c3c;
-    color: #c0392b;
+    background-color: #FFF4F4;
+    border-left: 4px solid #E74C3C;
+    color: #C0392B;
     font-size: 0.9rem;
     margin-top: 1rem;
     padding: 0.75rem 1rem;
@@ -100,21 +102,24 @@ label {
     transition: all 0.3s ease;
 }
 
+/* Hvis ingen fejl = skjul */
 .error-message:empty {
     display: none;
 }
 
+/* Fejlikon */
 .error-icon {
     margin-right: 0.75rem;
     font-size: 1rem;
-    color: #e74c3c;
+    color: #E74C3C;
 }
 
+/* Fejltekst */
 .error-text {
     flex: 1;
 }
 
-/* Animation */
+/* Fade animation ved indlæsning */
 @keyframes fadeInScale {
     0% {
         opacity: 0;
@@ -126,6 +131,7 @@ label {
     }
 }
 
+/* Rystefeedback ved fejl */
 @keyframes slideInAndShake {
     0% {
         opacity: 0;
