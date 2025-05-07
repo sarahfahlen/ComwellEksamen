@@ -12,7 +12,6 @@
     z-index: 1000;
 }
 
-
 /* Logo/brand */
 .navbar-brand {
     display: flex;
@@ -20,31 +19,28 @@
     height: 100%;
 }
 
-/* Begræns kun logoets højde, uafhængigt af navbaren */
 .logo-img {
-    max-height: 4rem; /* eller hvad du vil, fx 40px */
+    max-height: 4rem;
     height: auto;
     width: auto;
     display: block;
+    align-self: center;
 }
-.logo-img {
-    align-self: center; /* eller flex-start / flex-end hvis du vil placere det anderledes */
-}
+
 @media (max-width: 768px) {
     .logo-img {
         max-height: 2.5rem;
     }
 }
 
-
-/* Menu-knap og burger */
+/* Burger menu-knap */
 .menu-toggle {
     display: flex;
     align-items: center;
     cursor: pointer;
     transition: opacity 0.2s ease;
     padding-right: 1rem;
-} 
+}
 
 .menu-toggle:hover {
     opacity: 0.8;
@@ -57,7 +53,6 @@
     font-size: 18px;
 }
 
-/* Container for SVG-ikonet */
 .navbar-toggler {
     display: flex;
     align-items: center;
@@ -67,37 +62,61 @@
     padding: 0;
 }
 
-/* Burger/kryds ikon */
-.burger-icon {
-    color: white;
+/* Ikoner – fælles stil */
+.icon-btn {
     transition: transform 0.2s ease, color 0.2s ease;
-    cursor: pointer;
 }
 
-/* Hover-effekt uanset menuens tilstand */
-.menu-toggle:hover .burger-icon {
+.icon-btn:hover {
     color: #ffffff;
     transform: scale(1.1);
 }
 
-/* Når menu er åben – farve og rotation */
+.burger-icon {
+    color: white;
+    cursor: pointer;
+}
+
+/* Aktiv burger-menu */
 .menu-open .burger-icon {
     color: #ECE7DC;
     transform: rotate(90deg);
 }
 
-/* Dropdown menu */
-.overlay-menu {
-    position: fixed;
-    top: 5rem;
-    right: 1rem;
+/* Brugermenu ikon */
+.brugericon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+.brugericon:hover svg {
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+.brugericon svg {
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* Container der placerer burger + brugerikon i højre side */
+.nav-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Fælles dropdown-stil */
+.dropdown-panel {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
-    z-index: 999;
     padding: 1rem;
     width: 240px;
     animation: slideDown 0.25s ease-out;
+    z-index: 999;
 }
 
 /* Animation */
@@ -112,7 +131,42 @@
     }
 }
 
-/* Menu-liste og items */
+/* Overlay-menu: åben i højre hjørne */
+.overlay-menu {
+    position: fixed;
+    top: 5rem;
+    right: 1rem;
+}
+.overlay-menu {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+    padding: 1rem;
+    width: 240px;
+    animation: slideDown 0.25s ease-out;
+    z-index: 999;
+}
+
+/* User overlay-menu: lige under brugerikon */
+.user-overlay-menu {
+    position: absolute;
+    top: 2.9rem;
+    right: 0;
+    margin-top: 0.5rem;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+    padding: 1rem;
+    width: 240px;
+    animation: slideDown 0.25s ease-out;
+    z-index: 950;
+}
+
+.user-overlay-menu button {
+    font-weight: 500;
+}
+
+/* Menu-liste og links */
 .navbar-nav {
     list-style: none;
     padding: 0;
@@ -134,7 +188,6 @@
     transition: font-weight 0.5s ease, opacity 0.5s ease;
 }
 
-/* Hover-effekt på menupunkter – altid */
 .overlay-menu .nav-link:hover,
 a.nav-link:hover {
     background-color: #F1EFEA;
@@ -142,16 +195,44 @@ a.nav-link:hover {
     color: #1C2B38;
 }
 
-/* Aktiv link */
 a.nav-link.active {
     color: #1C2B38;
     background-color: #ECE7DC;
 }
 
-/* SVG ikoner i menuen */
+/* Ikoner i nav-links */
 .nav-icon {
     width: 1.25rem;
     height: 1.25rem;
     margin-right: 0.5rem;
     fill: currentColor;
+}
+
+/* Transparent klikbaggrund */
+.menu-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: transparent;
+    z-index: 900;
+}
+
+/* Log ud knap */
+.logud {
+    border: none;
+    border-radius: 6px;
+    padding: 0.45rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: white;
+    background-color: #B76E6E;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.logud:hover {
+    background-color: #c57979;
 }
