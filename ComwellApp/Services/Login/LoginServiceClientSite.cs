@@ -16,10 +16,10 @@ public class LoginServiceClientSite : ILoginService
         { BrugerId = 1, Navn = "Kasper", Adgangskode = "1234", Email = "kasper@mail.com", Telefon = 76546789, Rolle = "Køkkenchef"};
 
     public static Bruger Emil = new Bruger
-        { BrugerId = 2, Navn = "Emil", Adgangskode = "4321", Email = "emil@mail.com", Telefon = 87907652, Rolle = "Elev" };
+        { BrugerId = 2, Navn = "Emil", Adgangskode = "1234", Email = "emil@mail.com", Telefon = 87907652, Rolle = "Elev" };
 
     public static Bruger Frank = new Bruger
-        { BrugerId = 3, Navn = "Frank", Adgangskode = "qwerty", Email = "frank@mail.com", Telefon = 64572358, Rolle = "FaglærtKok" };
+        { BrugerId = 3, Navn = "Frank", Adgangskode = "1234", Email = "frank@mail.com", Telefon = 64572358, Rolle = "FaglærtKok" };
 
     public static List<Bruger> users = new List<Bruger> { Kasper, Emil, Frank };
     
