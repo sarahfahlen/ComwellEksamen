@@ -13,23 +13,25 @@ public class LoginServiceClientSite : ILoginService
     }
 
     public static Bruger Kasper = new Bruger
-        { BrugerId = 1, Navn = "Kasper", Adgangskode = "1234", Email = "Kasper@mail.com", Telefon = 76546789 };
+        { BrugerId = 1, Navn = "Kasper", Adgangskode = "1234", Email = "kasper@mail.com", Telefon = 76546789, Rolle = "Køkkenchef"};
 
     public static Bruger Emil = new Bruger
-        { BrugerId = 2, Navn = "Emil", Adgangskode = "4321", Email = "Emil@mail.com", Telefon = 87907652 };
+        { BrugerId = 2, Navn = "Emil", Adgangskode = "1234", Email = "emil@mail.com", Telefon = 87907652, Rolle = "Elev" };
 
     public static Bruger Frank = new Bruger
-        { BrugerId = 3, Navn = "Frank", Adgangskode = "qwerty", Email = "Frank@mail.com", Telefon = 64572358 };
+        { BrugerId = 3, Navn = "Frank", Adgangskode = "1234", Email = "frank@mail.com", Telefon = 64572358, Rolle = "FaglærtKok" };
 
+    public static List<Bruger> users = new List<Bruger> { Kasper, Emil, Frank };
+    
     public async Task<Bruger?> GetUserLoggedIn()
     {
         Bruger? res = await localStorage.GetItemAsync<Bruger>("bruger");
         return res;
     }
     
-    public async Task<bool> Login(string email, string Adgangskode)
+    public async Task<bool> Login(string email, string adgangskode)
     {
-        Bruger? u = await Validate(email, Adgangskode);
+        Bruger? u = await Validate(email, adgangskode);
         if (u != null)
         {
             u.Adgangskode = "validated";
@@ -39,9 +41,6 @@ public class LoginServiceClientSite : ILoginService
 
         return false;
     }
-
-    public static List<Bruger> users = new List<Bruger> { Kasper, Emil, Frank };
-
     protected virtual async Task<Bruger?> Validate(string email, string adgangskode)
     {
         foreach (Bruger u in users)
