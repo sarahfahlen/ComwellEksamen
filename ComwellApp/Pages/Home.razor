@@ -1,7 +1,25 @@
 ﻿@page "/"
+@inject ILoginService lService
+@inject NavigationManager navManager
+@using ComwellApp.Services.Login
+@using Shared
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+@code
+{
+    private Bruger? loggedIn;
+    protected override async Task OnInitializedAsync()
+    {
+        loggedIn = await lService.GetUserLoggedIn();
+        if (loggedIn == null)
+        {
+            navManager.NavigateTo("login/market");
+            return;
+        }
+    }
+}
