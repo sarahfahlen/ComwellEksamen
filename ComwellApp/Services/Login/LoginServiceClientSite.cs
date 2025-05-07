@@ -27,9 +27,9 @@ public class LoginServiceClientSite : ILoginService
         return res;
     }
     
-    public async Task<bool> Login(string email, string Adgangskode)
+    public async Task<bool> Login(string email, string adgangskode)
     {
-        Bruger? u = await Validate(email, Adgangskode);
+        Bruger? u = await Validate(email, adgangskode);
         if (u != null)
         {
             u.Adgangskode = "validated";
