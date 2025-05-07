@@ -13,13 +13,13 @@ public class LoginServiceClientSite : ILoginService
     }
 
     public static Bruger Kasper = new Bruger
-        { BrugerId = 1, Navn = "Kasper", Adgangskode = "1234", Email = "Kasper@mail.com", Telefon = 76546789, Rolle = "Køkkenchef"};
+        { BrugerId = 1, Navn = "Kasper", Adgangskode = "1234", Email = "kasper@mail.com", Telefon = 76546789, Rolle = "Køkkenchef"};
 
     public static Bruger Emil = new Bruger
-        { BrugerId = 2, Navn = "Emil", Adgangskode = "4321", Email = "Emil@mail.com", Telefon = 87907652, Rolle = "Emil" };
+        { BrugerId = 2, Navn = "Emil", Adgangskode = "4321", Email = "emil@mail.com", Telefon = 87907652, Rolle = "Elev" };
 
     public static Bruger Frank = new Bruger
-        { BrugerId = 3, Navn = "Frank", Adgangskode = "qwerty", Email = "Frank@mail.com", Telefon = 64572358, Rolle = "Frank" };
+        { BrugerId = 3, Navn = "Frank", Adgangskode = "qwerty", Email = "frank@mail.com", Telefon = 64572358, Rolle = "FaglærtKok" };
 
     public static List<Bruger> users = new List<Bruger> { Kasper, Emil, Frank };
     
