@@ -10,7 +10,7 @@ public class LoginServiceClientSite : ILoginService
     public LoginServiceClientSite(ILocalStorageService ls)
     {
         localStorage = ls;
-    }
+    } 
 
     public static Bruger Kasper = new Bruger
         { BrugerId = "1", Navn = "Kasper", Adgangskode = "1234", Email = "Kasper@mail.com", Telefon = 76546789 };
