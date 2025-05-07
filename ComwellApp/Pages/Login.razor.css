@@ -16,11 +16,12 @@
 
 /* Login-boks */
 .login-container {
-    max-width: 350px;
-    margin: 4rem auto;
+    max-width: 420px;
+    width: 315px;
+    margin: 5rem auto;
     background-color: #f9f6f2; /* Lys beige boks */
-    padding: 2rem;
-    border-radius: 12px;
+    padding: 2.5rem 2rem;
+    border-radius: 14px;
     border: 1px solid #D2B894; /* Beige kant */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     animation: fadeInScale 0.5s ease-out;
@@ -48,6 +49,15 @@ label {
     font-size: 1rem;
     margin-bottom: 1rem;
     transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Overskriv Bootstrap's form-control for floating inputs */
+.form-control.floating-input {
+    height: 3.5rem !important;  /* Tvungen højere højde */
+    padding: 1.7rem 1rem 0.9rem !important;  /* Øget padding-top og padding-bottom */
+    line-height: 1.5 !important;  /* Justeret line-height */
+    margin-bottom: 0;
+    border-radius: 12px;
 }
 
 /* Når man klikker i input */
@@ -150,4 +160,33 @@ label {
     100% {
         transform: translateX(0);
     }
+}
+
+/* Container til floating labels */
+.form-floating-group {
+    position: relative;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+
+
+/* Label ovenpå input */
+.form-floating-group label {
+    position: absolute;
+    top: 1rem;  /* Justeret startposition */
+    left: 0.75rem;
+    font-size: 1rem;
+    color: black;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+/* Når feltet har fokus eller tekst */
+.form-control.floating-input:focus + label,
+.form-control.floating-input:not(:placeholder-shown) + label{
+    top: 0.2rem;  /* Justeret position når flydende */
+    left: 0.75rem;
+    font-size: 0.8rem;  /* Øget fontstørrelse til bedre læsbarhed */
+    color: #999;
 }

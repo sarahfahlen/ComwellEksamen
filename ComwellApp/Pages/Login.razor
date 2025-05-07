@@ -8,14 +8,16 @@
     <div class="login-container">
         <h3>Log ind</h3>
 
-        <div class="form-group">
-            <InputText class="form-control" @bind-Value="Email" placeholder="Email"/>
+        <div class="form-floating-group">
+            <InputText id="email" class="form-control floating-input" @bind-Value="Email" placeholder=" "/>
+            <label for="email">Email</label>
         </div>
-        <br/>
-        <div class="form-group">
-            <InputText class="form-control" type="password" @bind-Value="Adgangskode" placeholder="Adgangskode"/>
+
+        <div class="form-floating-group">
+            <InputText id="adgangskode" type="password" class="form-control floating-input" @bind-Value="Adgangskode" placeholder=" "/>
+            <label for="adgangskode">Adgangskode</label>
         </div>
-        <br/>
+        
         <div class="form-group mt-2">
             <button class="btn btn-primary" @onclick="OnClickLogin">Log ind</button>
         </div>
