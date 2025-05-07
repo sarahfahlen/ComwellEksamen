@@ -1,0 +1,59 @@
+using Blazored.LocalStorage;
+using Shared;
+
+namespace ComwellApp.Services.Login;
+
+public class LoginServiceClientSite : ILoginService
+{
+    private ILocalStorageService localStorage { get; set; }
+
+    public LoginServiceClientSite(ILocalStorageService ls)
+    {
+        localStorage = ls;
+    }
+
+    public static Bruger Kasper = new Bruger
+        { BrugerId = "1", Navn = "Kasper", Adgangskode = "1234", Email = "Kasper@mail.com", Telefon = 76546789 };
+
+    public static Bruger Emil = new Bruger
+        { BrugerId = "2", Navn = "Emil", Adgangskode = "4321", Email = "Emil@mail.com", Telefon = 87907652 };
+
+    public static Bruger Frank = new Bruger
+        { BrugerId = "3", Navn = "Frank", Adgangskode = "qwerty", Email = "Frank@mail.com", Telefon = 64572358 };
+
+    public async Task<Bruger?> GetUserLoggedIn()
+    {
+        Bruger? res = await localStorage.GetItemAsync<Bruger>("bruger");
+        return res;
+    }
+    
+    public async Task<bool> Login(string email, string Adgangskode)
+    {
+        Bruger? u = await Validate(email, Adgangskode);
+        if (u != null)
+        {
+            u.Adgangskode = "validated";
+            await localStorage.SetItemAsync("bruger", u);
+            return true;
+        }
+
+        return false;
+    }
+
+    public static List<Bruger> users = new List<Bruger> { Kasper, Emil, Frank };
+
+    protected virtual async Task<Bruger?> Validate(string email, string adgangskode)
+    {
+        foreach (Bruger u in users)
+
+            if (email.Equals(u.Email) && adgangskode.Equals(u.Adgangskode))
+                return u;
+
+        return null;
+    }
+
+    public async Task<Bruger[]> GetAll()
+    {
+        return users.ToArray();
+    }
+}
