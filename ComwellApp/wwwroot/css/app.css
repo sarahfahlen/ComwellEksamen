@@ -127,3 +127,15 @@ code {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/* Gør det hovered link tydeligere, og dæmp de andre */
+.hover-menu:hover .nav-link {
+    opacity: 0.4; /* Dæmp alle links når man holder over menuen */
+    transition: opacity 0.2s ease;
+}
+
+.hover-menu:hover .nav-link:hover {
+    opacity: 1; /* Fremhæv det link man holder musen over */
+    font-weight: 700; /* Gøre teksten fed, men kan maks 700, da det begrænset inde på index.html */
+    transform: translateX(6px);
+}
