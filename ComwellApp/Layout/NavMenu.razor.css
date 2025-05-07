@@ -22,7 +22,7 @@
 
 /* Begræns kun logoets højde, uafhængigt af navbaren */
 .logo-img {
-    max-height: 9rem; /* eller hvad du vil, fx 40px */
+    max-height: 4rem; /* eller hvad du vil, fx 40px */
     height: auto;
     width: auto;
     display: block;
@@ -32,7 +32,7 @@
 }
 @media (max-width: 768px) {
     .logo-img {
-        max-height: 7rem;
+        max-height: 2.5rem;
     }
 }
 
@@ -52,7 +52,7 @@
 
 .menu-label {
     color: white;
-    margin-right: 0.75rem;
+    margin-right: 0.25rem;
     font-weight: 500;
     font-size: 18px;
 }
