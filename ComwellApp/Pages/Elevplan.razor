@@ -1,6 +1,20 @@
+@inject ILoginService lService
+@inject NavigationManager navManager
+
 @page "/elevplan"
+@using ComwellApp.Services.Login
+@using Shared
 <h3>Elevplan</h3>
 
 @code {
-    
+    private Bruger? loggedIn;
+    protected override async Task OnInitializedAsync()
+    {
+        loggedIn = await lService.GetUserLoggedIn();
+        if (loggedIn == null)
+        {
+            navManager.NavigateTo("login/market");
+            return;
+        }
+    }
 }

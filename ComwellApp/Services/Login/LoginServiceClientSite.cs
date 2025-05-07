@@ -13,13 +13,13 @@ public class LoginServiceClientSite : ILoginService
     }
 
     public static Bruger Kasper = new Bruger
-        { BrugerId = 1, Navn = "Kasper", Adgangskode = "1234", Email = "Kasper@mail.com", Telefon = 76546789 };
+        { BrugerId = 1, Navn = "Kasper", Adgangskode = "1234", Email = "Kasper@mail.com", Telefon = 76546789, Rolle = "Køkkenchef"};
 
     public static Bruger Emil = new Bruger
-        { BrugerId = 2, Navn = "Emil", Adgangskode = "4321", Email = "Emil@mail.com", Telefon = 87907652 };
+        { BrugerId = 2, Navn = "Emil", Adgangskode = "4321", Email = "Emil@mail.com", Telefon = 87907652, Rolle = "Emil" };
 
     public static Bruger Frank = new Bruger
-        { BrugerId = 3, Navn = "Frank", Adgangskode = "qwerty", Email = "Frank@mail.com", Telefon = 64572358 };
+        { BrugerId = 3, Navn = "Frank", Adgangskode = "qwerty", Email = "Frank@mail.com", Telefon = 64572358, Rolle = "Frank" };
 
     public static List<Bruger> users = new List<Bruger> { Kasper, Emil, Frank };
     
@@ -29,9 +29,9 @@ public class LoginServiceClientSite : ILoginService
         return res;
     }
     
-    public async Task<bool> Login(string email, string Adgangskode)
+    public async Task<bool> Login(string email, string adgangskode)
     {
-        Bruger? u = await Validate(email, Adgangskode);
+        Bruger? u = await Validate(email, adgangskode);
         if (u != null)
         {
             u.Adgangskode = "validated";
