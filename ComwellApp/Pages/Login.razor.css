@@ -9,7 +9,6 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #FDFBF8; /* Lys beige baggrund */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -19,7 +18,7 @@
 .login-container {
     max-width: 350px;
     margin: 4rem auto;
-    background-color: #FFFFFF; /* Ren hvid boks */
+    background-color: #f9f6f2; /* Lys beige boks */
     padding: 2rem;
     border-radius: 12px;
     border: 1px solid #D2B894; /* Beige kant */
@@ -30,9 +29,7 @@
 /* Overskrift */
 h3 {
     text-align: center;
-    color: #1C2B38; /* Mørkeblå tekst */
     margin-bottom: 1.5rem;
-    font-weight: 600;
 }
 
 /* Labels over felter */
@@ -55,7 +52,7 @@ label {
 
 /* Når man klikker i input */
 .form-control:focus {
-    border-color: #1C2B38;
+    border-color: #D2B894;
     outline: none;
     box-shadow: 0 0 0 3px rgba(28, 43, 56, 0.15);
 }
@@ -64,7 +61,7 @@ label {
 .btn-primary {
     background-color: #D2B894; /* Beige knap */
     border: 1px solid #D2B894;
-    color: #1C2B38;
+    color: white;
     font-weight: 600;
     padding: 0.5rem 1rem;
     border-radius: 10px;
@@ -75,7 +72,7 @@ label {
 
 /* Hover på knap */
 .btn-primary:hover {
-    background-color: #1C2B38; /* Mørk ved hover */
+    background-color: #b18c50; /* Mørk ved hover */
     color: white;
     transform: translateY(-1px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
