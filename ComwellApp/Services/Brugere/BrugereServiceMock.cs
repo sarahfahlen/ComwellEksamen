@@ -1,52 +1,60 @@
+using ComwellApp.Services;
+using ComwellApp.Services.Brugere;
 using ComwellApp.Services.Elevplan;
 using Shared;
-namespace ComwellApp.Services.Brugere;
-
-
 public class BrugereServiceMock : IBrugereService
 {
     private readonly ElevplanServiceMock _elevplanService;
     private readonly IdGeneratorService _idGenerator;
+    private readonly List<Bruger> _brugere = new();
 
     public BrugereServiceMock(ElevplanServiceMock elevplanService, IdGeneratorService idGenerator)
     {
         _elevplanService = elevplanService;
         _idGenerator = idGenerator;
 
-        // Tilføj Emil dynamisk gennem funktionen:
-        Bruger Emil = new Bruger
+        _brugere.AddRange(new[]
         {
+            new Bruger
+            {
+                BrugerId = 1,
+                Navn = "Kasper",
+                Adgangskode = "1234",
+                Email = "kasper@mail.com",
+                BrugerTelefon = 76546789,
+                Rolle = "Køkkenchef"
+            },
+            new Bruger
+            {
+                BrugerId = 2,
+                Navn = "Frank",
+                Adgangskode = "1234",
+                Email = "frank@mail.com",
+                BrugerTelefon = 64572358,
+                Rolle = "FaglærtKok"
+            }
+        });
+
+        var emil = new Bruger
+        {
+            BrugerId = _idGenerator.GenererNytId(_brugere, b => b.BrugerId),
             Navn = "Emil",
             Adgangskode = "1234",
             Email = "emil@mail.com",
             BrugerTelefon = 87907652,
-            Rolle = "Elev"
+            Rolle = "Elev",
+            MinElevplan = null
         };
 
-        // Find køkkenchef som ansvarlig
-        var ansvarlig = Kasper;
-
-        // Brug Task.Run().Wait() for at kunne køre async i constructor
-        Task.Run(async () => await TilfoejElev(Emil, ansvarlig)).Wait();
+        _brugere.Add(emil);
     }
-    
-    public static List<Bruger> brugere = new List<Bruger> { Kasper, Frank };
+
+    public List<Bruger> HentAlle() => _brugere;
 
     public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig)
     {
-        nyBruger.BrugerId = _idGenerator.GenererNytId(brugere, b => b.BrugerId);
+        nyBruger.BrugerId = _idGenerator.GenererNytId(_brugere, b => b.BrugerId);
         nyBruger.MinElevplan = await _elevplanService.OpretElevplan(ansvarlig);
-        brugere.Add(nyBruger);
+        _brugere.Add(nyBruger);
     }
-    
-    public static Bruger Kasper = new Bruger
-    {
-        BrugerId = 1, Navn = "Kasper", Adgangskode = "1234", Email = "kasper@mail.com", BrugerTelefon = 76546789,
-        Rolle = "Køkkenchef",
-    };
-    public static Bruger Frank = new Bruger
-    {
-        BrugerId = 3, Navn = "Frank", Adgangskode = "1234", Email = "frank@mail.com", BrugerTelefon = 64572358,
-        Rolle = "FaglærtKok"
-    };
 }

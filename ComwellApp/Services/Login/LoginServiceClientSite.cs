@@ -1,49 +1,43 @@
 using Blazored.LocalStorage;
+using ComwellApp.Services.Brugere;
+using ComwellApp.Services.Login;
 using Shared;
-
-namespace ComwellApp.Services.Login;
 
 public class LoginServiceClientSite : ILoginService
 {
-    private ILocalStorageService localStorage { get; set; }
+    private readonly ILocalStorageService _localStorage;
+    private readonly IBrugereService _brugereService;
 
-    public LoginServiceClientSite(ILocalStorageService ls)
+    public LoginServiceClientSite(ILocalStorageService localStorage, IBrugereService brugereService)
     {
-        localStorage = ls;
+        _localStorage = localStorage;
+        _brugereService = brugereService;
     }
 
-    public static List<Bruger> brugere = Brugere.BrugereServiceMock.brugere;
-    
     public async Task<Bruger?> GetUserLoggedIn()
     {
-        Bruger? res = await localStorage.GetItemAsync<Bruger>("bruger");
-        return res;
+        return await _localStorage.GetItemAsync<Bruger>("bruger");
     }
-    
+
     public async Task<bool> Login(string email, string adgangskode)
     {
-        Bruger? u = await Validate(email, adgangskode);
-        if (u != null)
+        var brugere = (_brugereService as BrugereServiceMock)?.HentAlle() ?? new List<Bruger>();
+        foreach (var u in brugere)
         {
-            u.Adgangskode = "validated";
-            await localStorage.SetItemAsync("bruger", u);
-            return true;
+            if (email == u.Email && adgangskode == u.Adgangskode)
+            {
+                u.Adgangskode = "validated";
+                await _localStorage.SetItemAsync("bruger", u);
+                return true;
+            }
         }
 
         return false;
     }
-    protected virtual async Task<Bruger?> Validate(string email, string adgangskode)
-    {
-        foreach (Bruger u in brugere)
-
-            if (email.Equals(u.Email) && adgangskode.Equals(u.Adgangskode))
-                return u;
-
-        return null;
-    }
 
     public async Task<Bruger[]> GetAll()
     {
+        var brugere = (_brugereService as BrugereServiceMock)?.HentAlle() ?? new List<Bruger>();
         return brugere.ToArray();
     }
 }
