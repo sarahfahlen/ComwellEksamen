@@ -10,7 +10,7 @@ public class Bruger
     public string Navn { get; set; }
     public string Email { get; set; }
     public string Adgangskode { get; set; }
-    public int Telefon { get; set; }
+    public int BrugerTelefon { get; set; }
     public string Rolle { get; set; }
     public string Billede { get; set; }
     public DateOnly StartDato { get; set; }
