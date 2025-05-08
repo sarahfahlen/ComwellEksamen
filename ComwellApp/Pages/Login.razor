@@ -44,8 +44,17 @@
     private async Task OnClickLogin()
     {
         var succes = await loginService.Login(Email, Adgangskode);
+    
         if (!succes)
         {
+            // Fjern først fejlbesked så den "nulstilles"
+            errorText = null;
+            StateHasChanged(); // Tving komponenten til at opdatere DOM
+
+            // Vent kort øjeblik så animation kan genafspilles
+            await Task.Delay(10);
+
+            // Sæt fejlbeskeden igen (så animation trigges som ny DOM node)
             errorText = "Forkert email eller adgangskode, prøv igen";
         }
         else
@@ -53,5 +62,6 @@
             navManager.NavigateTo(target, forceLoad: true);
         }
     }
+
 
 }
