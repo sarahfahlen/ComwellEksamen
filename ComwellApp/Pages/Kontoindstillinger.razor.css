@@ -93,8 +93,8 @@ label {
 
 .form-control.floating-input:focus + label,
 .form-control.floating-input:not(:placeholder-shown) + label {
-    top: 0.3rem;
-    left: 1rem;
+    top: 0.2rem;
+    left: 0.75rem;
     font-size: 0.8rem;
     color: #999;
 }
