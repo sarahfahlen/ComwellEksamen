@@ -6,7 +6,7 @@ public class BrugereServiceMock : IBrugereService
 {
     private readonly ElevplanServiceMock _elevplanService;
     private readonly IdGeneratorService _idGenerator;
-    private readonly List<Bruger> _brugere = new();
+    private static readonly List<Bruger> _brugere = new();
 
     public BrugereServiceMock(ElevplanServiceMock elevplanService, IdGeneratorService idGenerator)
     {
@@ -59,5 +59,10 @@ public class BrugereServiceMock : IBrugereService
         nyBruger.BrugerId = _idGenerator.GenererNytId(_brugere, b => b.BrugerId);
         nyBruger.MinElevplan = await _elevplanService.OpretElevplan(ansvarlig);
         _brugere.Add(nyBruger);
+        Console.WriteLine("Brugere i systemet:");
+        foreach (var bruger in _brugere)
+        {
+            Console.WriteLine($"Navn: {bruger.Navn}, Email: {bruger.Email}, Adgangskode: {bruger.Adgangskode}");
+        }
     }
 }

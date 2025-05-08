@@ -9,109 +9,117 @@
 <div class="opret-container">
     <button class="btn btn-primary tilbage" @onclick="Tilbage">Tilbage</button>
 
-    <h3 class="overskrift">Oprettelse af elev</h3>
+```
+<h3 class="overskrift">Oprettelse af elev</h3>
 
-    <div class="opret-grid">
-        <!-- Navn + Telefonnr -->
-        <div class="form-row">
-            <div class="form-floating-group halv-bredde">
-                <InputText id="navn" class="form-control floating-input" @bind-Value="Navn" placeholder=" " />
-                <label for="navn">Fulde navn</label>
-            </div>
-
-            <div class="form-floating-group halv-bredde">
-                <InputText id="telefonnr" class="form-control floating-input" @bind-Value="Telefonnr" placeholder=" " />
-                <label for="telefonnr">Telefon nr</label>
-            </div>
+<div class="opret-grid">
+    <!-- Navn + Telefonnr -->
+    <div class="form-row">
+        <div class="form-floating-group halv-bredde">
+            <InputText id="navn" class="form-control floating-input" @bind-Value="nyElev.Navn" placeholder=" " />
+            <label for="navn">Fulde navn</label>
         </div>
 
-        <!-- Email -->
-        <div class="form-floating-group hel-bredde">
-            <InputText id="email" type="email" class="form-control floating-input" @bind-Value="Email" placeholder=" " />
-            <label for="email">E-mail</label>
-        </div>
-
-        <!-- Adgangskode -->
-        <div class="form-floating-group hel-bredde">
-            <InputText id="adgangskode" class="form-control floating-input" @bind-Value="Adgangskode" placeholder=" " />
-            <label for="adgangskode">Adgangskode</label>
-        </div>
-
-        <!-- Køkken + Startdato + Billede -->
-        <div class="form-row">
-            <div class="form-floating-group tre-delt">
-                <select class="form-control" @bind="Køkken">
-                    <option disabled selected value=""></option>
-                    <option>Køkken 1</option>
-                    <option>Køkken 2</option>
-                </select>
-                <label for="køkken">Køkken</label>
-            </div>
-
-            <div class="form-floating-group tre-delt">
-                <InputDate id="startdato" class="form-control" @bind-Value="StartDato" />
-                <label for="startdato"></label>
-            </div>
-
-            <div class="form-floating-group tre-delt">
-                <InputFile OnChange="HandleFileSelected" />
-                <label for="billede"></label>
-            </div>
-        </div>
-
-        <!-- Opret-knap -->
-        <div class="form-floating-group opret-knap-container">
-            <button class="btn btn-primary" @onclick="HandleSubmit">Opret</button>
+        <div class="form-floating-group halv-bredde">
+            <InputNumber id="telefonnr" class="form-control floating-input" @bind-Value="nyElev.BrugerTelefon" placeholder=" " />
+            <label for="telefonnr">Telefon nr</label>
         </div>
     </div>
 
-    <p class="note-tekst">Ved oprettelse af ny elev oprettes automatisk ny elevplan</p>
+    <!-- Email -->
+    <div class="form-floating-group hel-bredde">
+        <InputText id="email" type="email" class="form-control floating-input" @bind-Value="nyElev.Email" placeholder=" " />
+        <label for="email">E-mail</label>
+    </div>
+
+    <!-- Adgangskode -->
+    <div class="form-floating-group hel-bredde">
+        <InputText id="adgangskode" class="form-control floating-input" @bind-Value="nyElev.Adgangskode" placeholder=" " />
+        <label for="adgangskode">Adgangskode</label>
+    </div>
+
+    <!-- Køkken + Startdato + Billede -->
+    <div class="form-row">
+        <div class="form-floating-group tre-delt">
+            <select class="form-control" @bind="valgtKoekkenId">
+                <option disabled selected value="">Vælg køkken</option>
+                @foreach (var k in alleKoekkener)
+                {
+                    <option value="@k.LokationId">@k.LokationNavn</option>
+                }
+            </select>
+            <label for="køkken">Køkken</label>
+        </div>
+
+        <div class="form-floating-group tre-delt">
+            <InputDate id="startdato" class="form-control" @bind-Value="nyElev.StartDato" />
+            <label for="startdato"></label>
+        </div>
+
+        <div class="form-floating-group tre-delt">
+            <InputFile OnChange="HandleFileSelected" />
+            <label for="billede"></label>
+        </div>
+    </div>
+
+    <!-- Opret-knap -->
+    <div class="form-floating-group opret-knap-container">
+        <button class="btn btn-primary" @onclick="HandleSubmit">Opret</button>
+    </div>
+</div>
+
+<p class="note-tekst">Ved oprettelse af ny elev oprettes automatisk ny elevplan</p>
+```
+
 </div>
 
 @code {
-    string Navn = "";
-    string Telefonnr = "";
-    string Email = "";
-    string Adgangskode = "";
-    DateTime StartDato = DateTime.Today;
-    string Køkken = "";
+private Bruger nyElev = new();
+private List<Lokation> alleKoekkener = new()
+{
+new Lokation { LokationId = 1, LokationNavn = "Køkken 1" },
+new Lokation { LokationId = 2, LokationNavn = "Køkken 2" }
+};
+private int? valgtKoekkenId;
+private IBrowserFile? BilledeFil;
 
-    private IBrowserFile? BilledeFil;
+private async Task HandleFileSelected(InputFileChangeEventArgs e)
+{
+    BilledeFil = e.File;
+}
 
-    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+private void Tilbage()
+{
+    Navigation.NavigateTo("/dashboard");
+}
+
+private async Task HandleSubmit()
+{
+    Console.WriteLine("Forsøger at oprette elev...");
+
+    if (string.IsNullOrWhiteSpace(this.nyElev.Navn) || string.IsNullOrWhiteSpace(this.nyElev.Email))
     {
-        BilledeFil = e.File;
+        Console.WriteLine("Manglende navn eller email");
+        return;
     }
 
-    private void Tilbage()
+    nyElev.Rolle = "Elev";
+    nyElev.Koekken = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
+
+
+    var ansvarlig = await LoginService.GetUserLoggedIn();
+
+    if (ansvarlig is null)
     {
-        Navigation.NavigateTo("/dashboard");
+        Console.WriteLine("Ingen bruger er logget ind.");
+        return;
     }
 
-    private async Task HandleSubmit()
-    {
-        if (string.IsNullOrWhiteSpace(Navn) || string.IsNullOrWhiteSpace(Email)) return;
+    Console.WriteLine($"Ansvarlig: {ansvarlig.Navn}");
 
-        int.TryParse(Telefonnr, out int telefonInt);
+    await BrugereService.TilfoejElev(nyElev, ansvarlig);
 
-        var nyElev = new Bruger
-        {
-            Navn = Navn,
-            Email = Email,
-            Adgangskode = Adgangskode,
-            BrugerTelefon = telefonInt,
-            Rolle = "Elev"
-        };
-
-        var ansvarlig = await LoginService.GetUserLoggedIn();
-
-        if (ansvarlig is null)
-        {
-            Console.WriteLine("Ingen bruger er logget ind.");
-            return;
-        }
-        await BrugereService.TilfoejElev(nyElev, ansvarlig);
-
-        Navigation.NavigateTo("/dashboard");
-    }
+    Console.WriteLine("Elev oprettet – redirecting...");
+    Navigation.NavigateTo("/dashboard");
+}
 }
