@@ -21,7 +21,9 @@ public class LoginServiceClientSite : ILoginService
 
     public async Task<bool> Login(string email, string adgangskode)
     {
-        var brugere = await _brugereService.HentAlle(); 
+        var brugere = await _brugereService.HentAlle();
+
+        // 1. Tjek mock-brugere
         foreach (var u in brugere)
         {
             if (email == u.Email && adgangskode == u.Adgangskode)
@@ -32,7 +34,22 @@ public class LoginServiceClientSite : ILoginService
             }
         }
 
+        // 2. Tjek elev i LocalStorage
+        var elev = await _localStorage.GetItemAsync<Bruger>("nyelev");
+        if (elev != null && email == elev.Email && adgangskode == elev.Adgangskode)
+        {
+            elev.Adgangskode = "validated";
+            await _localStorage.SetItemAsync("bruger", elev);
+            return true;
+        }
+
         return false;
+    }
+
+    public async Task GemElevILocalStorage(Bruger elev)
+    {
+        // Gem den oprettede elev som separat key
+        await _localStorage.SetItemAsync("nyelev", elev);
     }
 
     public async Task<Bruger[]> GetAll()

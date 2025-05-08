@@ -5,6 +5,7 @@
 @inject IBrugereService BrugereService
 @inject ILoginService LoginService
 @inject NavigationManager Navigation
+@using Blazored.LocalStorage localstorage;
 
 <div class="opret-container">
     <button class="btn btn-primary tilbage" @onclick="Tilbage">Tilbage</button>
@@ -119,6 +120,7 @@ private async Task HandleSubmit()
     Console.WriteLine($"Ansvarlig: {ansvarlig.Navn}");
 
     await BrugereService.TilfoejElev(nyElev, ansvarlig);
+    await LoginService.GemElevILocalStorage(nyElev);
 
     Console.WriteLine("Elev oprettet – redirecting...");
     Navigation.NavigateTo("/dashboard");

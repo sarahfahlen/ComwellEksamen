@@ -10,4 +10,8 @@ public interface ILoginService
     Task<bool> Login(string Email, string Adgangskode);
     
     Task<Bruger[]> GetAll();
+    
+    Task GemElevILocalStorage(Bruger elev);
+
+
 }
