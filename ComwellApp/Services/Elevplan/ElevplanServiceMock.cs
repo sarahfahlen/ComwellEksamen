@@ -3,24 +3,30 @@ namespace ComwellApp.Services.Elevplan;
 
 public class ElevplanServiceMock : IElevplanService
 {
+    private readonly IdGeneratorService _idGenerator;
+
+    public ElevplanServiceMock(IdGeneratorService idGenerator)
+    {
+        _idGenerator = idGenerator;
+    }
+    
     private List<Shared.Elevplan> alleElevplaner = new();
     
     //Opretter en ny elevplan, ved at kalde vores skabelon funktion og sende bruger + ansvarlig med
-    public async Task<Shared.Elevplan> OpretElevplan(Bruger elev, Bruger ansvarlig)
+    public async Task<Shared.Elevplan> OpretElevplan(Bruger ansvarlig)
     {
-        var plan = await LavDefaultSkabelon(elev, ansvarlig);
-        plan.ElevplanId = alleElevplaner.Count + 1;
+        var plan = await LavDefaultSkabelon(ansvarlig);
+        plan.ElevplanId = _idGenerator.GenererNytId(alleElevplaner, p => p.ElevplanId);
         alleElevplaner.Add(plan);
         return plan;
     }
     
     //Returnerer vores skabelon, og tilknytter den medsendte elev og ansvarlige fra OpretElevplan() til elev og ansvarlig felter
-    public async Task <Shared.Elevplan> LavDefaultSkabelon(Bruger elev, Bruger ansvarlig) 
+    public async Task <Shared.Elevplan> LavDefaultSkabelon(Bruger ansvarlig) 
     {
     return new Shared.Elevplan 
     {
         ElevplanId = 1,
-        Elev = elev,
         Ansvarlig = ansvarlig,
         ListPerioder = new List<Praktikperiode>
         {

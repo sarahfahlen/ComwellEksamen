@@ -15,4 +15,5 @@ public class Bruger
     public string Billede { get; set; }
     public DateOnly StartDato { get; set; }
     public Lokation Koekken { get; set; }
+    public Elevplan? MinElevplan { get; set; }
 }

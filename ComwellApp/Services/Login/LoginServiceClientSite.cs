@@ -12,16 +12,7 @@ public class LoginServiceClientSite : ILoginService
         localStorage = ls;
     }
 
-    public static Bruger Kasper = new Bruger
-        { BrugerId = 1, Navn = "Kasper", Adgangskode = "1234", Email = "kasper@mail.com", BrugerTelefon = 76546789, Rolle = "Køkkenchef"};
-
-    public static Bruger Emil = new Bruger
-        { BrugerId = 2, Navn = "Emil", Adgangskode = "1234", Email = "emil@mail.com", BrugerTelefon = 87907652, Rolle = "Elev" };
-
-    public static Bruger Frank = new Bruger
-        { BrugerId = 3, Navn = "Frank", Adgangskode = "1234", Email = "frank@mail.com", BrugerTelefon = 64572358, Rolle = "FaglærtKok" };
-
-    public static List<Bruger> users = new List<Bruger> { Kasper, Emil, Frank };
+    public static List<Bruger> brugere = Brugere.BrugereServiceMock.brugere;
     
     public async Task<Bruger?> GetUserLoggedIn()
     {
@@ -43,7 +34,7 @@ public class LoginServiceClientSite : ILoginService
     }
     protected virtual async Task<Bruger?> Validate(string email, string adgangskode)
     {
-        foreach (Bruger u in users)
+        foreach (Bruger u in brugere)
 
             if (email.Equals(u.Email) && adgangskode.Equals(u.Adgangskode))
                 return u;
@@ -53,6 +44,6 @@ public class LoginServiceClientSite : ILoginService
 
     public async Task<Bruger[]> GetAll()
     {
-        return users.ToArray();
+        return brugere.ToArray();
     }
 }
