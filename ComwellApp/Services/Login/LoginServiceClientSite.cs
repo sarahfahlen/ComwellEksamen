@@ -21,7 +21,7 @@ public class LoginServiceClientSite : ILoginService
 
     public async Task<bool> Login(string email, string adgangskode)
     {
-        var brugere = (_brugereService as BrugereServiceMock)?.HentAlle() ?? new List<Bruger>();
+        var brugere = await _brugereService.HentAlle(); 
         foreach (var u in brugere)
         {
             if (email == u.Email && adgangskode == u.Adgangskode)
@@ -37,7 +37,8 @@ public class LoginServiceClientSite : ILoginService
 
     public async Task<Bruger[]> GetAll()
     {
-        var brugere = (_brugereService as BrugereServiceMock)?.HentAlle() ?? new List<Bruger>();
+        var brugere = await _brugereService.HentAlle();
         return brugere.ToArray();
     }
+
 }

@@ -49,7 +49,10 @@ public class BrugereServiceMock : IBrugereService
         _brugere.Add(emil);
     }
 
-    public List<Bruger> HentAlle() => _brugere;
+    public Task<List<Bruger>> HentAlle()
+    {
+        return Task.FromResult(_brugere);
+    }
 
     public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig)
     {
