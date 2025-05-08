@@ -68,4 +68,18 @@ public class LoginServiceClientSite : ILoginService
         var brugere = await _brugereService.HentAlle();
         return brugere.ToArray();
     }
+    
+    public async Task OpdaterBruger(Bruger bruger)
+{
+    var gemte = await HentAlleGemteEleverFraLocalStorage();
+    var index = gemte.FindIndex(b => b.BrugerId == bruger.BrugerId);
+
+    if (index != -1)
+    {
+        gemte[index] = bruger;
+        await _localStorage.SetItemAsync("gemteElever", gemte);
+        await _localStorage.SetItemAsync("bruger", bruger);
+    }
+}
+
 }

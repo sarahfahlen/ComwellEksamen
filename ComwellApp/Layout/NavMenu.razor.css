@@ -219,20 +219,26 @@ a.nav-link.active {
     z-index: 900;
 }
 
-/* Log ud knap */
+/* Log ud-knap – visuelt match med nav-link, men tydelig advarsel */
 .logud {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
     border: none;
+    background-color: #FDF2F2;
+    color: #B03A2E;
+    padding: 0.6rem 1rem;
     border-radius: 6px;
-    padding: 0.45rem 1rem;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: background-color 0.2s ease;
-    color: white;
-    background-color: #B76E6E;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .logud:hover {
-    background-color: #c57979;
+    background-color: #FBEAEA;
+    transform: translateX(4px);
+    color: #8C2D24;
 }

@@ -1,0 +1,138 @@
+@page "/kontoindstillinger"
+@using ComwellApp.Services.Login
+@using Shared
+@inject ILoginService LoginService
+@inject NavigationManager Nav
+
+<div class="opret-container">
+    <button class="tilbage-knap" @onclick="Tilbage">← Tilbage</button>
+
+    <h3 class="overskrift">Kontoindstillinger</h3>
+
+    @if (bruger == null)
+    {
+        <p>Indlæser brugerdata...</p> <!-- Viser en besked imens vi venter på at brugeren bliver hentet -->
+    }
+    else
+    {
+        <EditForm Model="@bruger" OnValidSubmit="GemAendringer">
+            <div class="opret-grid">
+
+                <!-- Profilbillede med overlay-ikon og skjult file upload -->
+                <div class="profilbillede-wrapper">
+                    <label for="billedeUpload" class="profilbillede-label">
+                        <img src="@(!string.IsNullOrEmpty(bruger?.Billede) ? bruger.Billede : "billeder/intetprofilbillede.jpg")"
+                             alt="Profilbillede" class="profilbillede"/>
+                        <div class="overlay-ikon">
+                            <!-- Checkmark-ikon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                                <path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20zm-1 14.59l-4.29-4.3 1.42-1.41L11 13.17l5.88-5.88 1.41 1.41L11 16.59z"/>
+                            </svg>
+                        </div>
+                    </label>
+
+                    <!-- Kun vis "Fjern billede" knap, hvis brugeren faktisk har uploadet et billede -->
+                    @if (!string.IsNullOrEmpty(bruger?.Billede) && bruger.Billede != "billeder/intetprofilbillede.jpg")
+                    {
+                        <button type="button" class="fjern-billede-knap" @onclick="FjernBillede">Fjern billede</button>
+                    }
+
+                    <!-- File upload (skjult men aktiveres ved klik på billedet) -->
+                    <InputFile id="billedeUpload" style="display: none;" OnChange="HandleBilledeUpload"/>
+                </div>
+
+                <!-- Fulde navn - vises men kan ikke ændres -->
+                <div class="form-floating-group">
+                    <InputText id="navn" class="form-control floating-input" @bind-Value="bruger.Navn" placeholder=" " Disabled />
+                    <label for="navn">Fulde navn</label>
+                </div>
+
+                <!-- Telefonnummer -->
+                <div class="form-floating-group">
+                    <InputNumber id="telefonnr" class="form-control floating-input" @bind-Value="bruger.BrugerTelefon" placeholder=" " />
+                    <label for="telefonnr">Telefon nr</label>
+                </div>
+
+                <!-- E-mail -->
+                <div class="form-floating-group">
+                    <InputText id="email" type="email" class="form-control floating-input" @bind-Value="bruger.Email" placeholder=" " />
+                    <label for="email">E-mail</label>
+                </div>
+
+                <!-- Adgangskode -->
+                <div class="form-floating-group">
+                    <InputText id="adgangskode" type="password" class="form-control floating-input" @bind-Value="bruger.Adgangskode" placeholder=" " />
+                    <label for="adgangskode">Adgangskode</label>
+                </div>
+
+                <!-- Gem ændringer knap -->
+                <div class="form-floating-group opret-knap-container">
+                    <button type="submit" class="btn btn-primary">Gem ændringer</button>
+                </div>
+
+                <!-- Bekræftelsesbesked -->
+                @if (!string.IsNullOrEmpty(besked))
+                {
+                    <p style="color: green; text-align: center;">@besked</p>
+                }
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    // Her gemmer vi den bruger, der er logget ind
+    private Bruger? bruger;
+
+    // Bruges hvis man uploader et nyt billede
+    private IBrowserFile? billedeFil;
+
+    // Her kan vi sætte en besked til brugeren, f.eks. at ændringer er gemt
+    private string? besked;
+
+    // Når siden indlæses, henter vi brugeren fra local storage
+    protected override async Task OnInitializedAsync()
+    {
+        bruger = await LoginService.GetUserLoggedIn();
+    }
+
+    // Denne metode kaldes når man klikker på "← Tilbage"
+    // Vi sender brugeren tilbage til elevplan
+    private void Tilbage()
+    {
+        Nav.NavigateTo("/elevplan");
+    }
+
+    // Når man trykker "Gem ændringer", så bliver denne metode kaldt
+    // Den opdaterer brugeren via loginservicen
+    private async Task GemAendringer()
+    {
+        await LoginService.OpdaterBruger(bruger!); // ! fordi vi VED brugeren ikke er null her
+        besked = "✅ Ændringer gemt!";
+    }
+
+    // Hvis man vælger et billede, så bliver denne metode kaldt
+    private async Task HandleBilledeUpload(InputFileChangeEventArgs e)
+    {
+        billedeFil = e.File;
+
+        if (billedeFil != null)
+        {
+            // Læser billedet ind som bytes og konverterer det til base64 (så det kan vises direkte i img tag)
+            using var stream = billedeFil.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            var bytes = ms.ToArray();
+
+            // Sætter det nye billede på brugerens profil
+            bruger!.Billede = $"data:{billedeFil.ContentType};base64,{Convert.ToBase64String(bytes)}";
+        }
+    }
+
+    // Hvis man trykker "Fjern billede", så sætter vi et standard-billede i stedet
+    private void FjernBillede()
+    {
+        bruger!.Billede = "billeder/intetprofilbillede.jpg";
+        billedeFil = null;
+    }
+}
