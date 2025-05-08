@@ -1,0 +1,24 @@
+@inject NavigationManager navManager
+@inject ILoginService lService
+@page "/dashboard"
+@using ComwellApp.Services.Login
+@using Shared
+<h3>Dashboard</h3>
+<button class="btn btn-primary" @onclick="OnClickOpret">Log ind</button>
+@code {
+    private Bruger? loggedIn;
+    protected override async Task OnInitializedAsync()
+    {
+        loggedIn = await lService.GetUserLoggedIn();
+        if (loggedIn == null)
+        {
+            navManager.NavigateTo("login/dashboard");
+            return;
+        }
+    }
+    private async Task OnClickOpret()
+    {
+        navManager.NavigateTo("opretelev");
+    }
+   
+}
