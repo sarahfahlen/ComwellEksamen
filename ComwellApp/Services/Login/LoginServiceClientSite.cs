@@ -41,7 +41,7 @@ public class LoginServiceClientSite : ILoginService
             elev.Adgangskode = "validated";
             await _localStorage.SetItemAsync("bruger", elev);
             return true;
-        } 
+        }
 
         return false;
     }
@@ -57,5 +57,4 @@ public class LoginServiceClientSite : ILoginService
         var brugere = await _brugereService.HentAlle();
         return brugere.ToArray();
     }
-
 }

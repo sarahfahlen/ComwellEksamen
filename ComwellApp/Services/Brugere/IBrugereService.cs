@@ -1,4 +1,5 @@
 using Shared;
+
 namespace ComwellApp.Services.Brugere;
 
 public interface IBrugereService

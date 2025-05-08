@@ -14,4 +14,4 @@ public interface ILoginService
     Task GemElevILocalStorage(Bruger elev);
 
 
-}
+}   

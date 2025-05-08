@@ -9,6 +9,7 @@
 
 @code {
     private Bruger? loggedIn;
+
     protected override async Task OnInitializedAsync()
     {
         loggedIn = await lService.GetUserLoggedIn();
@@ -18,4 +19,5 @@
             return;
         }
     }
+
 }

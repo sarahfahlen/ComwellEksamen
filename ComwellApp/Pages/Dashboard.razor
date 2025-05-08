@@ -7,8 +7,10 @@
 
 <h3>Dashboard</h3>
 <button class="btn btn-primary" @onclick="OnClickOpret">Opret elev</button>
+
 @code {
     private Bruger? loggedIn;
+
     protected override async Task OnInitializedAsync()
     {
         loggedIn = await lService.GetUserLoggedIn();
@@ -18,9 +20,10 @@
             return;
         }
     }
+
     private async Task OnClickOpret()
     {
         navManager.NavigateTo("opretelev");
     }
-   
+
 }

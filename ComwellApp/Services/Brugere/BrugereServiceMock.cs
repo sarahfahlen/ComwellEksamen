@@ -2,6 +2,7 @@ using ComwellApp.Services;
 using ComwellApp.Services.Brugere;
 using ComwellApp.Services.Elevplan;
 using Shared;
+
 public class BrugereServiceMock : IBrugereService
 {
     private readonly ElevplanServiceMock _elevplanService;
