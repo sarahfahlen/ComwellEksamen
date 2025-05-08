@@ -12,9 +12,25 @@ public class BrugereServiceMock : IBrugereService
     {
         _elevplanService = elevplanService;
         _idGenerator = idGenerator;
+
+        // Tilføj Emil dynamisk gennem funktionen:
+        Bruger Emil = new Bruger
+        {
+            Navn = "Emil",
+            Adgangskode = "1234",
+            Email = "emil@mail.com",
+            BrugerTelefon = 87907652,
+            Rolle = "Elev"
+        };
+
+        // Find køkkenchef som ansvarlig
+        var ansvarlig = Kasper;
+
+        // Brug Task.Run().Wait() for at kunne køre async i constructor
+        Task.Run(async () => await TilfoejElev(Emil, ansvarlig)).Wait();
     }
     
-    public static List<Bruger> brugere = new List<Bruger> { Kasper, Emil, Frank };
+    public static List<Bruger> brugere = new List<Bruger> { Kasper, Frank };
 
     public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig)
     {
@@ -23,16 +39,10 @@ public class BrugereServiceMock : IBrugereService
         brugere.Add(nyBruger);
     }
     
-    
     public static Bruger Kasper = new Bruger
     {
         BrugerId = 1, Navn = "Kasper", Adgangskode = "1234", Email = "kasper@mail.com", BrugerTelefon = 76546789,
         Rolle = "Køkkenchef",
-    };
-    public static Bruger Emil = new Bruger
-    {
-        BrugerId = 2, Navn = "Emil", Adgangskode = "1234", Email = "emil@mail.com", BrugerTelefon = 87907652,
-        Rolle = "Elev"
     };
     public static Bruger Frank = new Bruger
     {
