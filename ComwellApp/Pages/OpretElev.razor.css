@@ -1,8 +1,12 @@
+h3 {
+    margin-bottom: 1.5rem;
+}
+
 .opret-container {
     max-width: 1200px;
     width: 100%;
     height: 550px;
-    margin: 5rem auto;
+    margin: 1rem auto;
     background-color: #f9f6f2;
     padding: 3rem 2rem;
     border-radius: 14px;
@@ -185,6 +189,16 @@ select.form-control option[disabled][selected] {
 }
 
 
+/* Tilpasset label ovenover file input */
+.form-row .tre-delt:last-child label {
+    position: static;
+    margin-top: -0.4rem;
+    margin-bottom: 0.1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1C2B38;
+}
 
+/* Sikrer ens styling for file input */
 
 
