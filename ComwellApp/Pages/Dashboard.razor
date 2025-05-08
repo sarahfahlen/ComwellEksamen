@@ -3,8 +3,10 @@
 @page "/dashboard"
 @using ComwellApp.Services.Login
 @using Shared
+<PageTitle>Dashboard</PageTitle>
+
 <h3>Dashboard</h3>
-<button class="btn btn-primary" @onclick="OnClickOpret">Log ind</button>
+<button class="btn btn-primary" @onclick="OnClickOpret">Opret elev</button>
 @code {
     private Bruger? loggedIn;
     protected override async Task OnInitializedAsync()
