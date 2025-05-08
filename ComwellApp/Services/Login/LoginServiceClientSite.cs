@@ -23,7 +23,7 @@ public class LoginServiceClientSite : ILoginService
     {
         var brugere = await _brugereService.HentAlle();
 
-        // 1. Tjek mock-brugere
+        // Tjek mock-brugere
         foreach (var u in brugere)
         {
             if (email == u.Email && adgangskode == u.Adgangskode)
@@ -34,23 +34,34 @@ public class LoginServiceClientSite : ILoginService
             }
         }
 
-        // 2. Tjek elev i LocalStorage
-        var elev = await _localStorage.GetItemAsync<Bruger>("nyelev");
-        if (elev != null && email == elev.Email && adgangskode == elev.Adgangskode)
+        // Tjek gemte elever
+        var gemteElever = await HentAlleGemteEleverFraLocalStorage();
+        foreach (var elev in gemteElever)
         {
-            elev.Adgangskode = "validated";
-            await _localStorage.SetItemAsync("bruger", elev);
-            return true;
+            if (email == elev.Email && adgangskode == elev.Adgangskode)
+            {
+                elev.Adgangskode = "validated";
+                await _localStorage.SetItemAsync("bruger", elev);
+                return true;
+            }
         }
 
         return false;
     }
 
+
     public async Task GemElevILocalStorage(Bruger elev)
     {
-        // Gem den oprettede elev som separat key
-        await _localStorage.SetItemAsync("nyelev", elev);
+        var gemte = await _localStorage.GetItemAsync<List<Bruger>>("gemteElever") ?? new List<Bruger>();
+        gemte.Add(elev);
+        await _localStorage.SetItemAsync("gemteElever", gemte);
     }
+
+    public async Task<List<Bruger>> HentAlleGemteEleverFraLocalStorage()
+    {
+        return await _localStorage.GetItemAsync<List<Bruger>>("gemteElever") ?? new List<Bruger>();
+    }
+
 
     public async Task<Bruger[]> GetAll()
     {

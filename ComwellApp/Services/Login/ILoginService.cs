@@ -12,6 +12,7 @@ public interface ILoginService
     Task<Bruger[]> GetAll();
     
     Task GemElevILocalStorage(Bruger elev);
+    Task<List<Bruger>> HentAlleGemteEleverFraLocalStorage();
 
 
 }   
