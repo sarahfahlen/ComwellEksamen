@@ -3,5 +3,6 @@ namespace ComwellApp.Services.Elevplan;
 
 public interface IElevplanService
 {
-    
+    //Bruges til at oprette default skabelon til nye elever
+    public Task<Shared.Elevplan> LavDefaultSkabelon(Bruger elev, Bruger ansvarlig);
 }
