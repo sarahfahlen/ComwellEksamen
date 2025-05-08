@@ -11,7 +11,7 @@ public class Delmaal
     public string DelmaalType { get; set; }
     public string Beskrivelse { get; set; }
     public string Ansvarlig { get; set; }
-    public DateOnly Deadline { get; set; }
+    public DateOnly? Deadline { get; set; }
     public string DeadlineKommentar { get; set; }
     public bool Status { get; set; }
 }
