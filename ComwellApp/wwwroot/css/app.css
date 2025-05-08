@@ -151,3 +151,10 @@ code {
     font-weight: 700; /* Gøre teksten fed, men kan maks 700, da det begrænset inde på index.html */
     transform: translateX(6px);
 }
+
+input[type="file"] {
+    height: 2.3rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
