@@ -74,6 +74,7 @@
     background-color: white;
     box-sizing: border-box;
     transition: border-color 0.2s ease;
+    font-weight: 600!important;
 }
 
 .form-control:focus {
@@ -177,3 +178,10 @@ button.btn:hover {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+
+select.form-control option[disabled][selected] {
+    font-weight: 600;
+    color: #1C2B38; /* valgfrit, giver mørkere tekst */
+}
+
+

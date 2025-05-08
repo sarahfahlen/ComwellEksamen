@@ -8,8 +8,7 @@
 
 <div class="opret-container">
     <button class="btn btn-primary tilbage" @onclick="Tilbage">Tilbage</button>
-
-```
+    
 <h3 class="overskrift">Oprettelse af elev</h3>
 
 <div class="opret-grid">
@@ -48,7 +47,6 @@
                     <option value="@k.LokationId">@k.LokationNavn</option>
                 }
             </select>
-            <label for="køkken">Køkken</label>
         </div>
 
         <div class="form-floating-group tre-delt">
@@ -69,19 +67,22 @@
 </div>
 
 <p class="note-tekst">Ved oprettelse af ny elev oprettes automatisk ny elevplan</p>
-```
 
 </div>
 
 @code {
-private Bruger nyElev = new();
-private List<Lokation> alleKoekkener = new()
-{
-new Lokation { LokationId = 1, LokationNavn = "Køkken 1" },
-new Lokation { LokationId = 2, LokationNavn = "Køkken 2" }
-};
 private int? valgtKoekkenId;
 private IBrowserFile? BilledeFil;
+private List<Lokation> alleKoekkener = new()
+{
+    new Lokation { LokationId = 1, LokationNavn = "Køkken 1" },
+    new Lokation { LokationId = 2, LokationNavn = "Køkken 2" }
+};
+
+private Bruger nyElev = new()
+{
+    StartDato = DateOnly.FromDateTime(DateTime.Today)
+};
 
 private async Task HandleFileSelected(InputFileChangeEventArgs e)
 {
