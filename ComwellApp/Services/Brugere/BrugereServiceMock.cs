@@ -22,6 +22,12 @@ public class BrugereServiceMock : IBrugereService
             BrugerTelefon = 87907652,
             Rolle = "Elev"
         };
+
+        // Find køkkenchef som ansvarlig
+        var ansvarlig = Kasper;
+
+        // Brug Task.Run().Wait() for at kunne køre async i constructor
+        Task.Run(async () => await TilfoejElev(Emil, ansvarlig)).Wait();
     }
     
     public static List<Bruger> brugere = new List<Bruger> { Kasper, Frank };

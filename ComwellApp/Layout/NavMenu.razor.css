@@ -149,18 +149,18 @@
 
 /* User overlay-menu: lige under brugerikon */
 .user-overlay-menu {
-    position: absolute;
-    top: 2.9rem;
-    right: 0;
-    margin-top: 0.5rem;
+    position: fixed;
+    top: 5.1rem; /* Lige under navbaren */
+    right: 1rem; /* Juster efter hvor brugerikonet sidder */
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
     padding: 1rem;
     width: 240px;
     animation: slideDown 0.25s ease-out;
-    z-index: 950;
+    z-index: 950; /* under navmenuens 1000 */
 }
+
 
 .user-overlay-menu button {
     font-weight: 500;
