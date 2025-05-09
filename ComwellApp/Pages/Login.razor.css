@@ -27,6 +27,22 @@
     animation: fadeInScale 0.5s ease-out;
 }
 
+.adgangskode-group {
+    position: relative;
+}
+
+.toggle-adgangskode {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #1C2B38;
+}
+
+
 /* Overskrift */
 h3 {
     text-align: center;

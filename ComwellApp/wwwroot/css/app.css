@@ -20,13 +20,14 @@ body, p, span, li, a, td, th, textarea {
 input{
     height: 3.5rem;
     font-size: 1rem;
-    
+    font-family: "Mulish", sans-serif;
 }
 input[type="text"],
 input[type="email"],
 input[type="password"],
 input:not([type]),
 textarea {
+    font-family: "Mulish", sans-serif;
     padding-top: 15px;  /* Skubber teksten længere ned */
     padding-bottom: 6px; /* Justerer balancen hvis nødvendigt */
     line-height: 1.5rem; /* Sørger for at teksthøjden er passende */

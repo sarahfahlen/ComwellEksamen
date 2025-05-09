@@ -15,11 +15,18 @@
             <label for="email">Email</label>
         </div>
 
-        <div class="form-floating-group">
-            <InputText id="adgangskode" type="password" class="form-control floating-input" @bind-Value="Adgangskode"
-                       placeholder=" "/>
+        <div class="form-floating-group adgangskode-group">
+            <InputText id="adgangskode"
+                       type="@adgangskodeInputType"
+                       class="form-control floating-input"
+                       @bind-Value="Adgangskode"
+                       placeholder=" " />
             <label for="adgangskode">Adgangskode</label>
+            <button type="button" class="toggle-adgangskode" @onclick="ToggleAdgangskodeVisibility">
+                @(adgangskodeInputType == "password" ? "Vis" : "Skjul")
+            </button>
         </div>
+
 
         <div class="form-group mt-2">
             <button class="btn btn-primary" @onclick="OnClickLogin">Log ind</button>
@@ -40,6 +47,14 @@
     string errorText = "";
 
     [Parameter] public string target { get; set; }
+    
+    string adgangskodeInputType = "password";
+
+    void ToggleAdgangskodeVisibility()
+    {
+        adgangskodeInputType = adgangskodeInputType == "password" ? "text" : "password";
+    }
+
 
     private async Task OnClickLogin()
     {

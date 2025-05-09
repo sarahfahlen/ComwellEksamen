@@ -175,17 +175,23 @@ button.btn:hover {
         max-height: 45rem;
     }
 }
-.tilbage{
-    margin-top: -1rem;
-    padding: 0.2rem 0.4rem;
+
+/* Tilbage-knap */
+.tilbage-knap {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    background-color: transparent;
     border: none;
-    border-radius: 3px;
-    background-color: #D2B894;
+    font-size: 1rem;
     color: #1C2B38;
-    font-weight: 200;
-    font-size: 0.5rem;
+    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: color 0.2s ease;
+}
+
+.tilbage-knap:hover {
+    color: #D2B894;
 }
 
 select.form-control option[disabled][selected] {
@@ -196,6 +202,7 @@ select.form-control option[disabled][selected] {
 
 /* Tilpasset label ovenover file input */
 .form-row .tre-delt:last-child label {
+    font-family: "Mulish", sans-serif;
     position: static;
     margin-top: -0.4rem;
     margin-bottom: 0.1rem;
