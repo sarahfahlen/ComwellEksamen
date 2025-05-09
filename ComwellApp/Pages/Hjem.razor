@@ -5,12 +5,18 @@
 @using Shared
 
 <PageTitle>Hjem</PageTitle>
-
+<div class="page-wrapper hjem-baggrund">
 <h3 class="overskrift">Velkommen, @loggedIn?.Navn</h3>
-<p class="mb-4 text-base">Her får du et overblik over dine mål og praktiske informationer.</p>
+
+<div class="intro-container">
+    <p class="intro-text">
+        Her kan du få et hurtigt overblik over dine læringsmål, kommende deadlines og vigtig praktisk information.
+        Klik på boksene for at dykke ned i indholdet og finde relevante kontaktoplysninger, hvis du har brug for hjælp.
+    </p>
+</div>
 
 <div class="dashboard-box-container">
-    <div class="dashboard-box">
+    <div class="dashboard-box klikbarsted">
         <h4>Learning Module</h4>
         <!-- Indhold kommer senere -->
     </div>
@@ -18,14 +24,31 @@
         <h4>Kommende Deadlines</h4>
         <!-- Indhold kommer senere -->
     </div>
-    <div class="dashboard-box">
+    <div class="dashboard-box klikbarsted" @onclick="ÅbenModal">
         <h4>Praktisk Info</h4>
-        <!-- Indhold kommer senere -->
+        <p>Klik her for kontaktoplysninger</p>
     </div>
 </div>
+</div>
+@if (visModal)
+{
+    <div class="modal-overlay" @onclick="LukModal">
+        <div class="modal-content" @onclick:stopPropagation>
+            <h5>Kontaktoplysninger</h5>
+            <ul>
+                <li><strong>Køkkenchef:</strong> Anne Sørensen – 12 34 56 78</li>
+                <li><strong>HR:</strong> Mikkel Jensen – 23 45 67 89</li>
+                <li><strong>Hvis du er syg:</strong> Ring til SOV – 98 76 54 32</li>
+                <li><strong>Adresse:</strong> Comwell Vej 12, 8000 Aarhus</li>
+            </ul>
+            <button class="btn btn-secondary mt-3" @onclick="LukModal">Luk</button>
+        </div>
+    </div>
+}
 
 @code {
     private Bruger? loggedIn;
+    private bool visModal = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -35,5 +58,15 @@
             navManager.NavigateTo("login/hjem");
             return;
         }
+    }
+
+    private void ÅbenModal()
+    {
+        visModal = true;
+    }
+
+    private void LukModal()
+    {
+        visModal = false;
     }
 }
