@@ -150,7 +150,7 @@
 /* User overlay-menu: lige under brugerikon */
 .user-overlay-menu {
     position: fixed;
-    top: 5.1rem; /* Lige under navbaren */
+    top: 5rem; /* Lige under navbaren */
     right: 1rem; /* Juster efter hvor brugerikonet sidder */
     background-color: white;
     border-radius: 10px;
