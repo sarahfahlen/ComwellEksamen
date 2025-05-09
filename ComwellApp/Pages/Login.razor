@@ -8,29 +8,35 @@
 
 <div class="login-page-background">
     <div class="login-container">
+
         <h3>Log ind</h3>
+        
+        <EditForm Model="loginData" OnValidSubmit="OnClickLogin">
+            <DataAnnotationsValidator />
 
-        <div class="form-floating-group">
-            <InputText id="email" class="form-control floating-input" @bind-Value="Email" placeholder=" "/>
-            <label for="email">Email</label>
-        </div>
+            <div class="form-floating-group">
+                <InputText id="email" class="form-control floating-input" @bind-Value="loginData.Email" placeholder=" " />
+                <label for="email">Email</label>
+            </div>
 
-        <div class="form-floating-group adgangskode-group">
-            <InputText id="adgangskode"
-                       type="@adgangskodeInputType"
-                       class="form-control floating-input"
-                       @bind-Value="Adgangskode"
-                       placeholder=" " />
-            <label for="adgangskode">Adgangskode</label>
-            <button type="button" class="toggle-adgangskode" @onclick="ToggleAdgangskodeVisibility">
-                @(adgangskodeInputType == "password" ? "Vis" : "Skjul")
-            </button>
-        </div>
+            <div class="form-floating-group adgangskode-group">
+                <InputText id="adgangskode"
+                           type="@adgangskodeInputType"
+                           class="form-control floating-input"
+                           @bind-Value="loginData.Adgangskode"
+                           placeholder=" " />
+                <label for="adgangskode">Adgangskode</label>
+                <button type="button" class="toggle-adgangskode" @onclick="ToggleAdgangskodeVisibility">
+                    @(adgangskodeInputType == "password" ? "Vis" : "Skjul")
+                </button>
+            </div>
 
+            <div class="form-group mt-2">
+                <button type="submit" class="btn btn-primary">Log ind</button>
+            </div>
 
-        <div class="form-group mt-2">
-            <button class="btn btn-primary" @onclick="OnClickLogin">Log ind</button>
-        </div>
+        </EditForm>
+
         @if (!string.IsNullOrEmpty(errorText))
         {
             <div class="error-message">
@@ -42,24 +48,27 @@
 </div>
 
 @code {
-    string Email = "";
-    string Adgangskode = "";
-    string errorText = "";
-
-    [Parameter] public string target { get; set; }
+    class LoginModel
+    {
+        public string Email { get; set; } = "";
+        public string Adgangskode { get; set; } = "";
+    }
     
+    LoginModel loginData = new();
+
+    string errorText = "";
+    [Parameter] public string target { get; set; }
     string adgangskodeInputType = "password";
 
     void ToggleAdgangskodeVisibility()
     {
         adgangskodeInputType = adgangskodeInputType == "password" ? "text" : "password";
     }
-
-
+    
     private async Task OnClickLogin()
     {
-        var succes = await loginService.Login(Email, Adgangskode);
-    
+        var succes = await loginService.Login(loginData.Email, loginData.Adgangskode);
+
         if (!succes)
         {
             // Fjern først fejlbesked så den "nulstilles"
@@ -77,6 +86,4 @@
             navManager.NavigateTo(target, forceLoad: true);
         }
     }
-
-
 }
