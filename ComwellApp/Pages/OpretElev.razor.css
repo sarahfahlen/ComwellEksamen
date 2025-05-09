@@ -171,6 +171,9 @@ button.btn:hover {
     .opret-knap-container {
         justify-content: center;
     }
+    .opret-container {
+        max-height: 45rem;
+    }
 }
 .tilbage{
     margin-top: -1rem;
