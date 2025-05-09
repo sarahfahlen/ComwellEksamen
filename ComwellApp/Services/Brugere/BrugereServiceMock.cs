@@ -61,10 +61,10 @@ public class BrugereServiceMock : IBrugereService
 
     public Task<Elevplan?> GetElevplanForUser(Bruger bruger)
     {
-        var elevplan = _elevplanService.GetAllElevplaner()
-            .FirstOrDefault(p => p.Ansvarlig?.BrugerId == bruger.BrugerId);
-        return Task.FromResult(elevplan);
+        var elev = _brugere.FirstOrDefault(b => b.BrugerId == bruger.BrugerId);
+        return Task.FromResult(elev?.MinElevplan);
     }
+
 
 
     public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig)

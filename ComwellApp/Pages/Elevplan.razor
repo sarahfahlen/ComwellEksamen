@@ -62,8 +62,8 @@
             navManager.NavigateTo("login/elevplan");
             return;
         }
-        minPlan = await bService.GetElevplanForUser(loggedIn);
-        Console.WriteLine(loggedIn?.MinElevplan?.ElevplanId);
+
+        minPlan = loggedIn.MinElevplan;
     }
 
 }
