@@ -50,7 +50,7 @@ public class BrugereServiceMock : IBrugereService
             Rolle = "Elev",
             MinElevplan = null
         };
-
+ 
         _brugere.Add(emil);
     }
 
