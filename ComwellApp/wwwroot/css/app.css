@@ -32,6 +32,7 @@ textarea {
     padding-bottom: 6px; /* Justerer balancen hvis nødvendigt */
     line-height: 1.5rem; /* Sørger for at teksthøjden er passende */
     box-sizing: border-box; /* Sikrer korrekt padding/højde-håndtering */
+    margin-bottom: 1rem;
 }
 
 h1:focus {

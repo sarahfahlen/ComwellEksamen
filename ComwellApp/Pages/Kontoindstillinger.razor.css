@@ -44,7 +44,6 @@ h3.overskrift {
 .opret-grid {
     display: flex;
     flex-direction: column;
-    gap: 1.75rem;
 }
 
 /* Input-felter */
@@ -136,7 +135,7 @@ label {
     background-color: #D2B894;
     border-radius: 50%;
     padding: 0.5rem;
-    box-shadow: 0 0 6px rgba(0,0,0,0.2);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -161,13 +160,14 @@ label {
     background-color: #f2e9dd;
 }
 
-/* Gem-knap */
+/* Gem-knap container */
 .opret-knap-container {
     display: flex;
     justify-content: flex-end;
     margin-top: 2rem;
 }
 
+/* Knapper */
 button.btn {
     padding: 0.75rem 2rem;
     border: none;
@@ -184,10 +184,18 @@ button.btn:hover {
     background-color: #c6a979;
 }
 
-/* Meddelelse */
+/* Meddelelse og feedback */
 p[style*="text-align: center"] {
     font-weight: 600;
     margin-top: 1rem;
+}
+
+.error-message {
+    color: #b03a2e;
+    font-weight: 600;
+    text-align: center;
+    margin-top: -0.5rem;
+    animation: fadeInScale 0.3s ease-out;
 }
 
 /* Fade ind animation */
@@ -207,4 +215,91 @@ p[style*="text-align: center"] {
     .opret-knap-container {
         justify-content: center;
     }
+
+    .profilbillede-wrapper {
+        margin-bottom: 1rem;
+    }
+}
+
+/* === Kode-formular sektion === */
+.kode-section {
+    margin: 2rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+/* Knap til at vise kodeformular */
+.ret-kode-knap {
+    background-color: #fff;
+    border: 2px solid #D2B894;
+    color: #1C2B38;
+    padding: 0.6rem 1.6rem;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+}
+
+.ret-kode-knap:hover {
+    background-color: #fbf7f1;
+    border-color: #c8a76f;
+}
+
+/* Formular container med animation */
+.kode-form-container {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    max-width: 550px;
+    width: 100%;
+    padding: 0 1.25rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    opacity: 0;
+    max-height: 0;
+    transition: all 0.4s ease;
+}
+
+.kode-form-container.vis {
+    padding: 2rem 1.5rem;
+    opacity: 1;
+    max-height: 1000px;
+}
+
+/* Overskrift i kodeformular */
+.kode-form-overskrift {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1C2B38;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+/* Bekræft-knap i kodeformular */
+.bekraeft-kode-btn {
+    margin-top: 2rem;
+    width: 100%;
+    background-color: #b99a6b;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 999px;
+    padding: 0.9rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.bekraeft-kode-btn:hover {
+    background-color: #a17e4a;
+}
+.adgangskode-felt{
+    margin-bottom: 1rem;
 }

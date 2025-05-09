@@ -28,7 +28,7 @@ public class LoginServiceClientSite : ILoginService
         {
             if (email == u.Email && adgangskode == u.Adgangskode)
             {
-                u.Adgangskode = "validated";
+                //husk at når det sættes op med database, så skal det ændres til at det ikke er loggeninuser men at den henter fra databasen og password bliver validated færst derefter
                 await _localStorage.SetItemAsync("bruger", u);
                 return true;
             }
@@ -40,7 +40,7 @@ public class LoginServiceClientSite : ILoginService
         {
             if (email == elev.Email && adgangskode == elev.Adgangskode)
             {
-                elev.Adgangskode = "validated";
+                //husk at når det sættes op med database, så skal det ændres til at det ikke er loggeninuser men at den henter fra databasen og password bliver validated færst derefter
                 await _localStorage.SetItemAsync("bruger", elev);
                 return true;
             }
@@ -68,18 +68,17 @@ public class LoginServiceClientSite : ILoginService
         var brugere = await _brugereService.HentAlle();
         return brugere.ToArray();
     }
-    
+
     public async Task OpdaterBruger(Bruger bruger)
-{
-    var gemte = await HentAlleGemteEleverFraLocalStorage();
-    var index = gemte.FindIndex(b => b.BrugerId == bruger.BrugerId);
-
-    if (index != -1)
     {
-        gemte[index] = bruger;
-        await _localStorage.SetItemAsync("gemteElever", gemte);
-        await _localStorage.SetItemAsync("bruger", bruger);
-    }
-}
+        var gemte = await HentAlleGemteEleverFraLocalStorage();
+        var index = gemte.FindIndex(b => b.BrugerId == bruger.BrugerId);
 
+        if (index != -1)
+        {
+            gemte[index] = bruger;
+            await _localStorage.SetItemAsync("gemteElever", gemte);
+            await _localStorage.SetItemAsync("bruger", bruger);
+        }
+    }
 }
