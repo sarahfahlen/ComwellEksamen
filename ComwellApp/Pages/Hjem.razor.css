@@ -24,8 +24,8 @@ html, body {
     margin-top: -1.2rem;
     margin-left: -2rem;
     margin-right: -2rem;
-    margin-bottom: -0.2rem;
-}
+    margin-bottom: -0.4rem;
+} 
 
 .hjem-baggrund::before {
     content: "";
