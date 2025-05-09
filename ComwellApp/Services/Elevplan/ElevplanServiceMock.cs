@@ -49,7 +49,7 @@ public class ElevplanServiceMock : IElevplanService
                         LokationId = 1,
                         LokationNavn = "Comwell Skole",
                         Adresse = "Skolevej 1",
-                        LokationTelefon = 12345678,
+                        LokationTelefon = "12345678",
                         LokationType = "Skole",
                     },
                     ListMaal = new List<Maal>

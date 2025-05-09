@@ -5,7 +5,26 @@
 @using Shared
 <PageTitle>Elevplan</PageTitle>
 
-<h3>Elevplan</h3>
+<h3>Min elevplan</h3>
+<div id="periodevisning"></div>
+
+<div id="elevoplysning">
+    <div id ="elevdata">
+    </div>
+    <div id ="elevbillede">
+    </div>
+    <div id="statusbar">
+    </div>
+</div>
+<!--
+<div id="plan">
+    @foreach (mål in praktikperiode)
+    {
+        @foreach (delmål in mål)
+    }
+</div>
+-->
+
 
 @code {
     private Bruger? loggedIn;

@@ -14,8 +14,11 @@ public class Bruger
     public string Email { get; set; }
     [Required(ErrorMessage = "Adgangskode er påkrævet")]
     public string Adgangskode { get; set; }
-    [Required(ErrorMessage = "Telefon-nr er påkrævet")]
-    public int BrugerTelefon { get; set; }
+    
+    [Required(ErrorMessage = "Telefonnummer skal udfyldes.")]
+    [RegularExpression(@"^\d{8}$", ErrorMessage = "Telefonnummeret skal bestå af præcis 8 tal.")]
+    public string BrugerTelefon { get; set; }
+    
     public string Rolle { get; set; }
     public string Billede { get; set; }
     [Required(ErrorMessage = "Startdato er påkrævet")]

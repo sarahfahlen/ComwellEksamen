@@ -3,9 +3,9 @@ h3 {
 }
 
 .opret-container {
-    max-width: 1200px;
+    max-width: 75rem;
     width: 100%;
-    height: 550px;
+    max-height: 45rem;
     margin: 1rem auto;
     background-color: #f9f6f2;
     padding: 3rem 2rem;

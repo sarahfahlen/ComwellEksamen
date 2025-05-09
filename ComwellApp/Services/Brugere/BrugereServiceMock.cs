@@ -26,7 +26,7 @@ public class BrugereServiceMock : IBrugereService
                 Navn = "Kasper",
                 Adgangskode = "1234",
                 Email = "kasper@mail.com",
-                BrugerTelefon = 76546789,
+                BrugerTelefon = "76546789",
                 Rolle = "Køkkenchef"
             },
             new Bruger
@@ -35,7 +35,7 @@ public class BrugereServiceMock : IBrugereService
                 Navn = "Frank",
                 Adgangskode = "1234",
                 Email = "frank@mail.com",
-                BrugerTelefon = 64572358,
+                BrugerTelefon = "64572358",
                 Rolle = "FaglærtKok"
             }
         });
@@ -46,7 +46,7 @@ public class BrugereServiceMock : IBrugereService
             Navn = "Emil",
             Adgangskode = "1234",
             Email = "emil@mail.com",
-            BrugerTelefon = 87907652,
+            BrugerTelefon = "87907652",
             Rolle = "Elev",
             MinElevplan = null
         };

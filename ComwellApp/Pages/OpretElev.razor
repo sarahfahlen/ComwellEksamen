@@ -6,151 +6,132 @@
 @inject ILoginService LoginService
 @inject NavigationManager Navigation
 
-<div class="opret-container">
-    <!-- Tilbage-knap til dashboard -->
-    <button class="btn btn-primary tilbage" @onclick="Tilbage">Tilbage</button>
+<EditForm Model="@nyElev" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
 
-    <h3 class="overskrift">Oprettelse af elev</h3>
+    <div class="opret-container">
+        <!-- Tilbage-knap til dashboard -->
+        <button class="btn btn-primary tilbage" @onclick="Tilbage">Tilbage</button>
 
-    <div class="opret-grid">
-        <!-- Inputfelter for navn og telefonnummer -->
-        <div class="form-row">
-            <div class="form-floating-group halv-bredde">
-                <InputText id="navn" class="form-control floating-input" @bind-Value="nyElev.Navn" placeholder=" " />
-                <label for="navn">Fulde navn</label>
+        <h3 class="overskrift">Oprettelse af elev</h3>
+
+        <div class="opret-grid">
+            <!-- Inputfelter for navn og telefonnummer -->
+            <div class="form-row">
+                <div class="form-floating-group halv-bredde">
+                    <InputText id="navn" class="form-control floating-input" @bind-Value="nyElev.Navn" placeholder=" " />
+                    <label for="navn">Fulde navn</label>
+                    <ValidationMessage For="@(() => nyElev.Navn)" />
+                </div>
+
+                <div class="form-floating-group halv-bredde">
+                    <InputText id="telefonnr" class="form-control floating-input" @bind-Value="nyElev.BrugerTelefon" placeholder=" " />
+                    <label for="telefonnr">Telefon nr</label>
+                    <ValidationMessage For="@(() => nyElev.BrugerTelefon)" />
+                </div>
             </div>
 
-            <div class="form-floating-group halv-bredde">
-                <InputNumber id="telefonnr" class="form-control floating-input" @bind-Value="nyElev.BrugerTelefon" placeholder=" " />
-                <label for="telefonnr">Telefon nr</label>
+            <!-- Inputfelt til e-mail -->
+            <div class="form-floating-group hel-bredde">
+                <InputText id="email" type="email" class="form-control floating-input" @bind-Value="nyElev.Email" placeholder=" " />
+                <label for="email">E-mail</label>
+                <ValidationMessage For="@(() => nyElev.Email)" />
+            </div>
+
+            <!-- Adgangskode til eleven -->
+            <div class="form-floating-group hel-bredde">
+                <InputText id="adgangskode" class="form-control floating-input" @bind-Value="nyElev.Adgangskode" placeholder=" " />
+                <label for="adgangskode">Adgangskode</label>
+                <ValidationMessage For="@(() => nyElev.Adgangskode)" />
+            </div>
+
+            <!-- Vælg køkken, startdato og upload billede -->
+            <div class="form-row">
+                <div class="form-floating-group tre-delt">
+                    <select class="form-control" @bind="valgtKoekkenId">
+                        <option disabled selected value="">Vælg køkken</option>
+                        @foreach (var k in alleKoekkener)
+                        {
+                            <option value="@k.LokationId">@k.LokationNavn</option>
+                        }
+                    </select>
+                    <ValidationMessage For="@(() => valgtKoekkenId)" />
+                </div>
+
+                <div class="form-floating-group tre-delt">
+                    <InputDate id="startdato" class="form-control" @bind-Value="nyElev.StartDato" />
+                    <label for="startdato"></label>
+                    <ValidationMessage For="@(() => nyElev.StartDato)" />
+                </div>
+
+                <div class="form-floating-group tre-delt">
+                    <label for="billede" class="input-label">Upload billede</label>
+                    <InputFile id="billede" class="form-control" OnChange="HandleFileSelected" />
+                </div>
+            </div>
+
+            <!-- Knap til at gemme/indsende -->
+            <div class="form-floating-group opret-knap-container">
+                <button class="btn btn-primary" type="submit">Opret</button>
             </div>
         </div>
 
-        <!-- Inputfelt til e-mail -->
-        <div class="form-floating-group hel-bredde">
-            <InputText id="email" type="email" class="form-control floating-input" @bind-Value="nyElev.Email" placeholder=" " />
-            <label for="email">E-mail</label>
-        </div>
-
-        <!-- Adgangskode til eleven -->
-        <div class="form-floating-group hel-bredde">
-            <InputText id="adgangskode" class="form-control floating-input" @bind-Value="nyElev.Adgangskode" placeholder=" " />
-            <label for="adgangskode">Adgangskode</label>
-        </div>
-
-        <!-- Vælg køkken, startdato og upload billede -->
-        <div class="form-row">
-            <!-- Dropdown til at vælge hvilket køkken eleven skal tilknyttes -->
-            <div class="form-floating-group tre-delt">
-                <select class="form-control" @bind="valgtKoekkenId">
-                    <option disabled selected value="">Vælg køkken</option>
-                    @foreach (var k in alleKoekkener)
-                    {
-                        <option value="@k.LokationId">@k.LokationNavn</option>
-                    }
-                </select>
-            </div>
-
-            <!-- Startdato for eleven -->
-            <div class="form-floating-group tre-delt">
-                <InputDate id="startdato" class="form-control" @bind-Value="nyElev.StartDato" />
-                <label for="startdato"></label>
-            </div>
-
-            <!-- Upload billede til eleven -->
-            <div class="form-floating-group tre-delt">
-                <label for="billede" class="input-label">Upload billede</label>
-                <InputFile id="billede" class="form-control" OnChange="HandleFileSelected" />
-            </div>
-        </div>
-
-        <!-- Knap til at gemme/indsende -->
-        <div class="form-floating-group opret-knap-container">
-            <button class="btn btn-primary" @onclick="HandleSubmit">Opret</button>
-        </div>
+        <p class="note-tekst">Ved oprettelse af ny elev oprettes der automatisk en ny elevplan</p>
     </div>
-
-    <!-- Info tekst under knappen -->
-    <p class="note-tekst">Ved oprettelse af ny elev oprettes der automatisk en ny elevplan</p>
-</div>
+</EditForm>
 
 @code {
-    // Her gemmer vi ID'et på det køkken brugeren vælger i dropdown
     private int? valgtKoekkenId;
-
-    // Billedefil der bliver valgt under opret-formularen
     private IBrowserFile? BilledeFil;
 
-    // Her ligger listen med alle tilgængelige køkkener
     private List<Lokation> alleKoekkener = new()
     {
         new Lokation { LokationId = 1, LokationNavn = "Køkken 1" },
         new Lokation { LokationId = 2, LokationNavn = "Køkken 2" }
     };
 
-    // Objekt til den nye elev som bliver oprettet
     private Bruger nyElev = new()
     {
-        // Vi sætter startdato til i dag som standard
         StartDato = DateOnly.FromDateTime(DateTime.Today)
     };
 
-    // Hver gang man vælger en fil, gemmer vi den i BilledeFil (vi bruger den senere)
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
         BilledeFil = e.File;
     }
 
-    // Gå tilbage til dashboard hvis man trykker på "Tilbage"
     private void Tilbage()
     {
         Navigation.NavigateTo("/dashboard");
     }
 
-    // Denne metode bliver kaldt når man trykker "Opret"
     private async Task HandleSubmit()
     {
         Console.WriteLine("Forsøger at oprette elev...");
 
-        // Vi tjekker lige om navn og email er udfyldt — ellers giver det ikke mening at fortsætte
-        if (string.IsNullOrWhiteSpace(nyElev.Navn) || string.IsNullOrWhiteSpace(nyElev.Email))
-        {
-            Console.WriteLine("Manglende navn eller email");
-            return;
-        }
-
-        // Hvis brugeren har valgt et billede, så konverterer vi det til base64 og gemmer det i objektet
         if (BilledeFil != null)
         {
             using var stream = BilledeFil.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
             using var ms = new MemoryStream();
             await stream.CopyToAsync(ms);
             var bytes = ms.ToArray();
-
             nyElev.Billede = $"data:{BilledeFil.ContentType};base64,{Convert.ToBase64String(bytes)}";
         }
         else
         {
-            // Hvis der ikke er valgt noget billede, bruger vi en placeholder
             nyElev.Billede = "billeder/intetprofilbillede.jpg";
         }
 
-        // Roller og relation til køkken bliver sat her
         nyElev.Rolle = "Elev";
         nyElev.Koekken = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
 
-        // Henter den ansvarlige bruger, så vi kan knytte den nye elev til denne bruger
         var ansvarlig = await LoginService.GetUserLoggedIn();
-
         if (ansvarlig is null)
         {
             Console.WriteLine("Ingen bruger er logget ind.");
             return;
         }
 
-        Console.WriteLine($"Ansvarlig: {ansvarlig.Navn}");
-
-        // Vi sender dataen videre til backend/localstorage
         await BrugereService.TilfoejElev(nyElev, ansvarlig);
         await LoginService.GemElevILocalStorage(nyElev);
 
