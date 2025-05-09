@@ -1,12 +1,35 @@
 @page "/elevplan"
 @inject ILoginService lService
+@inject IBrugereService bService 
 @inject NavigationManager navManager
+@using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
 @using Shared
+@using ElevplanModel = Shared.Elevplan
 <PageTitle>Elevplan</PageTitle>
 
 <h3>Min elevplan</h3>
-<div id="periodevisning"></div>
+<div id="periodevisning">
+    @if (minPlan?.ListPerioder != null)
+    {
+        <div>
+            Se periode
+            @for (int i = 0; i < minPlan.ListPerioder.Count; i++)
+            {
+                <button @onclick="() => valgtPeriodeIndex = i">
+                    @(i + 1)
+                </button>
+            }
+        </div>
+    }
+
+    @if (aktivPeriode != null)
+    {
+        <h4>@aktivPeriode.PraktikNavn</h4>
+        <!-- resten af din visning -->
+    }
+
+</div>
 
 <div id="elevoplysning">
     <div id ="elevdata">
@@ -16,18 +39,20 @@
     <div id="statusbar">
     </div>
 </div>
-<!--
 <div id="plan">
-    @foreach (mål in praktikperiode)
-    {
-        @foreach (delmål in mål)
-    }
 </div>
--->
+
 
 
 @code {
+    //Gemmer den bruger som er logget ind
     private Bruger? loggedIn;
+    //Gemmer planen for den bruger som er logget ind, ved at hente den i OnInitializedAsync
+    private ElevplanModel? minPlan;
+    //Sætter default visning til at være 0 (1 praktik), og gør det muligt at ændre visning til andre
+    private int valgtPeriodeIndex = 0;
+    private Praktikperiode? aktivPeriode => minPlan?.ListPerioder[valgtPeriodeIndex];
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -37,6 +62,8 @@
             navManager.NavigateTo("login/elevplan");
             return;
         }
+        minPlan = await bService.GetElevplanForUser(loggedIn);
+        Console.WriteLine(loggedIn?.MinElevplan?.ElevplanId);
     }
 
 }
