@@ -1,0 +1,100 @@
+.elevplan-layout {
+    display: flex;
+    gap: 2rem;
+}
+
+/* venstre side: indholdet */
+.main-indhold {
+    flex: 3;
+}
+
+/* højre side: tomt panel */
+.sidepanel {
+    flex: 1;
+    min-width: 250px;
+    background-color: #f9f6f2;
+    border: 1px dashed #d2b894;
+    border-radius: 10px;
+    padding: 1rem;
+    height: 720px; /* eller fx 100vh hvis det skal være hele højden */
+}
+
+
+#elevoplysning {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    align-items: stretch; /* sikrer ens højde */
+}
+
+#elevdata {
+    flex: 2.5;
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+#elevbillede {
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.elevbillede-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+
+/* Mål-kort styling */
+.maal-kort {
+    background: linear-gradient(to right, #D2B894 30%, rgba(210, 184, 148, 0.53) 100%);
+    color: white;
+    justify-content: center;
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin: 2rem 0 1rem 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.delmaal-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+.delmaal {
+    background-color: #fff;
+    padding: 1.25rem;
+    border-radius: 14px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    font-size: 0.95rem;
+    height: 100%; /* så alle kort bliver samme højde */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+.delmaal p {
+    margin: 0.4rem 0;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .sidepanel {
+        display: none;
+    }
+}
+
+
+
