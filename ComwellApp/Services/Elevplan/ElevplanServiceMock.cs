@@ -12,6 +12,11 @@ public class ElevplanServiceMock : IElevplanService
     }
 
     private List<Shared.Elevplan> alleElevplaner = new();
+    public List<Shared.Elevplan> GetAllElevplaner()
+    {
+        return alleElevplaner;
+    }
+
 
     //Opretter en ny elevplan, ved at kalde vores skabelon funktion og sende bruger + ansvarlig med
     public async Task<Shared.Elevplan> OpretElevplan(Bruger ansvarlig)

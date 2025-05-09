@@ -6,4 +6,6 @@ public interface IBrugereService
 {
     public Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig);
     Task<List<Bruger>> HentAlle();
+    
+    Task<Shared.Elevplan?> GetElevplanForUser(Bruger bruger);
 }

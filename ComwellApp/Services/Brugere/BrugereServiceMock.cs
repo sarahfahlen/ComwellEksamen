@@ -8,6 +8,10 @@ public class BrugereServiceMock : IBrugereService
     private readonly ElevplanServiceMock _elevplanService;
     private readonly IdGeneratorService _idGenerator;
     private static readonly List<Bruger> _brugere = new();
+    public BrugereServiceMock(ElevplanServiceMock elevplanService)
+    {
+        _elevplanService = elevplanService;
+    }
 
     public BrugereServiceMock(ElevplanServiceMock elevplanService, IdGeneratorService idGenerator)
     {
@@ -54,6 +58,14 @@ public class BrugereServiceMock : IBrugereService
     {
         return Task.FromResult(_brugere);
     }
+
+    public Task<Elevplan?> GetElevplanForUser(Bruger bruger)
+    {
+        var elevplan = _elevplanService.GetAllElevplaner()
+            .FirstOrDefault(p => p.Ansvarlig?.BrugerId == bruger.BrugerId);
+        return Task.FromResult(elevplan);
+    }
+
 
     public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig)
     {
