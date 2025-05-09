@@ -4,6 +4,12 @@ html, body {
     overflow: hidden;
 }
 
+@media{
+    .hjem-baggrund{
+        height: calc(100vh - 3.8rem);
+    }
+}
+
 /* === Side layout (med højde justeret for navbar) === */
 .page-wrapper {
     display: flex;
@@ -17,7 +23,7 @@ html, body {
     position: relative;
     background-image: url('billeder/Comwellkitchen.jpg');
     background-size: cover;
-    height: calc(100vh - 5rem);
+    height: calc(100vh - 4.91rem);
     background-position: center;
     background-repeat: no-repeat;
     z-index: 0;
@@ -103,7 +109,7 @@ html, body {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 101vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.5); /* mørkere for roligt udtryk */
     display: flex;
