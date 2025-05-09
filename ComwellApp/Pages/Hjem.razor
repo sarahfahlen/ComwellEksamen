@@ -1,5 +1,4 @@
-﻿@page "/"
-@page "/hjem"
+﻿@page "/hjem"
 @inject ILoginService lService
 @inject NavigationManager navManager
 @using ComwellApp.Services.Login
@@ -7,12 +6,25 @@
 
 <PageTitle>Hjem</PageTitle>
 
-<h1>Hello, world!</h1>
+<h3 class="overskrift">Velkommen, @loggedIn?.Navn</h3>
+<p class="mb-4 text-base">Her får du et overblik over dine mål og praktiske informationer.</p>
 
-Welcome to your new app.
+<div class="dashboard-box-container">
+    <div class="dashboard-box">
+        <h4>Learning Module</h4>
+        <!-- Indhold kommer senere -->
+    </div>
+    <div class="dashboard-box">
+        <h4>Kommende Deadlines</h4>
+        <!-- Indhold kommer senere -->
+    </div>
+    <div class="dashboard-box">
+        <h4>Praktisk Info</h4>
+        <!-- Indhold kommer senere -->
+    </div>
+</div>
 
-@code
-{
+@code {
     private Bruger? loggedIn;
 
     protected override async Task OnInitializedAsync()

@@ -1,0 +1,27 @@
+.dashboard-box {
+    background-color: #f9f6f2;
+    border: 1px solid #D2B894;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+    width: 300px;
+    min-height: 150px;
+    margin: 0 1rem;
+    flex: 1;
+    transition: 0.2s ease;
+}
+.dashboard-box:hover {
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px);
+}
+.dashboard-box-container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
+    margin-top: 8rem; 
+}
+
+.overskrift{
+    text-align: center;
+}

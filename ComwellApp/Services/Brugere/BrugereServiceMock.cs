@@ -65,8 +65,7 @@ public class BrugereServiceMock : IBrugereService
         return Task.FromResult(elev?.MinElevplan);
     }
 
-
-
+    
     public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig)
     {
         nyBruger.BrugerId = _idGenerator.GenererNytId(_brugere, b => b.BrugerId);
