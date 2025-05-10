@@ -15,4 +15,4 @@ public class Lokation
    [RegularExpression(@"^\d{8}$", ErrorMessage = "Telefonnummeret skal bestå af præcis 8 tal.")]
    public string LokationTelefon { get; set; }
    public string LokationType { get; set; }
-}
+} 
