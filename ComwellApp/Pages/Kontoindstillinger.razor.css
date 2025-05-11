@@ -103,7 +103,7 @@ label {
     position: relative;
     width: 140px;
     height: 140px;
-    margin: 0 auto 2rem auto;
+    margin: 0 auto 4rem auto;
 }
 
 .profilbillede-label {
@@ -217,7 +217,7 @@ p[style*="text-align: center"] {
     }
 
     .profilbillede-wrapper {
-        margin-bottom: 1rem;
+        margin-bottom: 4rem;
     }
 }
 
