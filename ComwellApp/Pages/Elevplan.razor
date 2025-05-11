@@ -8,30 +8,42 @@
 @using ElevplanModel = Shared.Elevplan
 <PageTitle>Elevplan</PageTitle>
 
-<h3>Min elevplan</h3>
 <div class="elevplan-layout">
-    <div class="main-indhold">
-        <div id="periodevisning">
-            @if (minPlan?.ListPerioder != null)
-            {
-                <div>
-                    Se periode
+<div class="main-indhold">
+    <div class="elevplan-header">
+        <h1>Min elevplan</h1>
+
+        @if (minPlan?.ListPerioder != null)
+        {
+            <div class="periode-wrapper">
+                <span class="periode-label">Se periode</span>
+                <div class="periode-knapper">
                     @for (int i = 0; i < minPlan.ListPerioder.Count; i++)
                     {
-                        <button @onclick="() => valgtPeriodeIndex = i">
+                        <button class="periodeknap" @onclick="() => valgtPeriodeIndex = i">
                             @(i + 1)
                         </button>
                     }
                 </div>
-            }
-        </div>
+            </div>
+        }
+    </div>
 
         <div id="elevoplysning">
             <div id="elevdata">
-                <p> @loggedIn?.Navn</p>
-                <p> Elev siden: @loggedIn?.StartDato</p>
-                <p> Køkkenchef: @minPlan?.Ansvarlig?.Navn</p>
-                <p> Lokation: @loggedIn?.Koekken?.LokationNavn</p>
+                <div class="elevdata-grid">
+                    <div class="elevdata-label"> <strong> Navn </strong></div>
+                    <div class="elevdata-value">@loggedIn?.Navn</div>
+
+                    <div class="elevdata-label"><strong> Elev siden </strong></div>
+                    <div class="elevdata-value">@loggedIn?.StartDato</div>
+
+                    <div class="elevdata-label"><strong> Ansvarlig køkkenchef </strong></div>
+                    <div class="elevdata-value">@minPlan?.Ansvarlig?.Navn</div>
+
+                    <div class="elevdata-label"><strong> Lokation for elevtid </strong></div>
+                    <div class="elevdata-value">@loggedIn?.Koekken?.LokationNavn</div>
+                </div>
             </div>
             <div id="elevbillede">
                 @if (!string.IsNullOrEmpty(loggedIn?.Billede))
@@ -40,24 +52,24 @@
                 }
             </div>
         </div>
-        <div id="statusbar">
-            @if (AntalDelmaalIAlt() > 0)
-            {
-                //Beregner procentsats for færdiggørrelsesgrad, og laver til en int
-                double procent = (double)AntalDelmaalOpnaaet() / AntalDelmaalIAlt() * 100;
-                int procentInt = (int)Math.Round(procent);
-                //definerer de gradient farver vi vil have i vores statusbar
-                string gradient = "linear-gradient(to right, #e4a1a1 0%, #e4bfa1 33%, #e4d6a1 66%, #6fa96f 100%)";
+    <div id="statusbar">
+        @if (AntalDelmaalIAlt() > 0)
+        {
+            //Beregner procentsats for færdiggørrelsesgrad, og laver til en int
+            double procent = (double)AntalDelmaalOpnaaet() / AntalDelmaalIAlt() * 100;
+            int procentInt = (int)Math.Round(procent);
+            //definerer de gradient farver vi vil have i vores statusbar
+            string gradient = "linear-gradient(to right, #e4a1a1 0%, #e4bfa1 33%, #e4d6a1 66%, #6fa96f 100%)";
 
-                //Udfylder hele baren, men "klipper" den del fra vi ikke har fuldført - altså den omvendte procentsats
-                <div class="statusbar-outer">
-                    <div class="statusbar-inner" style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
-                    </div>
+            //Udfylder hele baren, men "klipper" den del fra vi ikke har fuldført - altså den omvendte procentsats
+            <div class="statusbar-outer">
+                <div class="statusbar-inner" style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
+            </div>
 
-                <p>@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
-            }
-        </div>
-        <div id="plan">
+            <p>@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
+        }
+    </div>
+    <div id="plan">
             @if (aktivPeriode != null)
             {
                 @foreach (var mål in aktivPeriode.ListMaal)
@@ -70,12 +82,14 @@
                         @foreach (var delmål in mål.ListDelmaal)
                         {
                             <div class="delmaal">
-                                <p><strong>@delmål.Beskrivelse</strong></p>
+                                <h4 class="delmaal-overskrift">@delmål.Beskrivelse</h4>
                                 <p>Type: @delmål.DelmaalType</p>
                                 <p>Ansvarlig: @delmål.Ansvarlig</p>
                                 <p>Deadline: @(delmål.Deadline?.ToString("dd/MM-yyyy") ?? "-")</p>
                                 <p>Kommentar: @delmål.DeadlineKommentar</p>
-                                <p>Status: @(delmål.Status ? "✓ Opnået" : "✗ Ikke opnået")</p>
+                                <div class="status-badge @(delmål.Status ? "status-opnået" : "status-ikkeopnået")">
+                                    @(delmål.Status ? "Gennemført" : "Ikke gennemført")
+                                </div>
                             </div>
                         }
                     </div>
@@ -84,9 +98,17 @@
             }
         </div>
     </div>
-    <div class="sidepanel">
-        Her implementerer vi deadlines - og evt. andre ting
-    </div>
+        <div class="sidepanel">
+            <div class="sidepanel-værktøj">
+                <label for="soeg">Søg delmål</label>
+                <input type="text" id="soeg" class="soeg-input" placeholder="Skriv søgeord..." />
+            </div>
+
+            <div class="sidepanel-værktøj">
+                <label for="filter">Filtrer efter mål</label>
+                <button class="filter-knap" id="filter">Filtrer</button>
+            </div>
+        </div>
 </div>
 
 

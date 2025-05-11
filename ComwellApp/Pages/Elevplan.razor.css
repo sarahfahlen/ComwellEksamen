@@ -3,12 +3,10 @@
     gap: 2rem;
 }
 
-/* venstre side: indholdet */
 .main-indhold {
     flex: 3;
 }
 
-/* højre side: tomt panel */
 .sidepanel {
     flex: 1;
     min-width: 250px;
@@ -16,23 +14,85 @@
     border: 1px dashed #d2b894;
     border-radius: 10px;
     padding: 1rem;
-    height: 720px; /* eller fx 100vh hvis det skal være hele højden */
+    height: 720px;
 }
 
+.elevplan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.periode-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.periode-label {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    font-size: 1rem;
+    color: #333;
+}
+
+.periode-knapper {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.periodeknap {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background-color: #D2B894;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.periodeknap:hover {
+    background-color: #c6a979;
+    transform: scale(1.05);
+}
+
+.periodeknap:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(210, 184, 148, 0.5);
+}
 
 #elevoplysning {
     display: flex;
     justify-content: space-between;
     gap: 2rem;
     margin-top: 1.5rem;
-    align-items: stretch; /* sikrer ens højde */
+    margin-bottom: 2rem;
+    align-items: stretch;
 }
 
 #elevdata {
     flex: 2.5;
     background-color: #fff;
-    padding: 1rem;
-    border-radius: 12px;
+    padding: 1.5rem;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.elevdata-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    row-gap: 2rem;
+    column-gap: 0.5rem;
 }
 
 #elevbillede {
@@ -47,10 +107,14 @@
 
 .elevbillede-img {
     width: 100%;
-    max-height: 215px; /* eller f.eks. 200px, justér som du vil */
+    max-height: 215px;
     object-fit: cover;
     border-radius: 10px;
     display: block;
+}
+
+.statusbar {
+    margin-bottom: 2rem;
 }
 
 .statusbar-outer {
@@ -69,8 +133,62 @@
     transition: clip-path 0.6s ease-in-out;
 }
 
+/* === Sidepanel søg og filter === */
+.sidepanel-overskrift {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #1C2B38;
+}
 
-/* Mål-kort styling */
+.sidepanel-værktøj {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidepanel-værktøj label {
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    color: #4f4f4f;
+}
+
+/* Samme stil til input og knap */
+.soeg-input,
+.filter-knap {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #f3ede5;
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.soeg-input::placeholder {
+    color: #8c8c8c;
+    font-weight: 500;
+}
+
+.soeg-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #D2B894;
+}
+
+.filter-knap {
+    background-color: #D2B894;
+    cursor: pointer;
+    color: #fff;
+}
+
+.filter-knap:hover {
+    background-color: #c6a979;
+    transform: translateY(-2px);
+}
+
+/* === Mål og delmål === */
 .maal-kort {
     background: linear-gradient(to right, #D2B894 30%, rgba(210, 184, 148, 0.53) 100%);
     color: white;
@@ -78,7 +196,7 @@
     border-radius: 14px;
     padding: 1.5rem;
     margin: 2rem 0 1rem 0;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .delmaal-container {
@@ -93,12 +211,45 @@
     background-color: #fff;
     padding: 1.25rem;
     border-radius: 14px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     font-size: 0.95rem;
-    height: 100%; /* så alle kort bliver samme højde */
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transform: translateY(0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.delmaal-overskrift {
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #1C2B38;
+}
+
+.status-badge {
+    align-self: flex-end;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    display: inline-block;
+}
+
+.status-opnået {
+    background-color: #f9f6f2;
+    color: #334328;
+}
+
+.status-ikkeopnået {
+    background-color: #f9f6f2;
+    color: #8c4d4d;
+}
+
+
+.delmaal:hover {
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
     transform: translateY(-3px);
 }
@@ -108,12 +259,9 @@
     line-height: 1.4;
 }
 
-
+/* === Responsive === */
 @media (max-width: 768px) {
     .sidepanel {
         display: none;
     }
 }
-
-
-
