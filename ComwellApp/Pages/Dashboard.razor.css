@@ -11,7 +11,6 @@
     font-size: 1.8rem;
     font-weight: 600;
     margin: 0;
-    margin-left: 43.5%;
 }
 
 .opret-knap {
@@ -137,9 +136,6 @@
     .item-right {
         justify-self: end;
     }
-    .overskrift{
-        margin-left: 39%;
-    }
 }
 @media (max-width: 600px) {
     .overskrift-knap-wrapper {
@@ -151,12 +147,5 @@
     .opret-knap {
         align-self: flex-end;
     }
-    .overskrift{
-        margin-left: 6rem;
-    }
 }
-@media (max-width: 360px) {
-    .overskrift{
-        margin-left: 21%;
-    }
-}
+
