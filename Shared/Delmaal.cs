@@ -14,4 +14,6 @@ public class Delmaal
     public DateOnly? Deadline { get; set; }
     public string DeadlineKommentar { get; set; }
     public bool Status { get; set; }
+    
+    public List<Kommentar> Kommentar { get; set; }
 }
