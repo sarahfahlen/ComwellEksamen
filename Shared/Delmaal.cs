@@ -15,5 +15,5 @@ public class Delmaal
     public string DeadlineKommentar { get; set; }
     public bool Status { get; set; }
     
-    public List<Kommentar> Kommentar { get; set; }
+    public List<Kommentar> Kommentar { get; set; } = new ();
 }

@@ -1,11 +1,14 @@
 @page "/elevplan"
 @inject ILoginService lService
 @inject IBrugereService bService 
+@inject IElevplanService eService
 @inject NavigationManager navManager
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
 @using Shared
 @using ElevplanModel = Shared.Elevplan
+@using ComwellApp.Components
+@using ComwellApp.Services.Elevplan
 <PageTitle>Elevplan</PageTitle>
 
 <div class="elevplan-layout">
@@ -70,34 +73,113 @@
         }
     </div>
     <div id="plan">
-            @if (aktivPeriode != null)
+        @if (aktivPeriode != null)
+        {
+            @foreach (var maal in aktivPeriode.ListMaal)
             {
-                @foreach (var mål in aktivPeriode.ListMaal)
-                {
-                    <div class="maal-kort">
-                        <h5>@mål.MaalNavn</h5>
-                    </div>
+                <div class="maal-kort">
+                    <h5>@maal.MaalNavn</h5>
+                </div>
 
-                    <div class="delmaal-container">
-                        @foreach (var delmål in mål.ListDelmaal)
-                        {
-                            <div class="delmaal">
-                                <h4 class="delmaal-overskrift">@delmål.Beskrivelse</h4>
-                                <p>Type: @delmål.DelmaalType</p>
-                                <p>Ansvarlig: @delmål.Ansvarlig</p>
-                                <p>Deadline: @(delmål.Deadline?.ToString("dd/MM-yyyy") ?? "-")</p>
-                                <p>Kommentar: @delmål.DeadlineKommentar</p>
-                                <div class="status-badge @(delmål.Status ? "status-opnået" : "status-ikkeopnået")">
-                                    @(delmål.Status ? "Gennemført" : "Ikke gennemført")
-                                </div>
+                <div class="delmaal-container">
+                    @foreach (var delmaal in maal.ListDelmaal)
+                    {
+                        <div class="delmaal">
+                            <h4 class="delmaal-overskrift">@delmaal.Beskrivelse</h4>
+                            <p>Type: @delmaal.DelmaalType</p>
+                            <p>Ansvarlig: @delmaal.Ansvarlig</p>
+                            <p>
+                                Deadline: @(delmaal.Deadline != null
+                                              ? delmaal.Deadline?.ToString("dd/MM-yyyy")
+                                              : delmaal.DeadlineKommentar)
+                            </p>
+                            <p> Kommentar:
+                                <button class="kommentar-knap" @onclick="() => AabenKommentar(delmaal.DelmaalID)">
+                                    Se kommentar
+                                </button>
+                            </p>
+
+                            <div class="status-badge @(delmaal.Status ? "status-opnået" : "status-ikkeopnået")">
+                                @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
                             </div>
-                        }
-                    </div>
-                    <br>
-                }
+                        </div>
+                    }
+                </div>
+                <br>
             }
-        </div>
+        }
     </div>
+    <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
+        <div class="modal-form">
+            <!-- Elevens kommentar -->
+            <label><strong>Elevens kommentar</strong></label>
+
+            @{
+                    Kommentar? elevK = null;
+                    if (minPlan != null && aktivtDelmaalId != 0)
+                    {
+                        elevK = eService.GetKommentar(minPlan, aktivtDelmaalId, "Elev");
+                    }
+            }
+
+            @if (elevK != null)
+            {
+                <p class="kommentar-info">
+                    <strong>@elevK.OprettetAf?.Navn</strong>, @elevK.Dato.ToString("dd.MM.yyyy"):
+                </p>
+            }
+
+            @if (loggedIn?.Rolle == "Elev")
+            {
+                <InputTextArea class="form-control" @bind-Value="elevKommentar" />
+            }
+            else if (elevK != null)
+            {
+                <p>@elevK.Tekst</p>
+            }
+            else
+            {
+                <p><em>Ingen elevkommentar endnu.</em></p>
+            }
+
+            <!-- Kokkens kommentar -->
+            <label class="mt-3"><strong>Kokkens kommentar</strong></label>
+
+            @{
+                    Kommentar? kokK = null;
+                    if (minPlan != null && aktivtDelmaalId != 0)
+                    {
+                        kokK = eService.GetKommentar(minPlan, aktivtDelmaalId, "Køkkenchef");
+                    }
+            }
+
+            @if (kokK != null)
+            {
+                <p class="kommentar-info">
+                    <strong>@kokK.OprettetAf?.Navn</strong>, @kokK.Dato.ToString("dd.MM.yyyy"):
+                </p>
+            }
+
+            @if (loggedIn?.Rolle == "Køkkenchef")
+            {
+                <InputTextArea class="form-control" @bind-Value="kokKommentar" />
+            }
+            else if (kokK != null)
+            {
+                <p>@kokK.Tekst</p>
+            }
+            else
+            {
+                <p><em>Ingen kokkekommentar endnu.</em></p>
+            }
+
+            <button class="btn btn-primary mt-3" @onclick="GemKommentar">Gem kommentar</button>
+        </div>
+    </ModalDialog>
+
+
+
+</div>
         <div class="sidepanel">
             <div class="sidepanel-værktøj">
                 <label for="soeg">Søg delmål</label>
@@ -121,6 +203,15 @@
     //Sætter default visning til at være 0 (1 praktik), og gør det muligt at ændre visning til andre
     private int valgtPeriodeIndex = 0;
     private Praktikperiode? aktivPeriode => minPlan?.ListPerioder[valgtPeriodeIndex];
+    //modaldialog til at lave kommentarer
+    private ModalDialog? kommentarDialog;
+    private string elevKommentar = "";
+    private string kokKommentar = "";
+    private int aktivtDelmaalId = 0;
+    private int aktivtKommentarId = 0;
+    private bool isEditMode = false;
+ 
+
 
     //Tjekker om brugeren er logget ind, og gemmer som et objekt loggedIn - og sætter planen til at være brugerens elevplan
     protected override async Task OnInitializedAsync()
@@ -138,7 +229,7 @@
         var alleDelmaal = minPlan?.ListPerioder
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .Take(9);
+            .Take(14);
 
         if (alleDelmaal != null)
         {
@@ -182,4 +273,77 @@
 
         return opnaaet;
     }
+    
+    private void AabenKommentar(int delmaalId)
+    {
+        aktivtDelmaalId = delmaalId;
+        elevKommentar = "";
+        kokKommentar = "";
+
+        if (minPlan != null)
+        {
+            var elevK = eService.GetKommentar(minPlan, delmaalId, "Elev");
+            var kokK = eService.GetKommentar(minPlan, delmaalId, "Køkkenchef");
+
+            elevKommentar = elevK?.Tekst ?? "";
+            kokKommentar = kokK?.Tekst ?? "";
+            aktivtKommentarId = elevK?.KommentarId ?? kokK?.KommentarId ?? 0;
+        }
+
+        kommentarDialog?.Open();
+    }
+
+
+    
+    private async Task GemKommentar()
+    {
+        if (minPlan == null || loggedIn == null)
+            return;
+
+        if (loggedIn.Rolle == "Elev")
+        {
+            var eksisterende = eService.GetKommentar(minPlan, aktivtDelmaalId, "Elev");
+
+            if (eksisterende != null)
+            {
+                await eService.RedigerKommentar(minPlan, aktivtDelmaalId, eksisterende.KommentarId, elevKommentar);
+            }
+            else if (!string.IsNullOrWhiteSpace(elevKommentar))
+            {
+                var kommentar = new Kommentar
+                {
+                    OprettetAf = loggedIn,
+                    Tekst = elevKommentar
+                };
+
+                await eService.TilfoejKommentar(minPlan, aktivtDelmaalId, kommentar);
+            }
+        }
+        else if (loggedIn.Rolle == "Køkkenchef")
+        {
+            var eksisterende = eService.GetKommentar(minPlan, aktivtDelmaalId, "Køkkenchef");
+
+            if (eksisterende != null)
+            {
+                await eService.RedigerKommentar(minPlan, aktivtDelmaalId, eksisterende.KommentarId, kokKommentar);
+            }
+            else if (!string.IsNullOrWhiteSpace(kokKommentar))
+            {
+                var kommentar = new Kommentar
+                {
+                    OprettetAf = loggedIn,
+                    Tekst = kokKommentar
+                };
+
+                await eService.TilfoejKommentar(minPlan, aktivtDelmaalId, kommentar);
+            }
+        }
+
+        kommentarDialog?.Close();
+    }
+
+
+
+
+
 }

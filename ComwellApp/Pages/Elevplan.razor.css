@@ -259,6 +259,15 @@
     line-height: 1.4;
 }
 
+.kommentar-info {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: #555;
+    margin-top: 0.4rem;
+    margin-bottom: 0.3rem;
+}
+
+
 /* === Responsive === */
 @media (max-width: 768px) {
     .sidepanel {

@@ -16,6 +16,64 @@ public class ElevplanServiceMock : IElevplanService
     {
         return alleElevplaner;
     }
+    
+
+    public Task TilfoejKommentar(Shared.Elevplan minPlan, int delmaalId, Kommentar nyKommentar)
+    {
+        //Her finder vi alle delmål i den elevplan der sendes med og derefter det specifikke delmål ud fra ID
+        var delmaal = minPlan.ListPerioder
+            .SelectMany(p => p.ListMaal)
+            .SelectMany(m => m.ListDelmaal)
+            .FirstOrDefault(d => d.DelmaalID == delmaalId);
+        
+        if (delmaal != null)
+        {
+            //Genererer et ID til den nye kommentar via vores service
+            nyKommentar.KommentarId = _idGenerator.GenererNytId(delmaal.Kommentar, k => k.KommentarId);
+            nyKommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
+            
+            //kommentar tilføjes
+            delmaal.Kommentar.Add(nyKommentar);
+        }
+        return Task.CompletedTask;
+    }
+    
+    public Task RedigerKommentar(Shared.Elevplan minPlan, int delmaalId, int kommentarId, string nyTekst)
+    {
+        //Her finder vi alle delmål i den elevplan der sendes med og derefter det specifikke delmål ud fra ID
+        var delmaal = minPlan.ListPerioder
+            .SelectMany(p => p.ListMaal)
+            .SelectMany(m => m.ListDelmaal)
+            .FirstOrDefault(d => d.DelmaalID == delmaalId);
+
+        //Her finder vi den kommentar vi vil redigere/opdatere, ud fra ID 
+        var kommentar = delmaal?.Kommentar.FirstOrDefault(k => k.KommentarId == kommentarId);
+
+        //Her laver vi opdateringen, baseret på den nye tekst, og sætter datoen til i dag
+        if (kommentar != null)
+        {
+            kommentar.Tekst = nyTekst;
+            kommentar.Dato = DateOnly.FromDateTime(DateTime.Today); 
+        }
+        return Task.CompletedTask;
+    }
+    
+    public Kommentar? GetKommentar(Shared.Elevplan plan, int delmaalId, string brugerRolle)
+    {
+        //Her finder vi det rigtige delmål ud fra id
+        var delmaal = plan.ListPerioder
+            .SelectMany(p => p.ListMaal)
+            .SelectMany(m => m.ListDelmaal)
+            .FirstOrDefault(d => d.DelmaalID == delmaalId);
+
+        if (delmaal == null)
+            return null;
+        //Her sender vi den kommentar der skal vises, ud fra brugerrolle
+        return delmaal.Kommentar
+            .FirstOrDefault(k => k.OprettetAf?.Rolle == brugerRolle);
+    }
+
+
 
 
     //Opretter en ny elevplan, ved at kalde vores skabelon funktion og sende bruger + ansvarlig med

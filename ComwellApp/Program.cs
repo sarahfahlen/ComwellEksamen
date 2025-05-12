@@ -21,6 +21,10 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<ElevplanServiceMock>();
 builder.Services.AddScoped<IdGeneratorService>();
 
+builder.Services.AddScoped<IElevplanService>(sp =>
+    sp.GetRequiredService<ElevplanServiceMock>());
+
+
 // 👇 Registrér BrugereServiceMock FØR loginservice, så Emil tilføjes i tide
 builder.Services.AddScoped<IBrugereService>(sp =>
 {
