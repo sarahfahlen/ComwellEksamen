@@ -204,7 +204,7 @@
         billedeFil = e.File;
         if (billedeFil != null)
         {
-            using var stream = billedeFil.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            using var stream = billedeFil.OpenReadStream();
             using var ms = new MemoryStream();
             await stream.CopyToAsync(ms);
             var bytes = ms.ToArray();
