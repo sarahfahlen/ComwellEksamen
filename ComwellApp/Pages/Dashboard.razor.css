@@ -6,13 +6,6 @@
     margin-bottom: 2rem;
     flex-wrap: wrap;
 }
-
-.overskrift {
-    font-size: 1.8rem;
-    font-weight: 600;
-    margin: 0;
-}
-
 .opret-knap {
     background-color: #d2b894; /* Beige farve */
     color: #1C2B38; /* Mørk tekst for kontrast */
