@@ -3,7 +3,12 @@
 @using Shared
 @inject ILoginService LoginService
 @inject NavigationManager Nav
-
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
 <!-- Hele visningen for kontoindstillinger -->
 <div class="opret-container">
     <!-- Tilbageknap som fører brugeren tilbage til elevplan -->
@@ -149,6 +154,9 @@
 
     // Fejlbesked hvis noget går galt
     private string fejlbesked = "";
+    
+    //Bruges til successbesked
+    private string successMessage = "";
 
     // Når siden indlæses, hentes den aktive bruger
     protected override async Task OnInitializedAsync()
@@ -158,18 +166,17 @@
 
     // Naviger tilbage til elevplan
     private void Tilbage() => Nav.NavigateTo("/elevplan");
-
     // Gemmer ændringer, både almindelige og adgangskode, husk at når det sættes op med database, så skal det ændres til at det ikke er loggeninuser men at den henter fra databasen og password bliver validated færst derefter
     private async Task GemAendringer()
     {
+        if (bruger == null)
+        {
+            fejlbesked = "Der opstod en fejl. Prøv at logge ind igen.";
+            return;
+        }
+
         if (visSkiftKodeord)
         {
-            if (bruger == null)
-            {
-                fejlbesked = "Der opstod en fejl. Prøv at logge ind igen.";
-                return;
-            }
-
             if (nuværendeKode != bruger.Adgangskode)
             {
                 fejlbesked = "Den nuværende adgangskode er forkert.";
@@ -189,15 +196,21 @@
             }
 
             bruger.Adgangskode = nyKode;
-            fejlbesked = "";
             visSkiftKodeord = false;
-            besked = "✅ Ny adgangskode gemt!";
+            fejlbesked = "";
+            successMessage = "Kodeord opdateret";
+        }
+        else
+        {
+            successMessage = "Oplysninger opdateret";
         }
 
-        await LoginService.OpdaterBruger(bruger!);
-        if (string.IsNullOrEmpty(besked)) besked = "✅ Ændringer gemt!";
+        await LoginService.OpdaterBruger(bruger);
+        StateHasChanged();
+        await Task.Delay(3000);
+        successMessage = "";
+        StateHasChanged();
     }
-
     // Håndterer upload af nyt billede
     private async Task HandleBilledeUpload(InputFileChangeEventArgs e)
     {
