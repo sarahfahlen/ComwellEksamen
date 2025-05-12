@@ -1,22 +1,35 @@
 .overskrift-knap-wrapper {
-    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-top: 2rem;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
 .overskrift {
-    text-align: center;
     font-size: 1.8rem;
     font-weight: 600;
     margin: 0;
+    margin-left: 43.5%;
 }
 
 .opret-knap {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 0.6rem 1.2rem;
+    background-color: #d2b894; /* Beige farve */
+    color: #1C2B38; /* Mørk tekst for kontrast */
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.4rem;
     font-size: 0.95rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.opret-knap:hover {
+    background-color: #c3a874; /* Mørkere beige ved hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .elevkort-container {
@@ -90,13 +103,26 @@
 }
 
 .se-elevplan-knap {
-    margin-top: 1rem;
-    align-self: flex-end;
-    font-size: 0.9rem;
-    padding: 0.4rem 0.8rem;
+    background-color: transparent;
+    border: 2px solid #d2b894;
+    color: #1C2B38;
+    border-radius: 8px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    align-self: flex-end; 
+    width: fit-content; 
+    margin-top: 0.8rem;
 }
 
-@media (max-width: 768px) {
+.se-elevplan-knap:hover {
+    background-color: #d2b894;
+    color: white;
+    cursor: pointer;
+}
+
+@media (max-width: 1024px) {
     .item-card {
         width: 100%;
     }
@@ -110,5 +136,27 @@
 
     .item-right {
         justify-self: end;
+    }
+    .overskrift{
+        margin-left: 39%;
+    }
+}
+@media (max-width: 600px) {
+    .overskrift-knap-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .opret-knap {
+        align-self: flex-end;
+    }
+    .overskrift{
+        margin-left: 6rem;
+    }
+}
+@media (max-width: 360px) {
+    .overskrift{
+        margin-left: 21%;
     }
 }
