@@ -1,4 +1,114 @@
-.btn-primary{
-    color: white;
-    background-color: #2b3947;
+.overskrift-knap-wrapper {
+    position: relative;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.overskrift {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.opret-knap {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+}
+
+.elevkort-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    justify-content: space-between;
+}
+
+.item-card {
+    background-color: #f9f6f2;
+    border: 1px solid #d2b894;
+    border-radius: 14px;
+    width: 48%;
+    padding: 1.2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease;
+    min-height: 180px;
+}
+
+.item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.item-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 1rem;
+    align-items: center;
+}
+
+.item-left, .item-center {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+    color: #1C2B38;
+}
+
+.item-left p,
+.item-center p {
+    margin: 0;
+    font-weight: 500;
+}
+
+.item-right img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.statusbar-outer {
+    width: 100%;
+    height: 14px;
+    background-color: #eae4dc;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.statusbar-inner {
+    height: 100%;
+    width: 100%;
+    border-radius: 12px;
+    transition: clip-path 0.6s ease-in-out;
+}
+
+.se-elevplan-knap {
+    margin-top: 1rem;
+    align-self: flex-end;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .item-card {
+        width: 100%;
+    }
+
+    .item-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "left right"
+            "center center";
+    }
+
+    .item-right {
+        justify-self: end;
+    }
 }

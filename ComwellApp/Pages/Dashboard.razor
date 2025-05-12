@@ -1,19 +1,81 @@
+@page "/dashboard"
 @inject NavigationManager navManager
 @inject ILoginService lService
-@page "/dashboard"
 @using ComwellApp.Services.Login
 @using Shared
+
 <PageTitle>Dashboard</PageTitle>
 
-<h3>Dashboard</h3>
+<!-- Overskrift og knap -->
+<div class="overskrift-knap-wrapper">
+    <h1 class="overskrift">Elevoversigt</h1>
 
-@if (loggedIn is not null && (loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR"))
-{
-    <button class="btn btn-primary" @onclick="OnClickOpret">Opret elev</button>
-}
+    @if (loggedIn is not null && (loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR"))
+    {
+        <button class="btn btn-primary opret-knap" @onclick="OnClickOpret">Opret elev</button>
+    }
+</div>
+
+<!-- Elevkort visning -->
+<div class="elevkort-container">
+    @if (elever == null || !elever.Any())
+    {
+        <p>Ingen elever fundet...</p>
+    }
+    else
+    {
+        @foreach (var elev in elever)
+        {
+            var antalOpnaaet = 150;
+            var antalIalt = 250;
+            double procent = (double)antalOpnaaet / antalIalt * 100;
+            int procentInt = (int)Math.Round(procent);
+            string gradient = "linear-gradient(to right, #e4a1a1 0%, #e4bfa1 33%, #e4d6a1 66%, #6fa96f 100%)";
+
+            <div class="item-card">
+                <div class="item-grid">
+                    <!-- Venstre kolonne -->
+                    <div class="item-left">
+                        <p><strong>@elev.Navn</strong></p>
+                        <p>Telefon: @elev.BrugerTelefon</p>
+                        <p>Køkkenchef: @elev.MinElevplan?.Ansvarlig?.Navn</p>
+                        <p>Elev siden: @elev.StartDato.ToString("dd-MM-yyyy")</p>
+                    </div>
+
+                    <!-- Midterkolonne -->
+                    <div class="item-center">
+                        <p>Lokation: @elev.Koekken?.LokationNavn</p>
+                        <p>Delmål opnået: @antalOpnaaet / @antalIalt</p>
+                        <div class="statusbar-outer">
+                            <div class="statusbar-inner" style="background: @gradient; clip-path: inset(0 calc(100% - @procentInt%) 0 0);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Højre kolonne: billede -->
+                    <div class="item-right">
+                        <img src="@elev.Billede" alt="Profilbillede" />
+                    </div>
+                </div>
+
+                <!-- "Se elevplan"-knap -->
+                @if (
+                    (loggedIn.BrugerId == elev.BrugerId && (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "Faglært kok")) ||
+                    (loggedIn?.Rolle == "HR" || loggedIn.Rolle == "Køkkenchef")
+                )
+                {
+                    <button class="btn btn-outline-secondary se-elevplan-knap" @onclick="@(() => GåTilElevplan(elev.BrugerId))">
+                        Se elevplan
+                    </button>
+                }
+            </div>
+        }
+    }
+</div>
 
 @code {
     private Bruger? loggedIn;
+    private List<Bruger> alleElever = new();
+    private List<Bruger> elever = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -23,10 +85,34 @@
             navManager.NavigateTo("login/dashboard");
             return;
         }
+
+        alleElever = await lService.HentAlleGemteEleverFraLocalStorage();
+        FiltrerElever();
+    }
+
+    private void FiltrerElever()
+    {
+        if (loggedIn == null) return;
+
+        if (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "Faglært kok")
+        {
+            elever = alleElever
+                .Where(e => e.Koekken?.LokationNavn == loggedIn.Koekken?.LokationNavn)
+                .ToList();
+        }
+        else
+        {
+            elever = alleElever;
+        }
     }
 
     private void OnClickOpret()
     {
         navManager.NavigateTo("opretelev");
+    }
+
+    private void GåTilElevplan(int elevId)
+    {
+        navManager.NavigateTo($"elevplan/{elevId}");
     }
 }
