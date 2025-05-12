@@ -131,7 +131,7 @@
 
             @if (loggedIn?.Rolle == "Elev")
             {
-                <InputTextArea class="form-control" @bind-Value="elevKommentar" />
+                <InputTextArea class="form-control kommentarbox" @bind-Value="elevKommentar" />
             }
             else if (elevK != null)
             {
@@ -162,7 +162,7 @@
 
             @if (loggedIn?.Rolle == "Køkkenchef")
             {
-                <InputTextArea class="form-control" @bind-Value="kokKommentar" />
+                <InputTextArea class="form-control kommentarbox" @bind-Value="kokKommentar" />
             }
             else if (kokK != null)
             {
@@ -173,7 +173,7 @@
                 <p><em>Ingen kokkekommentar endnu.</em></p>
             }
 
-            <button class="btn btn-primary mt-3" @onclick="GemKommentar">Gem kommentar</button>
+            <button class="Gemkommentarknap" @onclick="GemKommentar">Gem kommentar</button>
         </div>
     </ModalDialog>
 
