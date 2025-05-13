@@ -1,4 +1,6 @@
 @page "/elevplan"
+@page "/elevplan/{elevId:int}"  
+
 @inject ILoginService lService
 @inject IBrugereService bService 
 @inject IElevplanService eService
@@ -12,107 +14,115 @@
 <PageTitle>Elevplan</PageTitle>
 
 <div class="elevplan-layout">
-<div class="main-indhold">
-    <div class="elevplan-header">
-        <h1>Min elevplan</h1>
+    @if (valgtElev == null || minPlan == null)
+    {
+        <p>Indlæser elevplan...</p>
+    }
+    else
+    {
+        
 
-        @if (minPlan?.ListPerioder != null)
-        {
-            <div class="periode-wrapper">
-                <span class="periode-label">Se periode</span>
-                <div class="periode-knapper">
-                    @for (int i = 0; i < minPlan.ListPerioder.Count; i++)
-                    {
-                        <button class="periodeknap" @onclick="() => valgtPeriodeIndex = i">
-                            @(i + 1)
-                        </button>
-                    }
+        <div class="main-indhold">
+        <div class="elevplan-header">
+            <h1>Min elevplan</h1>
+
+            @if (minPlan?.ListPerioder != null)
+            {
+                <div class="periode-wrapper">
+                    <span class="periode-label">Se periode</span>
+                    <div class="periode-knapper">
+                        @for (int i = 0; i < minPlan.ListPerioder.Count; i++)
+                        {
+                            <button class="periodeknap" @onclick="() => valgtPeriodeIndex = i">
+                                @(i + 1)
+                            </button>
+                        }
+                    </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
 
         <div id="elevoplysning">
             <div id="elevdata">
                 <div class="elevdata-grid">
                     <div class="elevdata-label"> <strong> Navn </strong></div>
-                    <div class="elevdata-value">@loggedIn?.Navn</div>
-
+                    <div class="elevdata-value">@valgtElev?.Navn</div>
+                    
                     <div class="elevdata-label"><strong> Elev siden </strong></div>
-                    <div class="elevdata-value">@loggedIn?.StartDato</div>
+                    <div class="elevdata-value">@valgtElev.StartDato</div>
 
                     <div class="elevdata-label"><strong> Ansvarlig køkkenchef </strong></div>
-                    <div class="elevdata-value">@minPlan?.Ansvarlig?.Navn</div>
+                    <div class="elevdata-value">@valgtElev.MinElevplan.Ansvarlig.Navn</div>
 
                     <div class="elevdata-label"><strong> Lokation for elevtid </strong></div>
-                    <div class="elevdata-value">@loggedIn?.Koekken?.LokationNavn</div>
+                    <div class="elevdata-value">@valgtElev.Koekken.LokationNavn</div>
                 </div>
             </div>
             <div id="elevbillede">
-                @if (!string.IsNullOrEmpty(loggedIn?.Billede))
+                @if (!string.IsNullOrEmpty(valgtElev.Billede))
                 {
-                    <img src="@loggedIn.Billede" alt="Elevbillede" class="elevbillede-img" />
+                    <img src="@valgtElev.Billede" alt="Elevbillede" class="elevbillede-img"/>
                 }
             </div>
         </div>
-    <div id="statusbar">
-        @if (AntalDelmaalIAlt() > 0)
-        {
-            //Beregner procentsats for færdiggørrelsesgrad, og laver til en int
-            double procent = (double)AntalDelmaalOpnaaet() / AntalDelmaalIAlt() * 100;
-            int procentInt = (int)Math.Round(procent);
-            //definerer de gradient farver vi vil have i vores statusbar
-            string gradient = "linear-gradient(to right, #e4a1a1 0%, #e4bfa1 33%, #e4d6a1 66%, #6fa96f 100%)";
-
-            //Udfylder hele baren, men "klipper" den del fra vi ikke har fuldført - altså den omvendte procentsats
-            <div class="statusbar-outer">
-                <div class="statusbar-inner" style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
-            </div>
-
-            <p>@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
-        }
-    </div>
-    <div id="plan">
-        @if (aktivPeriode != null)
-        {
-            @foreach (var maal in HentFiltreredeMaal())
+        <div id="statusbar">
+            @if (AntalDelmaalIAlt() > 0)
             {
-                <div class="maal-kort">
-                    <h5>@maal.MaalNavn</h5>
+                //Beregner procentsats for færdiggørrelsesgrad, og laver til en int
+                double procent = (double)AntalDelmaalOpnaaet() / AntalDelmaalIAlt() * 100;
+                int procentInt = (int)Math.Round(procent);
+                //definerer de gradient farver vi vil have i vores statusbar
+                string gradient = "linear-gradient(to right, #e4a1a1 0%, #e4bfa1 33%, #e4d6a1 66%, #6fa96f 100%)";
+
+                //Udfylder hele baren, men "klipper" den del fra vi ikke har fuldført - altså den omvendte procentsats
+                <div class="statusbar-outer">
+                    <div class="statusbar-inner" style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
                 </div>
 
-                <div class="delmaal-container">
-                    @foreach (var delmaal in maal.ListDelmaal)
-                    {
-                        <div class="delmaal">
-                            <h4 class="delmaal-overskrift">@delmaal.Beskrivelse</h4>
-                            <p>Type: @delmaal.DelmaalType</p>
-                            <p>Ansvarlig: @delmaal.Ansvarlig</p>
-                            <p>
-                                Deadline: @(delmaal.Deadline != null
-                                              ? delmaal.Deadline?.ToString("dd/MM-yyyy")
-                                              : delmaal.DeadlineKommentar)
-                            </p>
-                            <p> Kommentar:
-                                <button class="kommentar-knap" @onclick="() => AabenKommentar(delmaal.DelmaalID)">
-                                    Se kommentar
-                                </button>
-                            </p>
-
-                            <div class="status-badge @(delmaal.Status ? "status-opnået" : "status-ikkeopnået")">
-                                @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
-                            </div>
-                        </div>
-                    }
-                </div>
-                <br>
+                <p>@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
             }
-        }
-    </div>
-    <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
-        <div class="modal-form">
-            <!-- Elevens kommentar -->
-            <label><strong>Elevens kommentar</strong></label>
+        </div>
+        <div id="plan">
+            @if (aktivPeriode != null)
+            {
+                @foreach (var maal in HentFiltreredeMaal())
+                {
+                    <div class="maal-kort">
+                        <h5>@maal.MaalNavn</h5>
+                    </div>
+
+                    <div class="delmaal-container">
+                        @foreach (var delmaal in maal.ListDelmaal)
+                        {
+                            <div class="delmaal">
+                                <h4 class="delmaal-overskrift">@delmaal.Beskrivelse</h4>
+                                <p>Type: @delmaal.DelmaalType</p>
+                                <p>Ansvarlig: @delmaal.Ansvarlig</p>
+                                <p>
+                                    Deadline: @(delmaal.Deadline != null
+                                                  ? delmaal.Deadline?.ToString("dd/MM-yyyy")
+                                                  : delmaal.DeadlineKommentar)
+                                </p>
+                                <p> Kommentar:
+                                    <button class="kommentar-knap" @onclick="() => AabenKommentar(delmaal.DelmaalID)">
+                                        Se kommentar
+                                    </button>
+                                </p>
+
+                                <div class="status-badge @(delmaal.Status ? "status-opnået" : "status-ikkeopnået")">
+                                    @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <br>
+                }
+            }
+        </div>
+        <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
+            <div class="modal-form">
+                <!-- Elevens kommentar -->
+                <label><strong>Elevens kommentar</strong></label>
 
             @if (!string.IsNullOrWhiteSpace(elevKommentarNavn) && elevKommentarDato != null)
             {
@@ -173,9 +183,35 @@
 
             <div class="sidepanel-værktøj">
                 <label for="filter">Filtrer efter mål</label>
-                <button class="filter-knap" id="filter">Filtrer</button>
+                <button class="filter-knap" @onclick="() => visFilter = !visFilter">Filtrer</button>
+                <!-- Viser filterformular hvis visFilter == true -->
+                @if (visFilter)
+                {
+                    <div style="margin-top: 1rem;">
+                        <label>Mål</label>
+                        <select @bind="valgtMaalNavn" class="form-control">
+                            <!-- Filtrer mellem mål -->
+                            <option value="">Alle mål</option>
+                            @foreach (var m in aktivPeriode?.ListMaal ?? new())
+                            {
+                                <option value="@m.MaalNavn">@m.MaalNavn</option>
+                            }
+                        </select>
+                        <!-- Filtrer mellem delmålstyperne -->
+                        <label class="mt-2">Delmålstype</label>
+                        <select @bind="valgtDelmaalType" class="form-control">
+                            <option value="">Alle typer</option>
+                            @foreach (var t in aktivPeriode?.ListMaal.SelectMany(m => m.ListDelmaal).Select(d => d.DelmaalType).Distinct() ?? new List<string>())
+                            {
+                                <option value="@t">@t</option>
+                            }
+                        </select>
+                    </div>
+                }
             </div>
         </div>
+    }
+
 </div>
 
 
@@ -202,10 +238,18 @@
     private int aktivtDelmaalId = 0;
     // Sætter default på søgeordet til søgning af mål og delmål
     private string søgeord = "";
+    private string valgtMaalNavn = "";
+    private string valgtDelmaalType = "";
+    private bool visFilter = false;
+
+    
+    [Parameter]
+    public int? elevId { get; set; } 
+    private Bruger? valgtElev;
 
 
     //Tjekker om brugeren er logget ind, og gemmer som et objekt loggedIn - og sætter planen til at være brugerens elevplan
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         loggedIn = await lService.GetUserLoggedIn();
         if (loggedIn == null)
@@ -213,14 +257,35 @@
             navManager.NavigateTo("login/elevplan");
             return;
         }
-        minPlan = loggedIn.MinElevplan;
-        
-        //Denne del kan vi bruge til manuelt at ændre status på antallet af delmål med status færdig, uden at have rediger funktion
-        //Bruges til at teste statusbar og dens farver
+
+        // Hvis elevId er sat (en HR eller Køkkenchef ser en elevs side)
+        if (elevId.HasValue && elevId != loggedIn.BrugerId)
+        {
+            var alleElever = await lService.HentAlleGemteEleverFraLocalStorage();
+            valgtElev = alleElever.FirstOrDefault(e => e.BrugerId == elevId.Value);
+
+            if (valgtElev != null)
+            {
+                minPlan = valgtElev.MinElevplan;
+            }
+            else
+            {
+                navManager.NavigateTo("/dashboard");
+                return;
+            }
+        }
+        else
+        {
+            valgtElev = loggedIn;
+            minPlan = loggedIn.MinElevplan;
+        }
+
+
+        // Simulér gennemførte delmål til test
         var alleDelmaal = minPlan?.ListPerioder
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .Take(14);
+            .Take(9);
 
         if (alleDelmaal != null)
         {
@@ -356,29 +421,13 @@
         
         //Her skal implementeres en fejlbesked og succesbesked
     }
-    
+
     private List<Maal> HentFiltreredeMaal()
     {
-        //Hvis der ikke er valgt en periode eller hvis søgefeltet er tomt, så viser vi alle mål som normalt
-        if (aktivPeriode == null || string.IsNullOrWhiteSpace(søgeord))
-            return aktivPeriode?.ListMaal ?? new();
-
-        //Gemmer søgeordet i små bogstaver
-        var søg = søgeord.ToLower();
-
-        //Vi gennemgår alle mål i perioden, og for hvert mål og laver en ny kopi af målet, men kun med de delmål der matcher søgningen
-        return aktivPeriode.ListMaal
-            .Select(maal => new Maal
-            {
-                MaalId = maal.MaalId,
-                MaalNavn = maal.MaalNavn,
-                ListDelmaal = maal.ListDelmaal
-                    .Where(dm => dm.Beskrivelse.ToLower().Contains(søg))
-                    .ToList()
-            })
-            .Where(maal => maal.ListDelmaal.Any()) // kun mål med mindst ét match
-            .ToList();
+        // Hvis planen ikke er sat endnu (fx mens den loader i OnInitializedAsync returnerer vi en tom liste, så UI’et ikke fejler
+        if (minPlan == null)
+            return new();
+        // Kalder backend/service for at hente mål baseret på brugerens valgte filtrering
+        return eService.HentFiltreredeMaal(minPlan, valgtPeriodeIndex, valgtMaalNavn, valgtDelmaalType, søgeord);
     }
-
-    
 }

@@ -1,4 +1,5 @@
 using Shared;
+using ElevplanModel = Shared.Elevplan;
 
 namespace ComwellApp.Services.Elevplan;
 
@@ -17,4 +18,7 @@ public interface IElevplanService
     public Task<Shared.Elevplan> OpretElevplan(Bruger ansvarlig);
     //Bruges til at oprette default skabelon til nye elever
     public Task<Shared.Elevplan> LavDefaultSkabelon(Bruger ansvarlig);
+    //Bruges til at hente de filtrede mål på elevplanen
+    List<Maal> HentFiltreredeMaal(Shared.Elevplan plan, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? søgeord);
+
 }
