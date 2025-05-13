@@ -183,7 +183,31 @@
 
             <div class="sidepanel-værktøj">
                 <label for="filter">Filtrer efter mål</label>
-                <button class="filter-knap" id="filter">Filtrer</button>
+                <button class="filter-knap" @onclick="() => visFilter = !visFilter">Filtrer</button>
+                <!-- Viser filterformular hvis visFilter == true -->
+                @if (visFilter)
+                {
+                    <div style="margin-top: 1rem;">
+                        <label>Mål</label>
+                        <select @bind="valgtMaalNavn" class="form-control">
+                            <!-- Filtrer mellem mål -->
+                            <option value="">Alle mål</option>
+                            @foreach (var m in aktivPeriode?.ListMaal ?? new())
+                            {
+                                <option value="@m.MaalNavn">@m.MaalNavn</option>
+                            }
+                        </select>
+                        <!-- Filtrer mellem delmålstyperne -->
+                        <label class="mt-2">Delmålstype</label>
+                        <select @bind="valgtDelmaalType" class="form-control">
+                            <option value="">Alle typer</option>
+                            @foreach (var t in aktivPeriode?.ListMaal.SelectMany(m => m.ListDelmaal).Select(d => d.DelmaalType).Distinct() ?? new List<string>())
+                            {
+                                <option value="@t">@t</option>
+                            }
+                        </select>
+                    </div>
+                }
             </div>
         </div>
     }
@@ -214,19 +238,20 @@
     private int aktivtDelmaalId = 0;
     // Sætter default på søgeordet til søgning af mål og delmål
     private string søgeord = "";
+    private string valgtMaalNavn = "";
+    private string valgtDelmaalType = "";
+    private bool visFilter = false;
+
     
     [Parameter]
     public int? elevId { get; set; } 
     private Bruger? valgtElev;
 
 
-
-
     //Tjekker om brugeren er logget ind, og gemmer som et objekt loggedIn - og sætter planen til at være brugerens elevplan
     protected override async Task OnParametersSetAsync()
     {
         loggedIn = await lService.GetUserLoggedIn();
-
         if (loggedIn == null)
         {
             navManager.NavigateTo("login/elevplan");
@@ -268,7 +293,7 @@
                 d.Status = true;
         }
     }
-
+    
     //Bruges til at beregne hvor mange delmål der er i den aktive periode (visningsperioden)
     private int AntalDelmaalIAlt()
     {
@@ -396,29 +421,13 @@
         
         //Her skal implementeres en fejlbesked og succesbesked
     }
-    
+
     private List<Maal> HentFiltreredeMaal()
     {
-        //Hvis der ikke er valgt en periode eller hvis søgefeltet er tomt, så viser vi alle mål som normalt
-        if (aktivPeriode == null || string.IsNullOrWhiteSpace(søgeord))
-            return aktivPeriode?.ListMaal ?? new();
-
-        //Gemmer søgeordet i små bogstaver
-        var søg = søgeord.ToLower();
-
-        //Vi gennemgår alle mål i perioden, og for hvert mål og laver en ny kopi af målet, men kun med de delmål der matcher søgningen
-        return aktivPeriode.ListMaal
-            .Select(maal => new Maal
-            {
-                MaalId = maal.MaalId,
-                MaalNavn = maal.MaalNavn,
-                ListDelmaal = maal.ListDelmaal
-                    .Where(dm => dm.Beskrivelse.ToLower().Contains(søg))
-                    .ToList()
-            })
-            .Where(maal => maal.ListDelmaal.Any()) // kun mål med mindst ét match
-            .ToList();
+        // Hvis planen ikke er sat endnu (fx mens den loader i OnInitializedAsync returnerer vi en tom liste, så UI’et ikke fejler
+        if (minPlan == null)
+            return new();
+        // Kalder backend/service for at hente mål baseret på brugerens valgte filtrering
+        return eService.HentFiltreredeMaal(minPlan, valgtPeriodeIndex, valgtMaalNavn, valgtDelmaalType, søgeord);
     }
-
-    
 }

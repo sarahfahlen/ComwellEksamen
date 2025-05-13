@@ -73,8 +73,39 @@ public class ElevplanServiceMock : IElevplanService
             .FirstOrDefault(k => k.OprettetAf?.Rolle == brugerRolle);
     }
 
+    public List<Maal> HentFiltreredeMaal(Shared.Elevplan plan, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? søgeord)
+    {
+        // Hvis planen ikke eksisterer, eller periodeIndex er ugyldig, returnér tom liste
+        if (plan == null || plan.ListPerioder.Count <= periodeIndex)
+            return new List<Maal>();
 
+        // Udpeg den praktikperiode der skal arbejdes med, baseret på brugerens valg
+        var periode = plan.ListPerioder[periodeIndex];
 
+        // Gør søgeordet lowercase for at kunne sammenligne uanset store/små bogstaver
+        var søg = søgeord?.ToLower() ?? "";
+
+        // Gennemgår alle mål i den valgte praktikperiode
+        return periode.ListMaal
+            // Hvis der ikke er valgt et målfilter, behold alle mål — ellers match med navnet
+            .Where(m => string.IsNullOrWhiteSpace(valgtMaalNavn) || m.MaalNavn == valgtMaalNavn)
+            // For hvert mål, opret en ny kopi af målet og filtrer delmålene internt
+            .Select(m => new Maal
+            {
+                MaalId = m.MaalId,       // behold originalt ID
+                MaalNavn = m.MaalNavn,   // behold originalt navn
+                ListDelmaal = m.ListDelmaal
+                    // Filtrér delmålene: behold dem hvis type matcher OG beskrivelsen indeholder søgeordet
+                    .Where(d =>
+                        (string.IsNullOrWhiteSpace(valgtDelmaalType) || d.DelmaalType == valgtDelmaalType) &&
+                        (string.IsNullOrWhiteSpace(søg) || d.Beskrivelse.ToLower().Contains(søg))
+                    )
+                    .ToList() // lav listen af delmål til ny liste
+            })
+            // Fjern mål der ikke har nogen delmål tilbage efter filtrering
+            .Where(m => m.ListDelmaal.Any())
+            .ToList(); // returnér som liste
+    }
 
     //Opretter en ny elevplan, ved at kalde vores skabelon funktion og sende bruger + ansvarlig med
     public async Task<Shared.Elevplan> OpretElevplan(Bruger ansvarlig)
