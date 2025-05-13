@@ -306,10 +306,6 @@
     cursor: pointer;
 }
 
-.kommentarbox {
-    height: 14rem;
-}
-
 /* === Responsive === */
 @media (max-width: 768px) {
     .sidepanel {

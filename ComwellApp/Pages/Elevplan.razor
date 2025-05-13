@@ -131,7 +131,7 @@
 
             @if (loggedIn?.Rolle == "Elev")
             {
-                <InputTextArea class="form-control kommentarbox" @bind-Value="elevKommentar" />
+                <InputTextArea class="form-control kommentarbox" style="height:14rem;" @bind-Value="elevKommentar" />
             }
             else if (elevK != null)
             {
@@ -162,7 +162,7 @@
 
             @if (loggedIn?.Rolle == "Køkkenchef")
             {
-                <InputTextArea class="form-control kommentarbox" @bind-Value="kokKommentar" />
+                <InputTextArea class="form-control kommentarbox" style="height:14rem;" @bind-Value="kokKommentar" />
             }
             else if (kokK != null)
             {
