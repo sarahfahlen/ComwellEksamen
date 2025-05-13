@@ -206,6 +206,14 @@
                                 <option value="@t">@t</option>
                             }
                         </select>
+                        <!-- Filtrer mellem gennemførte delmål -->
+                        <label class="mt-2">Status</label>
+                        <select class="form-control" @onchange="OnStatusChanged">
+                        <option value="">Alle</option>
+                            <option value="true">Gennemført</option>
+                            <option value="false">Ikke gennemført</option>
+                        </select>
+
                     </div>
                 }
             </div>
@@ -241,6 +249,8 @@
     private string valgtMaalNavn = "";
     private string valgtDelmaalType = "";
     private bool visFilter = false;
+    private bool? valgtStatus = null;
+
 
     
     [Parameter]
@@ -428,6 +438,27 @@
         if (minPlan == null)
             return new();
         // Kalder backend/service for at hente mål baseret på brugerens valgte filtrering
-        return eService.HentFiltreredeMaal(minPlan, valgtPeriodeIndex, valgtMaalNavn, valgtDelmaalType, søgeord);
+        return eService.HentFiltreredeMaal(minPlan, valgtPeriodeIndex, valgtMaalNavn, valgtDelmaalType, søgeord, valgtStatus);
     }
+    
+    private void OnStatusChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            valgtStatus = null;
+        }
+        else if (value.Equals("true", StringComparison.OrdinalIgnoreCase))
+        {
+            valgtStatus = true;
+        }
+        else if (value.Equals("false", StringComparison.OrdinalIgnoreCase))
+        {
+            valgtStatus = false;
+        }
+
+        StateHasChanged();
+    }
+
 }
