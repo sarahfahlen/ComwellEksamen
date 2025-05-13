@@ -29,6 +29,6 @@ public class Bruger
     public DateOnly SlutDato { get; set; }
     
     [Required(ErrorMessage = "Lokation er påkrævet")]
-    public Lokation Koekken { get; set; }
+    public Lokation? Koekken { get; set; }
     public Elevplan? MinElevplan { get; set; }
 }
