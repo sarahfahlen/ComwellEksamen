@@ -10,7 +10,7 @@
 <div class="overskrift-knap-wrapper">
     <h1 class="overskrift">Elevoversigt</h1>
 
-    @if (loggedIn is not null && (loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR"))
+    @if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR"))
     {
         <button class="btn btn-primary opret-knap" @onclick="OnClickOpret">Opret elev</button>
     }
@@ -60,7 +60,7 @@
                 <!-- "Se elevplan"-knap -->
                 @if (
                     (loggedIn.BrugerId == elev.BrugerId && (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok")) ||
-                    (loggedIn?.Rolle == "HR" || loggedIn.Rolle == "Køkkenchef")
+                    (loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR")
                 )
                 {
                     <button class="btn btn-outline-secondary se-elevplan-knap" @onclick="@(() => GåTilElevplan(elev.BrugerId))">
@@ -96,7 +96,7 @@
         if (loggedIn == null) return;
         
         // Hvis brugeren er elev eller faglært kok.
-        if (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok")
+        if (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok" || loggedIn.Rolle == "Køkkenchef")
         {
             // Filtrér elever, så kun dem med samme lokation som den loggede vises
             elever = alleElever

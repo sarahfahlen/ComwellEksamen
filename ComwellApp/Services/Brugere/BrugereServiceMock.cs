@@ -37,7 +37,16 @@ public class BrugereServiceMock : IBrugereService
                 Email = "frank@mail.com",
                 BrugerTelefon = "64572358",
                 Rolle = "FaglærtKok"
-            }
+            },
+            new Bruger
+            {
+                BrugerId = 3,
+                Navn = "Jane",
+                Adgangskode = "1234",
+                Email = "jane@mail.com",
+                BrugerTelefon = "76546489",
+                Rolle = "HR"
+            },
         });
 
         var emil = new Bruger
