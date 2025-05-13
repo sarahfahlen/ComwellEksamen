@@ -59,7 +59,7 @@
 
                 <!-- "Se elevplan"-knap -->
                 @if (
-                    (loggedIn.BrugerId == elev.BrugerId && (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "Faglært kok")) ||
+                    (loggedIn.BrugerId == elev.BrugerId && (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok")) ||
                     (loggedIn?.Rolle == "HR" || loggedIn.Rolle == "Køkkenchef")
                 )
                 {
@@ -73,7 +73,7 @@
 </div>
 
 @code {
-    private Bruger? loggedIn;
+    private Bruger? loggedIn; //Gemmer den bruger som er logget ind
     private List<Bruger> alleElever = new();
     private List<Bruger> elever = new();
 
@@ -89,13 +89,15 @@
         alleElever = await lService.HentAlleGemteEleverFraLocalStorage();
         FiltrerElever();
     }
-
+    //Vis kun elever med samme lokation for elever og faglærte kokke – ellers vis alle.
     private void FiltrerElever()
     {
+        //Stopper funktionen, hvis der ikke er nogen logget ind
         if (loggedIn == null) return;
-
-        if (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "Faglært kok")
+        //// Hvis brugeren er elev eller faglært kok.
+        if (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok")
         {
+            // Filtrér elever, så kun dem med samme lokation som den loggede vises
             elever = alleElever
                 .Where(e => e.Koekken?.LokationNavn == loggedIn.Koekken?.LokationNavn)
                 .ToList();
@@ -105,12 +107,12 @@
             elever = alleElever;
         }
     }
-
+   //Navigerer til siden for at oprette en ny elev.
     private void OnClickOpret()
     {
         navManager.NavigateTo("opretelev");
     }
-
+   //Navigerer til den specifikke elevs elevplan.
     private void GåTilElevplan(int elevId)
     {
         navManager.NavigateTo($"elevplan/{elevId}");
