@@ -20,9 +20,14 @@ public class Bruger
     public string BrugerTelefon { get; set; }
     
     public string Rolle { get; set; }
+    
+    public bool Aktiv { get; set; } = true;
     public string Billede { get; set; }
     [Required(ErrorMessage = "Startdato er påkrævet")]
     public DateOnly StartDato { get; set; }
+    
+    public DateOnly SlutDato { get; set; }
+    
     [Required(ErrorMessage = "Lokation er påkrævet")]
     public Lokation Koekken { get; set; }
     public Elevplan? MinElevplan { get; set; }

@@ -16,4 +16,6 @@ public class Delmaal
     public bool Status { get; set; }
     
     public List<Kommentar> Kommentar { get; set; } = new ();
+    
+    public List <Opgaver> DelmaalOpgaver { get; set; } = new ();
 }
