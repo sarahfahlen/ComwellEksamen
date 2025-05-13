@@ -114,28 +114,20 @@
             <!-- Elevens kommentar -->
             <label><strong>Elevens kommentar</strong></label>
 
-            @{
-                    Kommentar? elevK = null;
-                    if (minPlan != null && aktivtDelmaalId != 0)
-                    {
-                        elevK = eService.GetKommentar(minPlan, aktivtDelmaalId, "Elev");
-                    }
-            }
-
-            @if (elevK != null)
+            @if (!string.IsNullOrWhiteSpace(elevKommentarNavn) && elevKommentarDato != null)
             {
                 <p class="kommentar-info">
-                    <strong>@elevK.OprettetAf?.Navn</strong>, @elevK.Dato.ToString("dd.MM.yyyy"):
+                    <strong>@elevKommentarNavn</strong>, @elevKommentarDato?.ToString("dd.MM.yyyy"):
                 </p>
             }
 
-            @if (loggedIn?.Rolle == "Elev")
+            @if (loggedIn?.Rolle == "Elev") //Tillader redigering hvis man er logget ind som elev - ellers bare visning
             {
                 <InputTextArea class="form-control kommentarbox" style="height:14rem;" @bind-Value="elevKommentar" />
             }
-            else if (elevK != null)
+            else if (!string.IsNullOrWhiteSpace(elevKommentar))
             {
-                <p>@elevK.Tekst</p>
+                <p>@elevKommentar</p>
             }
             else
             {
@@ -145,28 +137,20 @@
             <!-- Kokkens kommentar -->
             <label class="mt-3"><strong>Kokkens kommentar</strong></label>
 
-            @{
-                    Kommentar? kokK = null;
-                    if (minPlan != null && aktivtDelmaalId != 0)
-                    {
-                        kokK = eService.GetKommentar(minPlan, aktivtDelmaalId, "Køkkenchef");
-                    }
-            }
-
-            @if (kokK != null)
+            @if (!string.IsNullOrWhiteSpace(kokKommentarNavn) && kokKommentarDato != null)
             {
                 <p class="kommentar-info">
-                    <strong>@kokK.OprettetAf?.Navn</strong>, @kokK.Dato.ToString("dd.MM.yyyy"):
+                    <strong>@kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
                 </p>
             }
 
-            @if (loggedIn?.Rolle == "Køkkenchef")
+            @if (loggedIn?.Rolle == "Køkkenchef") //Tillader redigering hvis man er logget ind som køkkenchef - ellers bare visning
             {
                 <InputTextArea class="form-control kommentarbox" style="height:14rem;" @bind-Value="kokKommentar" />
             }
-            else if (kokK != null)
+            else if (!string.IsNullOrWhiteSpace(kokKommentar))
             {
-                <p>@kokK.Tekst</p>
+                <p>@kokKommentar</p>
             }
             else
             {
@@ -204,13 +188,18 @@
     //Sætter default visning til at være 0 (1 praktik), og gør det muligt at ændre visning til andre
     private int valgtPeriodeIndex = 0;
     private Praktikperiode? aktivPeriode => minPlan?.ListPerioder[valgtPeriodeIndex];
-    //modaldialog til at lave kommentarer
+    //modaldialog til at oprette og redigere kommentarer for et delmål
     private ModalDialog? kommentarDialog;
+    //bruges til at binde værdien fra modaldialogen til en kommentar
     private string elevKommentar = "";
     private string kokKommentar = "";
+    //bruges til at binde brugerens navn + datoen fra modaldialogen til en kommentar
+    private string? elevKommentarNavn;
+    private DateOnly? elevKommentarDato;
+    private string? kokKommentarNavn;
+    private DateOnly? kokKommentarDato;
+    //bruges til at identificere det delmål vi arbejder med 
     private int aktivtDelmaalId = 0;
-    private int aktivtKommentarId = 0;
-    private bool isEditMode = false;
     // Sætter default på søgeordet til søgning af mål og delmål
     private string søgeord = "";
 
@@ -276,40 +265,61 @@
         return opnaaet;
     }
     
+    //Kaldes når man trykker se kommentar - åbner kommentarer fra det delmål der trykkes på (delmaalId)
     private void AabenKommentar(int delmaalId)
     {
         aktivtDelmaalId = delmaalId;
-        elevKommentar = "";
-        kokKommentar = "";
-
+        //nulstiller visning, så der ikke hentes noget fra "gamle" mål
+        elevKommentar = kokKommentar = "";
+        elevKommentarNavn = kokKommentarNavn = null;
+        elevKommentarDato = kokKommentarDato = null;
+        
         if (minPlan != null)
         {
-            var elevK = eService.GetKommentar(minPlan, delmaalId, "Elev");
-            var kokK = eService.GetKommentar(minPlan, delmaalId, "Køkkenchef");
-
-            elevKommentar = elevK?.Tekst ?? "";
-            kokKommentar = kokK?.Tekst ?? "";
-            aktivtKommentarId = elevK?.KommentarId ?? kokK?.KommentarId ?? 0;
+            //henter elevkommentaren fra service, hvor plan, delmaalId og rolle sendes med
+            var _elevKommentar = eService.GetKommentar(minPlan, delmaalId, "Elev");
+            if (_elevKommentar != null)
+            {
+                //sætter variable til det hentede data fra Service - dette bruges i visningen i modal
+                elevKommentar = _elevKommentar.Tekst;
+                elevKommentarNavn = _elevKommentar.OprettetAf?.Navn;
+                elevKommentarDato = _elevKommentar.Dato;
+            }
+            
+            //samme som ovenover, bare med kok/køkkenchef
+            var _kokKommentar = eService.GetKommentar(minPlan, delmaalId, "Køkkenchef");
+            if (_kokKommentar != null)
+            {
+                kokKommentar = _kokKommentar.Tekst;
+                kokKommentarNavn = _kokKommentar.OprettetAf?.Navn;
+                kokKommentarDato = _kokKommentar.Dato;
+            }
         }
-
+        //Åbner modaldialog med den data som er fundet ovenover
         kommentarDialog?.Open();
     }
 
 
-    
+
+    //Metode der gemmer kommentar - enten som en ny (hvis den er tom) eller som en opdatering (hvis kommentar findes)
     private async Task GemKommentar()
     {
         if (minPlan == null || loggedIn == null)
             return;
-
+        //Nedenunder tjekkes rollen for brugeren - så man kun kan redigere den kommentar man er berettiget til
+        
         if (loggedIn.Rolle == "Elev")
         {
+            //henter eksisterende kommentar og gemmer den
             var eksisterende = eService.GetKommentar(minPlan, aktivtDelmaalId, "Elev");
 
+            //hvis der eksisterer en kommentar, kaldes redigerings funktion fra service, som finder kommentaren og "erstatter" den
+            //den nye kommentar kommer fra en bindvalue i modaldialog
             if (eksisterende != null)
             {
                 await eService.RedigerKommentar(minPlan, aktivtDelmaalId, eksisterende.KommentarId, elevKommentar);
             }
+            //hvis der ikke eksisterer en kommentar, oprettes en ny med værdier fra bindvalue, og tilføjkommentar fra service kaldes
             else if (!string.IsNullOrWhiteSpace(elevKommentar))
             {
                 var kommentar = new Kommentar
@@ -321,6 +331,7 @@
                 await eService.TilfoejKommentar(minPlan, aktivtDelmaalId, kommentar);
             }
         }
+        //Samme som ovenover, bare for køkkenchef/kok (skal ændres til også at gælde for faglært kok)
         else if (loggedIn.Rolle == "Køkkenchef")
         {
             var eksisterende = eService.GetKommentar(minPlan, aktivtDelmaalId, "Køkkenchef");
@@ -340,10 +351,12 @@
                 await eService.TilfoejKommentar(minPlan, aktivtDelmaalId, kommentar);
             }
         }
-
+        //Modaldialog lukkes
         kommentarDialog?.Close();
+        
+        //Her skal implementeres en fejlbesked og succesbesked
     }
-
+    
     private List<Maal> HentFiltreredeMaal()
     {
         //Hvis der ikke er valgt en periode eller hvis søgefeltet er tomt, så viser vi alle mål som normalt
