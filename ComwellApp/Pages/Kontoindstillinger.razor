@@ -3,6 +3,7 @@
 @using Shared
 @inject ILoginService LoginService
 @inject NavigationManager Nav
+@inject IJSRuntime JS
 @if (!string.IsNullOrEmpty(successMessage))
 {
     <div class="alert alert-success">
@@ -163,9 +164,11 @@
     {
         bruger = await LoginService.GetUserLoggedIn();
     }
+    private async Task Tilbage()
+    {
+        await JS.InvokeVoidAsync("history.back");
+    }
 
-    // Naviger tilbage til elevplan
-    private void Tilbage() => Nav.NavigateTo("/hjem");
     // Gemmer ændringer, både almindelige og adgangskode, husk at når det sættes op med database, så skal det ændres til at det ikke er loggeninuser men at den henter fra databasen og password bliver validated færst derefter
     private async Task GemAendringer()
     {
