@@ -33,8 +33,7 @@
 }
 
 .item-card {
-    background-color: #f9f6f2;
-    border: 1px solid #d2b894;
+    background-color: #fff;
     border-radius: 14px;
     width: 48%;
     padding: 1.2rem;
@@ -103,7 +102,7 @@
     font-size: 0.85rem;
     font-weight: 500;
     transition: background-color 0.3s ease, color 0.3s ease;
-    align-self: flex-end; 
+    align-self: flex-start; 
     width: fit-content; 
     margin-top: 0.8rem;
 }
