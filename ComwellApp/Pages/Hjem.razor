@@ -26,12 +26,13 @@
             <h4>Kommende Deadlines</h4>
             <!-- Indhold tilføjes senere -->
         </div>
-
-        <div class="dashboard-box klikbarsted">
-            <h4>Learning Module</h4>
-            <!-- Også tom for nu -->
-        </div>
-
+        @if (loggedIn?.Rolle == "Elev")
+        {
+            <div class="dashboard-box klikbarsted">
+                <h4>Learning Module</h4>
+                <!-- Også tom for nu -->
+            </div>
+        }
         <div class="dashboard-box klikbarsted" @onclick="ÅbenModal">
             <!-- Åbner modal med praktisk info -->
             <h4>Praktisk Info</h4>
