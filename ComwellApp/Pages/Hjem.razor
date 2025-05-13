@@ -1,37 +1,48 @@
-﻿@page "/"
+﻿@page "/"                  
 @page "/hjem"
-@inject ILoginService lService
-@inject NavigationManager navManager
-@using ComwellApp.Services.Login
-@using Shared
 
-<PageTitle>Hjem</PageTitle>
+@inject ILoginService lService         
+@inject NavigationManager navManager   
+
+@using ComwellApp.Services.Login       
+@using Shared                          
+
+<PageTitle>Hjem</PageTitle>            
+ 
 <div class="page-wrapper hjem-baggrund">
-<h3 class="overskrift">Velkommen, @loggedIn?.Navn</h3>
+    
+    <!-- Viser navnet på den loggede bruger -->
+    <h3 class="overskrift">Velkommen, @loggedIn?.Navn</h3>
 
-<div class="intro-container">
-    <p class="intro-text">
-        Her kan du få et hurtigt overblik over dine læringsmål, kommende deadlines og vigtig praktisk information.
-        Klik på boksene for at dykke ned i indholdet og finde relevante kontaktoplysninger, hvis du har brug for hjælp.
-    </p>
-</div>
+    <div class="intro-container">
+        <p class="intro-text">
+            Her kan du få et hurtigt overblik over dine læringsmål, kommende deadlines og vigtig praktisk information.
+            Klik på boksene for at dykke ned i indholdet og finde relevante kontaktoplysninger, hvis du har brug for hjælp.
+        </p>
+    </div>
+
     <div class="dashboard-box-container">
-<div class="dashboard-box">
-    <h4>Kommende Deadlines</h4>
-    <!-- Indhold kommer senere -->
-</div>
+        <div class="dashboard-box">
+            <h4>Kommende Deadlines</h4>
+            <!-- Indhold tilføjes senere -->
+        </div>
+
         <div class="dashboard-box klikbarsted">
             <h4>Learning Module</h4>
-            <!-- Indhold kommer senere -->
+            <!-- Også tom for nu -->
         </div>
-    <div class="dashboard-box klikbarsted" @onclick="ÅbenModal">
-        <h4>Praktisk Info</h4>
-        <p>Klik her for kontaktoplysninger</p>
+
+        <div class="dashboard-box klikbarsted" @onclick="ÅbenModal">
+            <!-- Åbner modal med praktisk info -->
+            <h4>Praktisk Info</h4>
+            <p>Klik her for kontaktoplysninger</p>
+        </div>
     </div>
 </div>
-</div>
+
 @if (visModal)
 {
+    <!-- Modal vises kun hvis brugeren har klikket -->
     <div class="modal-overlay" @onclick="LukModal">
         <div class="modal-content" @onclick:stopPropagation>
             <h5>Kontaktoplysninger</h5>
@@ -47,12 +58,19 @@
 }
 
 @code {
-    private Bruger? loggedIn;
-    private bool visModal = false;
+    // Her gemmer vi den bruger der er logget ind
+    private Bruger? loggedIn;     
+    
+    // Styrer om modalen (kontaktinfo) vises eller ej
+    private bool visModal = false;    
 
+    // Denne metode kaldes automatisk når siden indlæses
     protected override async Task OnInitializedAsync()
     {
+        // Henter den bruger som er logget ind (fra lokal storage via service)
         loggedIn = await lService.GetUserLoggedIn();
+
+        // Hvis ingen bruger er logget ind, sendes de til login-siden
         if (loggedIn == null)
         {
             navManager.NavigateTo("login/hjem");
@@ -60,13 +78,16 @@
         }
     }
 
+    // Når brugeren klikker på "Praktisk info", vis modal
     private void ÅbenModal()
     {
         visModal = true;
     }
 
+    // Når brugeren klikker udenfor modal, eller på "Luk", skjul modal
     private void LukModal()
     {
         visModal = false;
     }
 }
+
