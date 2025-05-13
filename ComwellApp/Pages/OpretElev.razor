@@ -69,6 +69,16 @@
                     <InputFile id="billede" class="form-control" OnChange="HandleFileSelected" />
                 </div>
             </div>
+            <div class="form-floating-group tre-delt">
+                <select id="ansvarlig" class="form-control" @bind="valgtKoekkenchefId">
+                    <option disabled selected value="">Vælg ansvarlig køkkenchef</option>
+                    @foreach (var k in koekenchefer)
+                    {
+                        <option value="@k.BrugerId">@k.Navn</option>
+                    }
+                </select>
+            </div>
+
 
             <!-- Knap til at gemme/indsende -->
             <div class="form-floating-group opret-knap-container">
@@ -82,6 +92,8 @@
 
 @code {
     private int? valgtKoekkenId;
+    private int? valgtKoekkenchefId;
+    private List<Bruger> koekenchefer = new();
     private IBrowserFile? BilledeFil;
 
     private List<Lokation> alleKoekkener = new()
@@ -94,7 +106,11 @@
     {
         StartDato = DateOnly.FromDateTime(DateTime.Today)
     };
-
+    protected override async Task OnInitializedAsync()
+    {
+        var alleBrugere = await BrugereService.HentAlle();
+        koekenchefer = alleBrugere.Where(b => b.Rolle == "Køkkenchef").ToList();
+    }
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
         BilledeFil = e.File;
@@ -124,13 +140,14 @@
 
         nyElev.Rolle = "Elev";
         nyElev.Koekken = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
+        var ansvarlig = koekenchefer.FirstOrDefault(k => k.BrugerId == valgtKoekkenchefId);
 
-        var ansvarlig = await LoginService.GetUserLoggedIn();
-        if (ansvarlig is null)
+        if (ansvarlig == null)
         {
-            Console.WriteLine("Ingen bruger er logget ind.");
+            Console.WriteLine("Der er ikke valgt en ansvarlig køkkenchef.");
             return;
         }
+
 
         await BrugereService.TilfoejElev(nyElev, ansvarlig);
         await LoginService.GemElevILocalStorage(nyElev);
