@@ -74,8 +74,8 @@
 
 @code {
     private Bruger? loggedIn; //Gemmer den bruger som er logget ind
-    private List<Bruger> alleElever = new();
-    private List<Bruger> elever = new();
+    private List<Bruger> alleElever = new(); // Indeholder alle elever (ufiltreret)
+    private List<Bruger> elever = new(); //indeholder alle filtreret elever, der skal vises
 
     protected override async Task OnInitializedAsync()
     {
@@ -94,7 +94,8 @@
     {
         //Stopper funktionen, hvis der ikke er nogen logget ind
         if (loggedIn == null) return;
-        //// Hvis brugeren er elev eller faglært kok.
+        
+        // Hvis brugeren er elev eller faglært kok.
         if (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok")
         {
             // Filtrér elever, så kun dem med samme lokation som den loggede vises
