@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComwellApp", "ComwellApp\Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{29E3502C-FCAE-4122-B6F4-770DA2B4B636}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend", "Backend\Backend.csproj", "{EE3FB02B-F75C-4D43-AB53-03A6825797C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{29E3502C-FCAE-4122-B6F4-770DA2B4B636}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29E3502C-FCAE-4122-B6F4-770DA2B4B636}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29E3502C-FCAE-4122-B6F4-770DA2B4B636}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE3FB02B-F75C-4D43-AB53-03A6825797C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE3FB02B-F75C-4D43-AB53-03A6825797C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE3FB02B-F75C-4D43-AB53-03A6825797C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE3FB02B-F75C-4D43-AB53-03A6825797C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
