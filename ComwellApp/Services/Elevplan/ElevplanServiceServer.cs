@@ -39,7 +39,33 @@ public class ElevplanServiceServer : IElevplanService
 
         return skabelon;
     }
-    
+
+    public List<Maal> HentFiltreredeMaal(Elevplan plan, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType,
+        string? søgeord, bool? filterStatus)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task TilfoejKommentar(Elevplan minPlan, int delmaalId, Kommentar nyKommentar)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RedigerKommentar(Elevplan minPlan, int delmaalId, int kommentarId, string nyTekst)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Kommentar? GetKommentar(Elevplan plan, int delmaalId, string brugerRolle)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<Elevplan> GetAllElevplaner()
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<Elevplan> OpretElevplan(Bruger ansvarlig, string skabelonNavn)
     {
         //henter den rigtige skabelon og tildeler den et nyt ID fra vores service 

@@ -78,8 +78,14 @@
                     }
                 </select>
             </div>
-
-
+            <div class="form-floating-group hel-bredde">
+                <select class="form-control" @bind="nyElev.Erhverv">
+                    <option disabled selected value="">Vælg uddannelse</option>
+                    <option value="Kok">Kok</option>
+                </select>
+                <ValidationMessage For="@(() => nyElev.Erhverv)" />
+            </div>
+            
             <!-- Knap til at gemme/indsende -->
             <div class="form-floating-group opret-knap-container">
                 <button class="btn btn-primary" type="submit">Opret</button>
@@ -106,6 +112,7 @@
     {
         StartDato = DateOnly.FromDateTime(DateTime.Today)
     };
+    
     protected override async Task OnInitializedAsync()
     {
         var alleBrugere = await BrugereService.HentAlle();
@@ -147,9 +154,16 @@
             Console.WriteLine("Der er ikke valgt en ansvarlig køkkenchef.");
             return;
         }
+        
+        string skabelonNavn = nyElev.Erhverv switch
+        {
+            "Kok" => "KokSkabelon",
+            // Her tilføjes andre erhverv på sigt
+            _ => throw new Exception("Ukendt erhverv – kan ikke vælge skabelon")
+        };
+    
 
-
-        await BrugereService.TilfoejElev(nyElev, ansvarlig);
+        await BrugereService.TilfoejElev(nyElev, ansvarlig, skabelonNavn);
         await LoginService.GemElevILocalStorage(nyElev);
 
         Console.WriteLine("Elev oprettet – redirecting...");

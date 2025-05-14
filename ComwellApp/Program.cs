@@ -38,7 +38,7 @@ builder.Services.AddScoped<IBrugereService>(sp =>
 });
 
 // LoginService skal tilgå listen EFTER BrugereServiceMock er oprettet
-builder.Services.AddScoped<ILoginService, LoginServiceServer>();
+builder.Services.AddScoped<ILoginService, LoginServiceClientSite>();
 
 // Byg og kør app
 await builder.Build().RunAsync();

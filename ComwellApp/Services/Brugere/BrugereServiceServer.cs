@@ -50,7 +50,7 @@ public class BrugereServiceServer : IBrugereService
             }
         }
 
-        //Tilføjer elevolanen til den nye bruger
+        //Tilføjer elevplanen til den nye bruger
         nyBruger.MinElevplan = plan;
 
         //Kalder vores controller, og sender vores nye bruger med
@@ -63,5 +63,13 @@ public class BrugereServiceServer : IBrugereService
         }
     }
 
+    public Task<List<Bruger>> HentAlle()
+    {
+        throw new NotImplementedException();
+    }
 
+    public Task<Shared.Elevplan?> GetElevplanForUser(Bruger bruger)
+    {
+        throw new NotImplementedException();
+    }
 }
