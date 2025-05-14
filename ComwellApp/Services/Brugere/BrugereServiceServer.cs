@@ -14,8 +14,13 @@ public class BrugereServiceServer : IBrugereService
     }
 
     private List<Shared.Elevplan> _allePlaner = new();
+    private List<Bruger> _alleBrugere = new();
+    
     public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig, string skabelonType)
     {
+        //Henter alle eksisterende brugere til listen, for at kunne generere nyt ID
+        _alleBrugere = await HentAlle();
+        nyBruger.BrugerId = _idGenerator.GenererNytId(_alleBrugere, b => b.BrugerId);
         // Henter skabelon fra vores backend metode (elevplans controller)
         var response = await http.GetAsync($"api/elevplan/skabelon/{skabelonType}");
         if (!response.IsSuccessStatusCode)

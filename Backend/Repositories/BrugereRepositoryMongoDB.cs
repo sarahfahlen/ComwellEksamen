@@ -45,27 +45,10 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         //Tilføjer den nye elev til MongoDB
         public async Task TilfoejElev(Bruger nyBruger)
         {
-            // Hvis BrugerId er 0 (ikke sat fra frontend), generer en
-            if (nyBruger.BrugerId == 0)
-            {
-                var eksisterendeBrugerIds = await BrugerCollection
-                    .Find(Builders<Bruger>.Filter.Empty)
-                    .Project(b => b.BrugerId)
-                    .ToListAsync();
-
-                int nytBrugerId = (eksisterendeBrugerIds.Any()) 
-                    ? eksisterendeBrugerIds.Max() + 1 
-                    : 1;
-
-                nyBruger.BrugerId = nytBrugerId;
-
-                Console.WriteLine($"[Repo] Ny BrugerId genereret: {nytBrugerId}");
-            }
-
-
             await BrugerCollection.InsertOneAsync(nyBruger);
         }
 
+        
         public async Task<List<Bruger>> HentAlle()
         {
             var filter = Builders<Bruger>.Filter.Empty;
