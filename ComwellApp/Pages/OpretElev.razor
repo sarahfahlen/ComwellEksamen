@@ -2,7 +2,7 @@
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
 @using Shared
-@inject IBrugereService BrugereService
+@inject IBrugereService bService
 @inject ILoginService LoginService
 @inject NavigationManager Navigation
 
@@ -99,25 +99,26 @@
 @code {
     private int? valgtKoekkenId;
     private int? valgtKoekkenchefId;
-    private List<Bruger> koekenchefer = new();
-    private IBrowserFile? BilledeFil;
 
-    private List<Lokation> alleKoekkener = new()
-    {
-        new Lokation { LokationId = 1, LokationNavn = "Køkken 1" },
-        new Lokation { LokationId = 2, LokationNavn = "Køkken 2" }
-    };
+    private List<Bruger> koekenchefer = new();           // Alle køkkenchefer (fra backend)
+    private List<Lokation> alleKoekkener = new();        // Alle unikke lokationer (fra backend)
+
+    private IBrowserFile? BilledeFil;
 
     private Bruger nyElev = new()
     {
         StartDato = DateOnly.FromDateTime(DateTime.Today)
     };
-    
+
     protected override async Task OnInitializedAsync()
     {
-        var alleBrugere = await BrugereService.HentAlle();
-        koekenchefer = alleBrugere.Where(b => b.Rolle == "Køkkenchef").ToList();
+        // Hent køkkenchefer og lokationer fra backend
+        koekenchefer = await bService.HentAlleKøkkenchefer();
+        alleKoekkener = (await bService.HentAlleLokationer())
+                        .OrderBy(l => l.LokationNavn)
+                        .ToList();
     }
+
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
         BilledeFil = e.File;
@@ -132,6 +133,7 @@
     {
         Console.WriteLine("Forsøger at oprette elev...");
 
+        // Profilbillede upload
         if (BilledeFil != null)
         {
             using var stream = BilledeFil.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
@@ -145,8 +147,10 @@
             nyElev.Billede = "billeder/intetprofilbillede.jpg";
         }
 
+        // Rolle og lokation
         nyElev.Rolle = "Elev";
         nyElev.Afdeling = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
+
         var ansvarlig = koekenchefer.FirstOrDefault(k => k.BrugerId == valgtKoekkenchefId);
 
         if (ansvarlig == null)
@@ -154,18 +158,19 @@
             Console.WriteLine("Der er ikke valgt en ansvarlig køkkenchef.");
             return;
         }
-        
+
+        // Vælg skabelon baseret på erhverv
         string skabelonNavn = nyElev.Erhverv switch
         {
             "Kok" => "KokSkabelon",
-            // Her tilføjes andre erhverv på sigt
             _ => throw new Exception("Ukendt erhverv – kan ikke vælge skabelon")
         };
-    
 
-        await BrugereService.TilfoejElev(nyElev, ansvarlig, skabelonNavn);
+        // Send til backend
+        await bService.TilfoejElev(nyElev, ansvarlig, skabelonNavn);
+
+        // Gem lokalt og redirect
         await LoginService.GemElevILocalStorage(nyElev);
-
         Console.WriteLine("Elev oprettet – redirecting...");
         Navigation.NavigateTo("/dashboard");
     }

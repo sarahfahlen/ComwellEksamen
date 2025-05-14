@@ -83,7 +83,17 @@ public class BrugereServiceMock : IBrugereService
         return Task.FromResult(elev?.MinElevplan);
     }
 
-    
+    public Task<List<Bruger>> HentAlleKøkkenchefer()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<Lokation>> HentAlleLokationer()
+    {
+        throw new NotImplementedException();
+    }
+
+
     public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig, string skabelonType)
     {
         nyBruger.BrugerId = _idGenerator.GenererNytId(_brugere, b => b.BrugerId);

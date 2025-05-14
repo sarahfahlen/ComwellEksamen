@@ -41,15 +41,41 @@ namespace Backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> OpdaterBruger(int id, [FromBody] Bruger opdateretBruger)
         {
-            var eksisterende = await loginRepo.Validering(opdateretBruger.Email, opdateretBruger.Adgangskode); // valgfrit, hvis du vil validere først
+            var eksisterende = await loginRepo.HentBrugerViaIdAsync(id);
             if (eksisterende == null)
                 return NotFound("Brugeren blev ikke fundet");
+
 
             var succes = await loginRepo.OpdaterBrugerAsync(id, opdateretBruger);
             if (!succes)
                 return BadRequest("Kunne ikke opdatere brugeren");
 
             return Ok();
+        }
+        [HttpPut("{id}/skiftkode")]
+        public async Task<IActionResult> SkiftAdgangskode(int id, [FromBody] SkiftKodeRequest request)
+        {
+            var bruger = await loginRepo.HentBrugerViaIdAsync(id);
+
+            if (bruger == null)
+                return NotFound("Bruger findes ikke");
+
+            if (bruger.Adgangskode != request.NuværendeKode)
+                return Unauthorized("Forkert nuværende adgangskode");
+
+            bruger.Adgangskode = request.NyKode;
+
+            var succes = await loginRepo.OpdaterBrugerAsync(id, bruger);
+            if (!succes)
+                return BadRequest("Kunne ikke opdatere adgangskoden");
+
+            return Ok();
+        }
+
+        public class SkiftKodeRequest
+        {
+            public string NuværendeKode { get; set; }
+            public string NyKode { get; set; }
         }
 
     }

@@ -180,9 +180,9 @@
 
         if (visSkiftKodeord)
         {
-            if (nuværendeKode != bruger.Adgangskode)
+            if (string.IsNullOrWhiteSpace(nuværendeKode))
             {
-                fejlbesked = "Den nuværende adgangskode er forkert.";
+                fejlbesked = "Indtast din nuværende adgangskode.";
                 return;
             }
 
@@ -198,22 +198,34 @@
                 return;
             }
 
-            bruger.Adgangskode = nyKode;
+            bool success = await LoginService.SkiftAdgangskode(bruger.BrugerId, nuværendeKode, nyKode);
+
+            if (!success)
+            {
+                fejlbesked = "Den nuværende adgangskode er forkert, eller der opstod en fejl.";
+                return;
+            }
+
+            successMessage = "Adgangskoden er opdateret.";
             visSkiftKodeord = false;
             fejlbesked = "";
-            successMessage = "Kodeord opdateret";
         }
         else
         {
-            successMessage = "Oplysninger opdateret";
+            // 👇 kun hvis du IKKE skifter kodeord, så fjerner vi det før submit
+            bruger.Adgangskode = null;
+            successMessage = "Oplysninger opdateret.";
         }
 
         await LoginService.OpdaterBruger(bruger);
         StateHasChanged();
+
         await Task.Delay(3000);
         successMessage = "";
         StateHasChanged();
     }
+
+
     // Håndterer upload af nyt billede
     private async Task HandleBilledeUpload(InputFileChangeEventArgs e)
     {

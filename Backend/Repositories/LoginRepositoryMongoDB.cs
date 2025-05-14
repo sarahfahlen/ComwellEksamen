@@ -57,8 +57,23 @@ public class LoginRepositoryMongoDB : ILoginRepository
     public async Task<bool> OpdaterBrugerAsync(int id, Bruger bruger)
     {
         var filter = Builders<Bruger>.Filter.Eq(b => b.BrugerId, id);
+        var eksisterende = await HentBrugerViaIdAsync(id);
+
+        if (eksisterende == null)
+            return false;
+
+        // 🛡 Bevar adgangskoden hvis feltet er tomt
+        if (string.IsNullOrWhiteSpace(bruger.Adgangskode))
+            bruger.Adgangskode = eksisterende.Adgangskode;
+
         var result = await LoginCollection.ReplaceOneAsync(filter, bruger);
         return result.IsAcknowledged && result.ModifiedCount > 0;
+    }
+
+    public async Task<Bruger?> HentBrugerViaIdAsync(int id)
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b.BrugerId, id);
+        return await LoginCollection.Find(filter).FirstOrDefaultAsync();
     }
 
 }

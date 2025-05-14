@@ -81,4 +81,9 @@ public class LoginServiceClientSite : ILoginService
             await _localStorage.SetItemAsync("bruger", bruger);
         }
     }
+
+    public Task<bool> SkiftAdgangskode(int brugerId, string nuværendeKode, string nyKode)
+    {
+        throw new NotImplementedException();
+    }
 }

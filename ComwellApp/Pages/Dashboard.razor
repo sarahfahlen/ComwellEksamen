@@ -1,6 +1,8 @@
 @page "/dashboard"
 @inject NavigationManager navManager
 @inject ILoginService lService
+@inject IBrugereService bService
+@using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
 @using Shared
 
@@ -86,7 +88,8 @@
             return;
         }
 
-        alleElever = await lService.HentAlleGemteEleverFraLocalStorage();
+        alleElever = await bService.HentAlle(); // Henter kun elever
+
         FiltrerElever();
     }
     //Vis kun elever med samme lokation for elever og faglærte kokke – ellers vis alle.

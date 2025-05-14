@@ -25,4 +25,25 @@ public class BrugereController : ControllerBase
         await _repo.TilfoejElev(nyBruger);
         return Ok("Bruger med elevplan oprettet");
     }
+    [HttpGet]
+    public async Task<ActionResult<List<Bruger>>> HentAlle()
+    {
+        var brugere = await _repo.HentAlle(); // den metode skal du også have i dit repo
+        return Ok(brugere);
+    }
+    [HttpGet("køkkenchefer")]
+    public async Task<ActionResult<List<Bruger>>> HentAlleKøkkenchefer()
+    {
+        var brugere = await _repo.HentAlle();
+        var kokke = brugere.Where(b => b.Rolle == "Køkkenchef").ToList();
+        return Ok(kokke);
+    }
+    [HttpGet("lokationer")]
+    public async Task<ActionResult<List<Lokation>>> HentAlleLokationer()
+    {
+        var lokationer = await _repo.HentAlleLokationer();
+        return Ok(lokationer);
+    }
+
+
 }

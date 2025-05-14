@@ -63,10 +63,22 @@ public class BrugereServiceServer : IBrugereService
         }
     }
 
-    public Task<List<Bruger>> HentAlle()
+    public async Task<List<Bruger>> HentAlle()
     {
-        throw new NotImplementedException();
+        var brugere = await http.GetFromJsonAsync<List<Bruger>>("api/brugere");
+        return brugere?.Where(b => b.Rolle == "Elev").ToList() ?? new List<Bruger>();
     }
+    public async Task<List<Bruger>> HentAlleKøkkenchefer()
+    {
+        var kokke = await http.GetFromJsonAsync<List<Bruger>>("api/brugere/køkkenchefer");
+        return kokke ?? new List<Bruger>();
+    }
+    public async Task<List<Lokation>> HentAlleLokationer()
+    {
+        var result = await http.GetFromJsonAsync<List<Lokation>>("api/brugere/lokationer");
+        return result ?? new List<Lokation>();
+    }
+
 
     public Task<Shared.Elevplan?> GetElevplanForUser(Bruger bruger)
     {

@@ -35,7 +35,7 @@ public class LoginServiceServer : ILoginService
 
             if (bruger != null)
             {
-                bruger.Adgangskode = "validated";
+                bruger.Adgangskode = null; 
                 await localStorage.SetItemAsync("bruger", bruger);
                 return true;
             }
@@ -73,4 +73,24 @@ public class LoginServiceServer : ILoginService
             Console.WriteLine($"Opdatering fejlede: {fejl}");
         }
     }
+    public async Task<bool> SkiftAdgangskode(int brugerId, string nuværendeKode, string nyKode)
+    {
+        var requestBody = new
+        {
+            NuværendeKode = nuværendeKode,
+            NyKode = nyKode
+        };
+
+        var response = await client.PutAsJsonAsync($"{serverUrl}/api/users/{brugerId}/skiftkode", requestBody);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Fejl ved adgangskodeskift: {fejl}");
+            return false;
+        }
+
+        return true;
+    }
+
 }

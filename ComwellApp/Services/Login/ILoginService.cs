@@ -16,6 +16,7 @@ public interface ILoginService
     Task<List<Bruger>> HentAlleGemteEleverFraLocalStorage();
 
     Task OpdaterBruger(Bruger bruger);
-   
+    Task<bool> SkiftAdgangskode(int brugerId, string nuværendeKode, string nyKode);
+
     
 }   

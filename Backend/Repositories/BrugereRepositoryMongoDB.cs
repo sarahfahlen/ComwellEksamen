@@ -47,5 +47,27 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         {
             await BrugerCollection.InsertOneAsync(nyBruger);
         }
+        public async Task<List<Bruger>> HentAlle()
+        {
+            var filter = Builders<Bruger>.Filter.Empty;
+            return await BrugerCollection.Find(filter).ToListAsync();
+        }
+        public async Task<List<Bruger>> HentAlleKøkkenchefer()
+        {
+            var filter = Builders<Bruger>.Filter.Eq(b => b.Rolle, "Køkkenchef");
+            return await BrugerCollection.Find(filter).ToListAsync();
+        }
+        public async Task<List<Lokation>> HentAlleLokationer()
+        {
+            var filter = Builders<Bruger>.Filter.Ne(b => b.Afdeling, null);
+            var brugere = await BrugerCollection.Find(filter).ToListAsync();
+
+            return brugere
+                .Where(b => b.Afdeling != null)
+                .Select(b => b.Afdeling!)
+                .GroupBy(l => l.LokationId)
+                .Select(g => g.First())
+                .ToList();
+        }
 
 }
