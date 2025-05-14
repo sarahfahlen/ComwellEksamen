@@ -52,6 +52,12 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
             var filter = Builders<Bruger>.Filter.Empty;
             return await BrugerCollection.Find(filter).ToListAsync();
         }
+        public async Task<List<Bruger>> HentAlleElever()
+        {
+            var filter = Builders<Bruger>.Filter.Eq(b => b.Rolle, "Elev");
+            return await BrugerCollection.Find(filter).ToListAsync();
+        }
+
         public async Task<List<Bruger>> HentAlleKøkkenchefer()
         {
             var filter = Builders<Bruger>.Filter.Eq(b => b.Rolle, "Køkkenchef");

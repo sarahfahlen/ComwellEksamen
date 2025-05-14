@@ -31,6 +31,14 @@ public class BrugereController : ControllerBase
         var brugere = await _repo.HentAlle(); // den metode skal du også have i dit repo
         return Ok(brugere);
     }
+    [HttpGet("elever")]
+    public async Task<ActionResult<List<Bruger>>> HentAlleElever()
+    {
+        var elever = await _repo.HentAlleElever();
+        return Ok(elever);
+    }
+
+
     [HttpGet("køkkenchefer")]
     public async Task<ActionResult<List<Bruger>>> HentAlleKøkkenchefer()
     {

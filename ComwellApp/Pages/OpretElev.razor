@@ -168,10 +168,8 @@
 
         // Send til backend
         await bService.TilfoejElev(nyElev, ansvarlig, skabelonNavn);
-
-        // Gem lokalt og redirect
-        await LoginService.GemElevILocalStorage(nyElev);
-        Console.WriteLine("Elev oprettet – redirecting...");
+        
+        Console.WriteLine("Elev oprettet – omdirigering...");
         Navigation.NavigateTo("/dashboard");
     }
 }

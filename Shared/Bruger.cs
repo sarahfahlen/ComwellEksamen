@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -34,5 +35,6 @@ public class Bruger
     
   
     public Lokation? Afdeling { get; set; }
+    [JsonIgnore]
     public Elevplan? MinElevplan { get; set; }
 }
