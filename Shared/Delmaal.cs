@@ -13,7 +13,7 @@ public class Delmaal
     public string Titel { get; set; }
     
     public string? Beskrivelse {get;set;}
-    public string Ansvarlig { get; set; }
+    public string? Ansvarlig { get; set; }
     public DateOnly? Deadline { get; set; }
     public string? DeadlineKommentar { get; set; }
     

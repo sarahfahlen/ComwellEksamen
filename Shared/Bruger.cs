@@ -35,6 +35,6 @@ public class Bruger
     
   
     public Lokation? Afdeling { get; set; }
-    [JsonIgnore]
+
     public Elevplan? MinElevplan { get; set; }
 }

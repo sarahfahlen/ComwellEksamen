@@ -65,9 +65,10 @@ public class BrugereServiceServer : IBrugereService
 
     public async Task<List<Bruger>> HentAlle()
     {
-        var brugere = await http.GetFromJsonAsync<List<Bruger>>("api/brugere");
-        return brugere?.Where(b => b.Rolle == "Elev").ToList() ?? new List<Bruger>();
+        return await http.GetFromJsonAsync<List<Bruger>>("api/brugere/elever")
+               ?? new List<Bruger>();
     }
+
     public async Task<List<Bruger>> HentAlleKøkkenchefer()
     {
         var kokke = await http.GetFromJsonAsync<List<Bruger>>("api/brugere/køkkenchefer");
