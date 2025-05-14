@@ -2,11 +2,12 @@ using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 namespace Shared;
-
+[BsonIgnoreExtraElements]
 public class Bruger
 {
-    [BsonId] // Brug denne som ID i stedet for _id
-    [BsonRepresentation(BsonType.Int32)] 
+    [BsonId]
+    [BsonIgnoreIfDefault]
+    public ObjectId _id { get; set; }
     public int BrugerId { get; set; }
     [Required(ErrorMessage = "Navn er påkrævet")]
     public string Navn { get; set; }

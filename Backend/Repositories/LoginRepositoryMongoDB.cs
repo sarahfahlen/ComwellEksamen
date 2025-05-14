@@ -6,17 +6,16 @@ namespace Backend.Repositories;
 
 public class LoginRepositoryMongoDB : ILoginRepository
 {
-
-    
     private IMongoClient client;
     private IMongoCollection<Bruger> LoginCollection;
-     
+
 
     public LoginRepositoryMongoDB()
     {
         // atlas database
         var password = "Comwell";
-        var mongoUri = $"mongodb+srv://Comwell:{password}@comwell.mils9ta.mongodb.net/?retryWrites=true&w=majority&appName=Comwell";
+        var mongoUri =
+            $"mongodb+srv://Comwell:{password}@comwell.mils9ta.mongodb.net/?retryWrites=true&w=majority&appName=Comwell";
 
         //local mongodb
         //var mongoUri = "mongodb://localhost:27017/";
@@ -40,6 +39,26 @@ public class LoginRepositoryMongoDB : ILoginRepository
 
         LoginCollection = client.GetDatabase(dbName)
             .GetCollection<Bruger>(collectionName);
-            
     }
+
+    public Bruger[] HentAlleBrugere()
+    {
+        var nofilter = Builders<Bruger>.Filter.Empty;
+        return LoginCollection.Find(nofilter).ToList().ToArray();
+    }
+
+
+    public async Task<Bruger?> Validering(string email, string adgangskode)
+    {
+        var bruger = await LoginCollection.Find(b => b.Email == email && b.Adgangskode == adgangskode)
+            .FirstOrDefaultAsync();
+        return bruger;
+    }
+    public async Task<bool> OpdaterBrugerAsync(int id, Bruger bruger)
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b.BrugerId, id);
+        var result = await LoginCollection.ReplaceOneAsync(filter, bruger);
+        return result.IsAcknowledged && result.ModifiedCount > 0;
+    }
+
 }

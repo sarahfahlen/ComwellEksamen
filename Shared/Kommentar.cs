@@ -2,11 +2,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Shared;
-
+[BsonIgnoreExtraElements]
 public class Kommentar
 {
-    [BsonId] // Brug denne som ID i stedet for _id
-    [BsonRepresentation(BsonType.Int32)] 
+    [BsonId]
+    [BsonIgnoreIfDefault]
+    public ObjectId _id { get; set; }
     public int KommentarId { get; set; }
     public Bruger OprettetAf { get; set; }
     public DateOnly Dato { get; set; }

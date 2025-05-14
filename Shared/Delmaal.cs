@@ -2,11 +2,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Shared;
-
+[BsonIgnoreExtraElements]
 public class Delmaal
 {
-    [BsonId] // Brug denne som ID i stedet for _id
-    [BsonRepresentation(BsonType.Int32)] 
+    [BsonId]
+    [BsonIgnoreIfDefault]
+    public ObjectId _id { get; set; }
     public int DelmaalId { get; set; }
     public string DelmaalType { get; set; }
     public string Titel { get; set; }

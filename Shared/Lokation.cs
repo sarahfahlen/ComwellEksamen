@@ -2,11 +2,12 @@ using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 namespace Shared;
-
+[BsonIgnoreExtraElements]
 public class Lokation
 {
-   [BsonId] // Brug denne som ID i stedet for _id
-   [BsonRepresentation(BsonType.Int32)] 
+   [BsonId]
+   [BsonIgnoreIfDefault]
+   public ObjectId _id { get; set; }
    public int LokationId { get; set; } 
    public string LokationNavn { get; set; }
    public string Adresse { get; set;}

@@ -10,7 +10,10 @@ using ComwellApp.Services.Login;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
-
+builder.Services.AddScoped(sp => new HttpClient 
+{ 
+    BaseAddress = new Uri("http://localhost:5237") 
+});
 // Lokal storage
 builder.Services.AddBlazoredLocalStorage();
 
@@ -35,7 +38,7 @@ builder.Services.AddScoped<IBrugereService>(sp =>
 });
 
 // LoginService skal tilgå listen EFTER BrugereServiceMock er oprettet
-builder.Services.AddScoped<ILoginService, LoginServiceClientSite>();
+builder.Services.AddScoped<ILoginService, LoginServiceServer>();
 
 // Byg og kør app
 await builder.Build().RunAsync();

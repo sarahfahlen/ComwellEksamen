@@ -1,6 +1,6 @@
 namespace Backend.Repositories.Interface;
 
-public class IBrugereRepository
+public interface IBrugereRepository
 {
     
 }

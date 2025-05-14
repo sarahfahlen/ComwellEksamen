@@ -2,11 +2,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Shared;
-
+[BsonIgnoreExtraElements]
 public class Praktikperiode
 {
-    [BsonId] // Brug denne som ID i stedet for _id
-    [BsonRepresentation(BsonType.Int32)] 
+    [BsonId]
+    [BsonIgnoreIfDefault]
+    public ObjectId _id { get; set; }
     public int PraktikId { get; set; }
     public string PraktikNavn { get; set; }
     public int Skolevarighed { get; set; }

@@ -16,6 +16,6 @@ public interface ILoginService
     Task<List<Bruger>> HentAlleGemteEleverFraLocalStorage();
 
     Task OpdaterBruger(Bruger bruger);
-
+   
     
 }   
