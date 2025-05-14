@@ -7,7 +7,7 @@ public class Delmaal
 {
     [BsonId] // Brug denne som ID i stedet for _id
     [BsonRepresentation(BsonType.Int32)] 
-    public int DelmaalID { get; set; }
+    public int DelmaalId { get; set; }
     public string DelmaalType { get; set; }
     public string Titel { get; set; }
     
