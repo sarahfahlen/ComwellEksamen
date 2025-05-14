@@ -10,35 +10,23 @@ using ComwellApp.Services.Login;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
-builder.Services.AddScoped(sp => new HttpClient 
-{ 
-    BaseAddress = new Uri("http://localhost:5237") 
+
+// HttpClient til API-kald (til backend)
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("http://localhost:5237")
 });
+
 // Lokal storage
 builder.Services.AddBlazoredLocalStorage();
 
-// HttpClient til API-kald (lokal base-adresse)
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
-// Registrér services
-builder.Services.AddScoped<ElevplanServiceMock>();
+// Id-generator (brugt i frontend)
 builder.Services.AddScoped<IdGeneratorService>();
 
-builder.Services.AddScoped<IElevplanService>(sp =>
-    sp.GetRequiredService<ElevplanServiceMock>());
+builder.Services.AddScoped<IElevplanService, ElevplanServiceServer>();
+builder.Services.AddScoped<IBrugereService, BrugereServiceServer>();
+builder.Services.AddScoped<ILoginService, LoginServiceServer>();
 
 
-// 👇 Registrér BrugereServiceMock FØR loginservice, så Emil tilføjes i tide
-builder.Services.AddScoped<IBrugereService>(sp =>
-{
-    var elevplanService = sp.GetRequiredService<ElevplanServiceMock>();
-    var idGenerator = sp.GetRequiredService<IdGeneratorService>();
-    var service = new BrugereServiceMock(elevplanService, idGenerator);
-    return service;
-});
-
-// LoginService skal tilgå listen EFTER BrugereServiceMock er oprettet
-builder.Services.AddScoped<ILoginService, LoginServiceClientSite>();
-
-// Byg og kør app
+// Kør appen
 await builder.Build().RunAsync();
