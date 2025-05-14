@@ -4,9 +4,10 @@ html, body {
     overflow: hidden;
 }
 
-@media{
+@media (max-width: 768px){
     .hjem-baggrund{
-        height: calc(100vh - 3.8rem);
+        position: relative;
+        height: calc(102.1vh - 3.8rem);
     }
 }
 
@@ -23,7 +24,7 @@ html, body {
     position: relative;
     background-image: url('billeder/Comwellkitchen.jpg');
     background-size: cover;
-    height: calc(100vh - 4.91rem);
+    height: calc(102.1vh - 4.91rem);
     background-position: center;
     background-repeat: no-repeat;
     z-index: 0;

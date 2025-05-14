@@ -266,3 +266,20 @@ a.nav-link.active {
     font-size: 0.95rem;
 }
 
+.notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background-color: #c0392b;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 1.2rem;
+    height: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 2px rgba(0,0,0,0.2);
+}
+

@@ -18,6 +18,10 @@
                  class="bi bi-bell-fill icon-btn" viewBox="0 0 16 16">
                 <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901"/>
             </svg>
+            @if (deadlines.Any())
+            {
+                <span class="notification-badge">@deadlines.Count</span>
+            }
         </div>
         <!-- Bruger logget ind -->
         <div class="brugericon position-relative" @onclick="ToggleUserMenu" style="cursor: pointer;">
@@ -66,9 +70,10 @@
     <div class="alert-overlay-menu dropdown-panel">
         <strong>Vigtige deadlines</strong>
         <ul class="deadline-list">
-            <li>Delmål 1 – Deadline i morgen</li>
-            <li>Delmål 2 – Deadline om 2 dage</li>
-            <li>Delmål 3 – Ikke nået endnu</li>
+            @foreach (var d in deadlines)
+            {
+                <li>@d</li>
+            }
         </ul>
     </div>
 }
@@ -182,6 +187,12 @@
             isUserMenuOpen = false;
         }
     }
+    
+    private List<string> deadlines = new() {
+        "Delmål 1 – Deadline i morgen",
+        "Delmål 2 – Deadline om 2 dage",
+        "Delmål 3 – Ikke nået endnu"
+    };
 
     private void CloseMenu()
     {
