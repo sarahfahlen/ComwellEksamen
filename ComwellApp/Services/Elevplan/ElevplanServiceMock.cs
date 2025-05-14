@@ -24,16 +24,16 @@ public class ElevplanServiceMock : IElevplanService
         var delmaal = minPlan.ListPerioder
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.DelmaalID == delmaalId);
+            .FirstOrDefault(d => d.DelmaalId == delmaalId);
         
         if (delmaal != null)
         {
             //Genererer et ID til den nye kommentar via vores service
-            nyKommentar.KommentarId = _idGenerator.GenererNytId(delmaal.Kommentar, k => k.KommentarId);
+            nyKommentar.KommentarId = _idGenerator.GenererNytId(delmaal.Kommentarer, k => k.KommentarId);
             nyKommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
             
             //kommentar tilføjes
-            delmaal.Kommentar.Add(nyKommentar);
+            delmaal.Kommentarer.Add(nyKommentar);
         }
         return Task.CompletedTask;
     }
@@ -44,10 +44,10 @@ public class ElevplanServiceMock : IElevplanService
         var delmaal = minPlan.ListPerioder
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.DelmaalID == delmaalId);
+            .FirstOrDefault(d => d.DelmaalId == delmaalId);
 
         //Her finder vi den kommentar vi vil redigere/opdatere, ud fra ID 
-        var kommentar = delmaal?.Kommentar.FirstOrDefault(k => k.KommentarId == kommentarId);
+        var kommentar = delmaal?.Kommentarer.FirstOrDefault(k => k.KommentarId == kommentarId);
 
         //Her laver vi opdateringen, baseret på den nye tekst, og sætter datoen til i dag
         if (kommentar != null)
@@ -64,12 +64,12 @@ public class ElevplanServiceMock : IElevplanService
         var delmaal = plan.ListPerioder
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.DelmaalID == delmaalId);
+            .FirstOrDefault(d => d.DelmaalId == delmaalId);
 
         if (delmaal == null)
             return null;
         //Her sender vi den kommentar der skal vises, ud fra brugerrolle
-        return delmaal.Kommentar
+        return delmaal.Kommentarer
             .FirstOrDefault(k => k.OprettetAf?.Rolle == brugerRolle);
     }
 
@@ -144,7 +144,7 @@ public class ElevplanServiceMock : IElevplanService
                             {
                                 new Delmaal
                                 {
-                                    DelmaalID = 1,
+                                    DelmaalId = 1,
                                     DelmaalType = "Intro",
                                     Beskrivelse = "Udlever tøj og sikkerhedssko",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -154,7 +154,7 @@ public class ElevplanServiceMock : IElevplanService
                                 },
                                 new Delmaal
                                 {
-                                    DelmaalID = 2,
+                                    DelmaalId = 2,
                                     DelmaalType = "Intro",
                                     Beskrivelse = "Fremvisning af områder",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -172,7 +172,7 @@ public class ElevplanServiceMock : IElevplanService
                             {
                                 new Delmaal
                                 {
-                                    DelmaalID = 3,
+                                    DelmaalId = 3,
                                     DelmaalType = "Intro",
                                     Beskrivelse = "Vagtplaner",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -182,7 +182,7 @@ public class ElevplanServiceMock : IElevplanService
                                 },
                                 new Delmaal
                                 {
-                                    DelmaalID = 4,
+                                    DelmaalId = 4,
                                     DelmaalType = "Intro",
                                     Beskrivelse = "Ferie og fridage",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -200,7 +200,7 @@ public class ElevplanServiceMock : IElevplanService
                             {
                                 new Delmaal
                                 {
-                                    DelmaalID = 5,
+                                    DelmaalId = 5,
                                     DelmaalType = "Intro",
                                     Beskrivelse = "Intro til arbejdsmiljø på Comwell Connect",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -210,7 +210,7 @@ public class ElevplanServiceMock : IElevplanService
                                 },
                                 new Delmaal
                                 {
-                                    DelmaalID = 6,
+                                    DelmaalId = 6,
                                     DelmaalType = "Intro",
                                     Beskrivelse = "Ergonomi og tunge løft",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -228,7 +228,7 @@ public class ElevplanServiceMock : IElevplanService
                             {
                                 new Delmaal
                                 {
-                                    DelmaalID = 7,
+                                    DelmaalId = 7,
                                     DelmaalType = "Samtale",
                                     Beskrivelse = "6 ugers samtale",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -238,7 +238,7 @@ public class ElevplanServiceMock : IElevplanService
                                 },
                                 new Delmaal
                                 {
-                                    DelmaalID = 8,
+                                    DelmaalId = 8,
                                     DelmaalType = "Samtale",
                                     Beskrivelse = "3 måneders samtale",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -256,7 +256,7 @@ public class ElevplanServiceMock : IElevplanService
                             {
                                 new Delmaal
                                 {
-                                    DelmaalID = 9,
+                                    DelmaalId = 9,
                                     DelmaalType = "Kursus",
                                     Beskrivelse = "Kernen i Comwell - intro",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -266,7 +266,7 @@ public class ElevplanServiceMock : IElevplanService
                                 },
                                 new Delmaal
                                 {
-                                    DelmaalID = 10,
+                                    DelmaalId = 10,
                                     DelmaalType = "Kursus",
                                     Beskrivelse = "Kernen i Comwell - ESG",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -284,7 +284,7 @@ public class ElevplanServiceMock : IElevplanService
                             {
                                 new Delmaal
                                 {
-                                    DelmaalID = 11,
+                                    DelmaalId = 11,
                                     DelmaalType = "Fagligt mål",
                                     Beskrivelse = "Kendskab til systemer",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -294,7 +294,7 @@ public class ElevplanServiceMock : IElevplanService
                                 },
                                 new Delmaal
                                 {
-                                    DelmaalID = 12,
+                                    DelmaalId = 12,
                                     DelmaalType = "Fagligt mål",
                                     Beskrivelse = "Knives funktionalitet",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -312,7 +312,7 @@ public class ElevplanServiceMock : IElevplanService
                             {
                                 new Delmaal
                                 {
-                                    DelmaalID = 13,
+                                    DelmaalId = 13,
                                     DelmaalType = "Intro",
                                     Beskrivelse = "Kendskab til Esmiley",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
@@ -322,7 +322,7 @@ public class ElevplanServiceMock : IElevplanService
                                 },
                                 new Delmaal
                                 {
-                                    DelmaalID = 14,
+                                    DelmaalId = 14,
                                     DelmaalType = "Fagligt mål",
                                     Beskrivelse = "Affaldssortering i køkkenet",
                                     Ansvarlig = "Elevansvarlig/Nærmeste leder",
