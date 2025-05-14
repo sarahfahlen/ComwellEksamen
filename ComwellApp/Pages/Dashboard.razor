@@ -39,7 +39,7 @@
                         <h5>@elev.Navn</h5>
                         <p>Telefon: @elev.BrugerTelefon</p>
                         <p>Køkkenchef: @elev.MinElevplan?.Ansvarlig?.Navn</p>
-                        <p>Elev siden: @elev.StartDato.ToString("dd-MM-yyyy")</p>
+                        <p>Elev siden: @elev.StartDato?.ToString("dd-MM-yyyy")</p>
                     </div>
 
                     <!-- Midterkolonne -->
