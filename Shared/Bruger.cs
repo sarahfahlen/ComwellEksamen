@@ -21,14 +21,14 @@ public class Bruger
     
     public string Rolle { get; set; }
     
-    public string Erhverv { get; set; }
+    public string? Erhverv { get; set; }
     
     public bool Aktiv { get; set; } = true;
     public string Billede { get; set; }
     [Required(ErrorMessage = "Startdato er påkrævet")]
-    public DateOnly StartDato { get; set; }
+    public DateOnly? StartDato { get; set; }
     
-    public DateOnly SlutDato { get; set; }
+    public DateOnly? SlutDato { get; set; }
     
     [Required(ErrorMessage = "Lokation er påkrævet")]
     public Lokation? Afdeling { get; set; }
