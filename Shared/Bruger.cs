@@ -28,7 +28,7 @@ public class Bruger
     [Required(ErrorMessage = "Startdato er påkrævet")]
     public DateOnly? StartDato { get; set; }
     
-    public DateOnly? SlutDato { get; set; }
+    public DateOnly? SlutDato { get; set;}
     
     [Required(ErrorMessage = "Lokation er påkrævet")]
     public Lokation? Afdeling { get; set; }
