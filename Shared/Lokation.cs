@@ -9,7 +9,7 @@ public class Lokation
    [BsonRepresentation(BsonType.Int32)] 
    public int LokationId { get; set; } 
    public string LokationNavn { get; set; }
-   public string Adresse { get; set; }
+   public string Adresse { get; set;}
    
    [Required(ErrorMessage = "Telefonnummer skal udfyldes.")]
    [RegularExpression(@"^\d{8}$", ErrorMessage = "Telefonnummeret skal bestå af præcis 8 tal.")]
