@@ -95,7 +95,8 @@
                         @foreach (var delmaal in maal.ListDelmaal)
                         {
                             <div class="delmaal">
-                                <h4 class="delmaal-overskrift">@delmaal.Beskrivelse</h4>
+                                <h4 class="delmaal-overskrift">@delmaal.Titel</h4>
+                                <p>Beskrivelse: @delmaal.Beskrivelse</p>
                                 <p>Type: @delmaal.DelmaalType</p>
                                 <p>Ansvarlig: @delmaal.Ansvarlig</p>
                                 <p>

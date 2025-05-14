@@ -21,6 +21,8 @@ public class Bruger
     
     public string Rolle { get; set; }
     
+    public string Erhverv { get; set; }
+    
     public bool Aktiv { get; set; } = true;
     public string Billede { get; set; }
     [Required(ErrorMessage = "Startdato er påkrævet")]
