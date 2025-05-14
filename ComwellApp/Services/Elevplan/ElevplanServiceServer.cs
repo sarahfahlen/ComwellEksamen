@@ -89,29 +89,5 @@ public class ElevplanServiceServer : IElevplanService
     {
         throw new NotImplementedException();
     }
-
-    public async Task<Elevplan> OpretElevplan(Bruger ansvarlig, string skabelonNavn)
-    {
-        //henter den rigtige skabelon og tildeler den et nyt ID fra vores service 
-        var plan = await  LavDefaultSkabelon(ansvarlig, skabelonNavn);
-        plan.ElevplanId = _idGenerator.GenererNytId(_alleElevplaner, p => p.ElevplanId);
-        //Sørger for at alle delmål og opgaver sættes til ikke at være fuldført 
-        foreach (var periode in plan.ListPerioder)
-        {
-            foreach (var maal in periode.ListMaal)
-            {
-                foreach (var delmaal in maal.ListDelmaal)
-                {
-                    delmaal.Status = false;
-
-                    foreach (var opgave in delmaal.ListOpgaver)
-                    {
-                        opgave.OpgaveGennemfoert = false;
-                    }
-                }
-            }
-        }
-        _alleElevplaner.Add(plan);
-        return plan;
-    }
+    
 }

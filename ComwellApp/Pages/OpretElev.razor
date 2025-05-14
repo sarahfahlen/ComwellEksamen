@@ -133,44 +133,50 @@
     private async Task HandleSubmit()
     {
         Console.WriteLine("Forsøger at oprette elev...");
-
-        // Profilbillede upload
-        if (BilledeFil != null)
+        try
         {
-            using var stream = BilledeFil.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
-            var bytes = ms.ToArray();
-            nyElev.Billede = $"data:{BilledeFil.ContentType};base64,{Convert.ToBase64String(bytes)}";
+            // Profilbillede upload
+            if (BilledeFil != null)
+            {
+                using var stream = BilledeFil.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+                var bytes = ms.ToArray();
+                nyElev.Billede = $"data:{BilledeFil.ContentType};base64,{Convert.ToBase64String(bytes)}";
+            }
+            else
+            {
+                nyElev.Billede = "billeder/intetprofilbillede.jpg";
+            }
+
+            // Rolle og lokation
+            nyElev.Rolle = "Elev";
+            nyElev.Afdeling = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
+
+            var ansvarlig = koekenchefer.FirstOrDefault(k => k.BrugerId == valgtKoekkenchefId);
+
+            if (ansvarlig == null)
+            {
+                Console.WriteLine("Der er ikke valgt en ansvarlig køkkenchef.");
+                return;
+            }
+
+            // Vælg skabelon baseret på erhverv
+            string skabelonNavn = nyElev.Erhverv switch
+            {
+                "Kok" => "KokSkabelon",
+                _ => throw new Exception("Ukendt erhverv – kan ikke vælge skabelon")
+            };
+
+            // Send til backend
+            await bService.TilfoejElev(nyElev, ansvarlig, skabelonNavn);
+
+            Console.WriteLine("Elev oprettet – omdirigering...");
+            Navigation.NavigateTo("/dashboard");
         }
-        else
+        catch (Exception ex)
         {
-            nyElev.Billede = "billeder/intetprofilbillede.jpg";
+            Console.WriteLine($"[HandleSubmit] Der opstod en fejl: {ex.Message}");
         }
-
-        // Rolle og lokation
-        nyElev.Rolle = "Elev";
-        nyElev.Afdeling = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
-
-        var ansvarlig = koekenchefer.FirstOrDefault(k => k.BrugerId == valgtKoekkenchefId);
-
-        if (ansvarlig == null)
-        {
-            Console.WriteLine("Der er ikke valgt en ansvarlig køkkenchef.");
-            return;
-        }
-
-        // Vælg skabelon baseret på erhverv
-        string skabelonNavn = nyElev.Erhverv switch
-        {
-            "Kok" => "KokSkabelon",
-            _ => throw new Exception("Ukendt erhverv – kan ikke vælge skabelon")
-        };
-
-        // Send til backend
-        await bService.TilfoejElev(nyElev, ansvarlig, skabelonNavn);
-        
-        Console.WriteLine("Elev oprettet – omdirigering...");
-        Navigation.NavigateTo("/dashboard");
     }
 }
