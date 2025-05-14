@@ -44,7 +44,7 @@
 
                     <!-- Midterkolonne -->
                     <div class="item-center">
-                        <p>Lokation: @elev.Koekken?.LokationNavn</p>
+                        <p>Lokation: @elev.Afdeling?.LokationNavn</p>
                         <p>Delmål opnået: @antalOpnaaet / @antalIalt</p>
                         <div class="statusbar-outer">
                             <div class="statusbar-inner" style="background: @gradient; clip-path: inset(0 calc(100% - @procentInt%) 0 0);"></div>
@@ -100,7 +100,7 @@
         {
             // Filtrér elever, så kun dem med samme lokation som den loggede vises
             elever = alleElever
-                .Where(e => e.Koekken?.LokationNavn == loggedIn.Koekken?.LokationNavn)
+                .Where(e => e.Afdeling?.LokationNavn == loggedIn.Afdeling?.LokationNavn)
                 .ToList();
         }
         else

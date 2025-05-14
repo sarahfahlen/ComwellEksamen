@@ -139,7 +139,7 @@
         }
 
         nyElev.Rolle = "Elev";
-        nyElev.Koekken = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
+        nyElev.Afdeling = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
         var ansvarlig = koekenchefer.FirstOrDefault(k => k.BrugerId == valgtKoekkenchefId);
 
         if (ansvarlig == null)
