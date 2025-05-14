@@ -31,7 +31,6 @@ public class BrugereServiceServer : IBrugereService
             throw new Exception("Skabelonen kunne ikke konverteres til Elevplan");
 
         //Tilpasser elevplanen til den enkelte elev ved at give ID, sætte den ansvarlige og tømme alle statusfelter
-        plan.ElevplanId = _idGenerator.GenererNytId(_allePlaner, p => p.ElevplanId);
         plan.Ansvarlig = ansvarlig;
 
         foreach (var periode in plan.ListPerioder)
