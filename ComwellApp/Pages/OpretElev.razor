@@ -69,23 +69,24 @@
                     <InputFile id="billede" class="form-control" OnChange="HandleFileSelected" />
                 </div>
             </div>
-            <div class="form-floating-group tre-delt">
-                <select id="ansvarlig" class="form-control" @bind="valgtKoekkenchefId">
-                    <option disabled selected value="">Vælg ansvarlig køkkenchef</option>
-                    @foreach (var k in koekenchefer)
-                    {
-                        <option value="@k.BrugerId">@k.Navn</option>
-                    }
-                </select>
+            <div class="form-row">
+                <div class="form-floating-group halv-bredde">
+                    <select id="ansvarlig" class="form-control" @bind="valgtKoekkenchefId">
+                        <option disabled selected value="">Vælg ansvarlig køkkenchef</option>
+                        @foreach (var k in koekenchefer)
+                        {
+                            <option value="@k.BrugerId">@k.Navn</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-floating-group halv-bredde">
+                    <select class="form-control" @bind="nyElev.Erhverv">
+                        <option disabled selected value="">Vælg uddannelse</option>
+                        <option value="Kok">Kok</option>
+                    </select>
+                    <ValidationMessage For="@(() => nyElev.Erhverv)" />
+                </div>
             </div>
-            <div class="form-floating-group hel-bredde">
-                <select class="form-control" @bind="nyElev.Erhverv">
-                    <option disabled selected value="">Vælg uddannelse</option>
-                    <option value="Kok">Kok</option>
-                </select>
-                <ValidationMessage For="@(() => nyElev.Erhverv)" />
-            </div>
-            
             <!-- Knap til at gemme/indsende -->
             <div class="form-floating-group opret-knap-container">
                 <button class="btn btn-primary" type="submit">Opret</button>

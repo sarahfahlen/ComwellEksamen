@@ -6,7 +6,7 @@ h3 {
 .opret-container {
     max-width: 75rem;
     width: 100%;
-    max-height: 40rem;
+    max-height: 41rem;
     margin: 1rem auto;
     background-color: #f9f6f2;
     padding: 3rem 2rem;
@@ -172,7 +172,7 @@ button.btn:hover {
         justify-content: center;
     }
     .opret-container {
-        max-height: 45rem;
+        max-height: 46rem;
     }
 }
 
