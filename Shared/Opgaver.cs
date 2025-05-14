@@ -9,6 +9,6 @@ public class Opgaver
     public ObjectId _id { get; set; }
     public int OpgaveId { get; set; } 
     public string OpgaveNavn { get; set; }
-    public bool OpgaveGennemfoert { get; set; }
+    public bool OpgaveGennemfoert { get; set; } = false;
     public string OpgaveDetaljer { get; set; }
 }

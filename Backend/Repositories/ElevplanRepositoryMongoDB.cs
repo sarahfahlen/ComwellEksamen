@@ -6,8 +6,6 @@ namespace Backend.Repositories;
 
 public class ElevplanRepositoryMongoDB : IElevplanRepository
 {
-
-    
     private IMongoClient client;
     private IMongoCollection<Elevplan> SkabelonCollection;
     private IMongoCollection<Bruger> BrugerCollection;
@@ -46,4 +44,12 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
             .GetCollection<Elevplan>(Skabeloncollection);
 
     }
+    
+    public async Task<Elevplan?> HentSkabelon(string skabelonNavn)
+    {
+        //Opretter et filter der matcher det medsendte skabelonNavn, men SkabelonNavn i mongoDB
+        var filter = Builders<Elevplan>.Filter.Eq("SkabelonNavn", skabelonNavn);
+        return await SkabelonCollection.Find(filter).FirstOrDefaultAsync();
+    }
+    
 }

@@ -84,10 +84,10 @@ public class BrugereServiceMock : IBrugereService
     }
 
     
-    public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig)
+    public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig, string skabelonType)
     {
         nyBruger.BrugerId = _idGenerator.GenererNytId(_brugere, b => b.BrugerId);
-        nyBruger.MinElevplan = await _elevplanService.OpretElevplan(ansvarlig);
+        nyBruger.MinElevplan = await _elevplanService.OpretElevplan(ansvarlig, skabelonType);
         _brugere.Add(nyBruger);
         Console.WriteLine("Brugere i systemet:");
         foreach (var bruger in _brugere)

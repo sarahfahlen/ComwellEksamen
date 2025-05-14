@@ -10,7 +10,6 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
     
         private IMongoClient client;
         private IMongoCollection<Bruger> BrugerCollection;
-     
 
         public BrugereRepositoryMongoDB()
         {
@@ -42,4 +41,11 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
                 .GetCollection<Bruger>(collectionName);
             
         }
+        
+        //Tilføjer den nye elev til MongoDB
+        public async Task TilfoejElev(Bruger nyBruger)
+        {
+            await BrugerCollection.InsertOneAsync(nyBruger);
+        }
+
 }

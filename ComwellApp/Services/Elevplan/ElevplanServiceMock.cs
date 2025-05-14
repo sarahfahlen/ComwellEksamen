@@ -101,16 +101,16 @@ public class ElevplanServiceMock : IElevplanService
 
 
     //Opretter en ny elevplan, ved at kalde vores skabelon funktion og sende bruger + ansvarlig med
-    public async Task<Shared.Elevplan> OpretElevplan(Bruger ansvarlig)
+    public async Task<Shared.Elevplan> OpretElevplan(Bruger ansvarlig, string skabelonNavn)
     {
-        var plan = await LavDefaultSkabelon(ansvarlig);
+        var plan = await LavDefaultSkabelon(ansvarlig, skabelonNavn);
         plan.ElevplanId = _idGenerator.GenererNytId(alleElevplaner, p => p.ElevplanId);
         alleElevplaner.Add(plan);
         return plan;
     }
 
     //Returnerer vores skabelon, og tilknytter den medsendte elev og ansvarlige fra OpretElevplan() til elev og ansvarlig felter
-    public async Task<Shared.Elevplan> LavDefaultSkabelon(Bruger ansvarlig)
+    public async Task<Shared.Elevplan> LavDefaultSkabelon(Bruger ansvarlig, string skabelonNavn)
     {
         return new Shared.Elevplan
         {

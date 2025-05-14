@@ -8,7 +8,6 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
      
         builder.Services.AddControllers();
         builder.Services.AddCors(options =>
@@ -23,7 +22,8 @@ public class Program
 
         builder.Services.AddSingleton<LoginRepositoryMongoDB>();
         builder.Services.AddSingleton<ILoginRepository, LoginRepositoryMongoDB>();
-        
+        builder.Services.AddSingleton<IElevplanRepository, ElevplanRepositoryMongoDB>();
+
         builder.Services.AddOpenApi();
 
         var app = builder.Build();

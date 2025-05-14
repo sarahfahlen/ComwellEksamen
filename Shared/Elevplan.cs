@@ -3,10 +3,13 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Shared;
 
+//ignorerer de elementer der mangler i MongoDB, bruges til vores skabelon
+[BsonIgnoreExtraElements]
 public class Elevplan
 {
-    [BsonId] // Brug denne som ID i stedet for _id
-    [BsonRepresentation(BsonType.Int32)] 
+    [BsonId]  
+    [BsonIgnoreIfDefault]
+    public ObjectId _id { get; set; }
     public int ElevplanId { get; set; }
     public Bruger Ansvarlig { get; set; }
     public List<Praktikperiode> ListPerioder { get; set; }
