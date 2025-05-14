@@ -135,9 +135,7 @@
 .overlay-menu {
     position: fixed;
     top: 5rem;
-    right: 1rem;
-}
-.overlay-menu {
+    right: 0rem;
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
@@ -151,7 +149,7 @@
 .user-overlay-menu {
     position: fixed;
     top: 5rem; /* Lige under navbaren */
-    right: 1rem; /* Juster efter hvor brugerikonet sidder */
+    right: 7rem; /* Juster efter hvor brugerikonet sidder */
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
@@ -242,3 +240,29 @@ a.nav-link.active {
     transform: translateX(4px);
     color: #8C2D24;
 }
+
+.alert-overlay-menu {
+    position: fixed;
+    top: 5rem; /* Lige under navbaren */
+    right: 14rem; /* Juster efter hvor brugerikonet sidder */
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+    padding: 1rem;
+    width: 240px;
+    animation: slideDown 0.25s ease-out;
+    z-index: 950; /* under navmenuens 1000 */
+}
+
+.deadline-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+}
+
+.deadline-list li {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95rem;
+}
+

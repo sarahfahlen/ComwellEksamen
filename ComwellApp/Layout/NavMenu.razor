@@ -12,7 +12,14 @@
 
     <!-- Højre side: bruger + burger-menu -->
     <div class="nav-right d-flex align-items-center gap-3">
-        <!-- Brugermenu -->
+        <!-- Alert-knap med dropdown -->
+        <div class="alert-dropdown position-relative" @onclick="ToggleAlertMenu" style="cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="white"
+                 class="bi bi-bell-fill icon-btn" viewBox="0 0 16 16">
+                <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901"/>
+            </svg>
+        </div>
+        <!-- Bruger logget ind -->
         <div class="brugericon position-relative" @onclick="ToggleUserMenu" style="cursor: pointer;">
             @if (currentUser != null)
             {
@@ -36,7 +43,7 @@
             <div class="navbar-toggler">
                 @if (!isMenuOpen)
                 {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="burger-icon icon-btn" width="25" height="25"
+                    <svg xmlns="http://www.w3.org/2000/svg" class="burger-icon icon-btn" width="30" height="25"
                          viewBox="0 0 16 16" fill="currentColor">
                         <path fill-rule="evenodd"
                               d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
@@ -54,6 +61,18 @@
         </div>
     </div>
 </nav>
+@if (isAlertMenuOpen)
+{
+    <div class="alert-overlay-menu dropdown-panel">
+        <strong>Vigtige deadlines</strong>
+        <ul class="deadline-list">
+            <li>Delmål 1 – Deadline i morgen</li>
+            <li>Delmål 2 – Deadline om 2 dage</li>
+            <li>Delmål 3 – Ikke nået endnu</li>
+        </ul>
+    </div>
+}
+
 @if (isUserMenuOpen && currentUser != null)
 {
     <div class="user-overlay-menu hover-menu">
@@ -119,7 +138,7 @@
     </div>
 }
 
-@if (isMenuOpen || isUserMenuOpen)
+@if (isMenuOpen || isUserMenuOpen || isAlertMenuOpen)
 {
     <div class="menu-backdrop" @onclick="CloseMenu"></div>
 }
@@ -140,6 +159,7 @@
         if (isMenuOpen)
         {
             isUserMenuOpen = false;
+            isAlertMenuOpen = false;
         }
     }
 
@@ -149,6 +169,17 @@
         if (isUserMenuOpen)
         {
             isMenuOpen = false;
+            isAlertMenuOpen = false;
+        }
+    }
+    
+    private void ToggleAlertMenu()
+    {
+        isAlertMenuOpen = !isAlertMenuOpen;
+        if (isAlertMenuOpen)
+        {
+            isMenuOpen = false;
+            isUserMenuOpen = false;
         }
     }
 
@@ -156,6 +187,7 @@
     {
         isMenuOpen = false;
         isUserMenuOpen = false;
+        isAlertMenuOpen = false;
     }
 
     private async Task LogUd()
@@ -164,5 +196,6 @@
         currentUser = null;
         navManager.NavigateTo("/login/hjem", forceLoad: true);
     }
-
+    
+    private bool isAlertMenuOpen = false;
 }
