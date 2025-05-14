@@ -46,9 +46,33 @@ public class ElevplanServiceServer : IElevplanService
         throw new NotImplementedException();
     }
 
-    public Task TilfoejKommentar(Elevplan minPlan, int delmaalId, Kommentar nyKommentar)
+    public async Task TilfoejKommentar(Elevplan minPlan, int delmaalId, Kommentar nyKommentar)
     {
-        throw new NotImplementedException();
+        //Finder det rigtige delmål for at vores Idgenerator kan lave et korrekt Id til den nye kommentar
+        var delmaal = minPlan.ListPerioder
+            .SelectMany(p => p.ListMaal)
+            .SelectMany(m => m.ListDelmaal)
+            .FirstOrDefault(d => d.DelmaalId == delmaalId);
+
+        if (delmaal == null)
+            throw new Exception("Delmål ikke fundet i planen.");
+
+        //Opretter Id til den nye kommentar, og sætter dagens dato på
+        nyKommentar.KommentarId = _idGenerator.GenererNytId(delmaal.Kommentarer, k => k.KommentarId);
+        nyKommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
+
+        //Kalder vores controller og forsøger at gemme den nye kommentar
+        var response = await http.PostAsJsonAsync(
+            $"api/elevplan/kommentar/{minPlan.ElevplanId}/{delmaalId}",
+            nyKommentar);
+
+        //Fejlhåndtering
+        if (!response.IsSuccessStatusCode)
+        {
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[TilfoejKommentar] FEJL: {fejl}");
+            throw new Exception("Kunne ikke tilføje kommentar");
+        }
     }
 
     public Task RedigerKommentar(Elevplan minPlan, int delmaalId, int kommentarId, string nyTekst)

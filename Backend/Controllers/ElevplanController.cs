@@ -9,6 +9,7 @@ namespace Backend.Controllers;
 public class ElevplanController : ControllerBase
 {
     private readonly IElevplanRepository elevplanRepo;
+    private readonly IBrugereRepository brugereRepo;
 
     public ElevplanController(IElevplanRepository elevplanRepo)
     {
@@ -26,4 +27,21 @@ public class ElevplanController : ControllerBase
 
         return Ok(skabelon);
     }
+    
+    //Tilføjer en ny kommentar fra frontend til repository
+    [HttpPost("kommentar/{elevplanId:int}/{delmaalId:int}")]
+    public async Task<IActionResult> TilfoejKommentar(int elevplanId, int delmaalId, [FromBody] Kommentar kommentar)
+    {
+        try
+        {
+            await elevplanRepo.TilfoejKommentar(elevplanId, delmaalId, kommentar);
+            return Ok("Kommentar tilføjet");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[TilfoejKommentar] FEJL: {ex.Message}");
+            return BadRequest(ex.Message);
+        }
+    }
+
 }

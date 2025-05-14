@@ -12,12 +12,7 @@ public class ElevplanServiceMock : IElevplanService
     }
 
     private List<Shared.Elevplan> alleElevplaner = new();
-    public List<Shared.Elevplan> GetAllElevplaner()
-    {
-        return alleElevplaner;
-    }
     
-
     public Task TilfoejKommentar(Shared.Elevplan minPlan, int delmaalId, Kommentar nyKommentar)
     {
         //Her finder vi alle delmål i den elevplan der sendes med og derefter det specifikke delmål ud fra ID

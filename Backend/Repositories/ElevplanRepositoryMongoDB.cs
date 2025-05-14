@@ -52,4 +52,31 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         return await SkabelonCollection.Find(filter).FirstOrDefaultAsync();
     }
     
+    public async Task TilfoejKommentar(int elevplanId, int delmaalId, Kommentar kommentar)
+    {
+        //opretter et filter der finder den rigtige elevplan, ved at lede efter elevplanID i brugere
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.ElevplanId, elevplanId);
+        var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
+        
+        if (bruger == null || bruger.MinElevplan == null)
+            throw new Exception($"Ingen elevplan med ID {elevplanId} fundet.");
+        
+        //finder det rigtige delmål, ved at matche delmålId fra det valgte delmål i frontend med det i databasen
+        var delmaal = bruger.MinElevplan.ListPerioder
+            .SelectMany(p => p.ListMaal)
+            .SelectMany(m => m.ListDelmaal)
+            .FirstOrDefault(d => d.DelmaalId == delmaalId);
+
+        if (delmaal == null)
+            throw new Exception($"Delmål med ID {delmaalId} blev ikke fundet.");
+        
+        //Tilføjer kommentaren til listen af kommentarer for delmålet
+        delmaal.Kommentarer.Add(kommentar);
+
+        //Opdaterer brugeren - dette gøres da kommentarer er dybt embedded og derfor er svære at tilgå
+        await BrugerCollection.ReplaceOneAsync(b => b.BrugerId == bruger.BrugerId, bruger);
+    }
+
+
+    
 }
