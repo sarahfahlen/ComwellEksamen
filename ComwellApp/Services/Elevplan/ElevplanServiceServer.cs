@@ -196,10 +196,5 @@ public class ElevplanServiceServer : IElevplanService
         var response = await http.GetAsync($"api/elevplan/delmaaltyper/{elevplanId}/{periodeIndex}");
         return await response.Content.ReadFromJsonAsync<List<string>>() ?? new();
     }
-
-
-
-
-    
     
 }

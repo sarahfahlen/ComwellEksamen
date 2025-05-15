@@ -115,7 +115,7 @@
             <ModalDialog @ref="tilfoejDelmaalDialog" Title="Tilføj nyt delmål">
                 <div class="modal-form">
                     <label>Vælg praktikperiode</label>
-                    <select class="form-control" @bind="valgtPeriodeIndexTilDelmaal">
+                    <select class="form-control" @onchange="OnPeriodeChanged">
                         <option value="-1">-- Vælg periode --</option>
                         @for (int i = 0; i < minPlan?.ListPerioder.Count; i++)
                         {
@@ -244,6 +244,7 @@
                             {
                                 <option value="@m.MaalNavn">@m.MaalNavn</option>
                             }
+                            
                         </InputSelect>
 
 
@@ -698,6 +699,13 @@
         {
             maalTilValgtPeriode = await eService.HentMaalFraPeriode(minPlan.ElevplanId, valgtPeriodeIndexTilDelmaal);
         }
+        Console.WriteLine($"✅ Hentede {maalTilValgtPeriode.Count} mål fra backend til periode {valgtPeriodeIndexTilDelmaal}");
+    }
+    
+    private async Task OnPeriodeChanged(ChangeEventArgs e)
+    {
+        valgtPeriodeIndexTilDelmaal = int.Parse(e.Value?.ToString() ?? "-1");
+        await HentMaalFraBackend();
     }
 }
     
