@@ -93,7 +93,7 @@
             </div>
             @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "FaglærtKok" || loggedIn?.Rolle == "HR")
             {
-                <button class="btn btn-primary tilfoej-knap" @onclick="VisTilfoejDelmaalModal">+ Tilføj delmål</button>
+                <button class="btn btn-primary tilfoej-delmaal-knap" @onclick="VisTilfoejDelmaalModal">Tilføj delmål</button>
             }
 
             <!-- Viser elevplanens mål og delmål -->
@@ -699,7 +699,6 @@
             maalTilValgtPeriode = await eService.HentMaalFraPeriode(minPlan.ElevplanId, valgtPeriodeIndexTilDelmaal);
         }
     }
-
 }
     
 
