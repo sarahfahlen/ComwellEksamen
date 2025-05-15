@@ -1,24 +1,28 @@
-@page "/dashboard"
+@page "/dashboard" 
+
+
 @inject NavigationManager navManager
 @inject ILoginService lService
 @inject IBrugereService bService
+
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
 @using Shared
 
-<PageTitle>Dashboard</PageTitle>
+<PageTitle>Dashboard</PageTitle> <!-- Vises i browserens faneblad -->
 
-<!-- Overskrift og knap -->
+<!--  Sideoverskrift og opret-knap -->
 <div class="overskrift-knap-wrapper">
     <h1 class="overskrift">Elevoversigt</h1>
 
+    <!-- Viser kun knappen "Opret elev", hvis den loggede bruger har en rolle der må -->
     @if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR"))
     {
         <button class="btn btn-primary opret-knap" @onclick="OnClickOpret">Opret elev</button>
     }
 </div>
 
-<!-- Elevkort visning -->
+<!-- Her vises alle elever som kort -->
 <div class="elevkort-container">
     @if (elever == null || !elever.Any())
     {
@@ -28,15 +32,17 @@
     {
         @foreach (var elev in elever)
         {
+            // Vi beregner hvor mange delmål eleven har opnået
             var (opnaaet, iAlt) = BeregnFremgang(elev);
             double procent = iAlt > 0 ? (double)opnaaet / iAlt * 100 : 0;
             int procentInt = (int)Math.Round(procent);
 
+            // Gradient til statusbaren
             string gradient = "linear-gradient(to right, #e4a1a1 0%, #e4bfa1 33%, #e4d6a1 66%, #6fa96f 100%)";
 
             <div class="item-card">
                 <div class="item-grid">
-                    <!-- Venstre kolonne -->
+                    <!-- Venstre kolonne med navn og kontakt -->
                     <div class="item-left">
                         <h5>@elev.Navn</h5>
                         <p>Telefon: @elev.BrugerTelefon</p>
@@ -44,7 +50,7 @@
                         <p>Elev siden: @elev.StartDato?.ToString("dd-MM-yyyy")</p>
                     </div>
 
-                    <!-- Midterkolonne -->
+                    <!-- Midterkolonne med fremgang -->
                     <div class="item-center">
                         <p>Lokation: @elev.Afdeling?.LokationNavn</p>
                         <p>Delmål opnået: @opnaaet / @iAlt</p>
@@ -53,14 +59,15 @@
                         </div>
                     </div>
 
-                    <!-- Højre kolonne: billede -->
+                    <!-- Højre kolonne med billede -->
                     <div class="item-right">
                         <img src="@elev.Billede" alt="Profilbillede" />
                     </div>
                 </div>
 
-                <!-- "Se elevplan"-knap -->
+                <!-- Knappen til at gå til elevens elevplan -->
                 @if (
+                    // Vises hvis man er sig selv (elev/kok) eller har en overordnet rolle
                     (loggedIn.BrugerId == elev.BrugerId && (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok")) ||
                     (loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR")
                 )
@@ -73,59 +80,70 @@
         }
     }
 </div>
-
 @code {
-    private Bruger? loggedIn; //Gemmer den bruger som er logget ind
-    private List<Bruger> alleElever = new(); // Indeholder alle elever (ufiltreret)
-    private List<Bruger> elever = new(); //indeholder alle filtreret elever, der skal vises
+    // Den bruger der er logget ind i systemet
+    private Bruger? loggedIn;
 
+    // Liste over alle elever fra databasen (brugt til filtrering)
+    private List<Bruger> alleElever = new();
+
+    // Den liste vi viser på siden (kan være filtreret udgave af alleElever)
+    private List<Bruger> elever = new();
+
+    // Når siden loades (komponent initialiseres), henter vi data
     protected override async Task OnInitializedAsync()
     {
-        loggedIn = await lService.GetUserLoggedIn();
+        loggedIn = await lService.GetUserLoggedIn(); // hentes fra LocalStorage via LoginService
+
         if (loggedIn == null)
         {
+            // Hvis man ikke er logget ind, sendes man til login
             navManager.NavigateTo("login/dashboard");
             return;
         }
 
-        alleElever = await bService.HentAlle(); // Henter kun elever
+        // Hent alle elever via IBrugereService (sender kald til backend)
+        alleElever = await bService.HentAlle();
 
-        FiltrerElever();
+        FiltrerElever(); // sortér elever baseret på rolle/lokation
     }
-    //Vis kun elever med samme lokation for elever og faglærte kokke – ellers vis alle.
+
+    //  elever: fx kun dem med samme lokation som brugeren – hvis rollen kræver det
     private void FiltrerElever()
     {
-        //Stopper funktionen, hvis der ikke er nogen logget ind
         if (loggedIn == null) return;
-        
-        // Hvis brugeren er elev eller faglært kok.
+
+        // For elev, faglært kok og køkkenchef vises kun elever fra samme lokation
         if (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok" || loggedIn.Rolle == "Køkkenchef")
         {
-            // Filtrér elever, så kun dem med samme lokation som den loggede vises
             elever = alleElever
                 .Where(e => e.Afdeling?.LokationNavn == loggedIn.Afdeling?.LokationNavn)
                 .ToList();
         }
         else
         {
+            // HR og Admin ser alle
             elever = alleElever;
         }
     }
-   //Navigerer til siden for at oprette en ny elev.
+
+    // Navigerer til opret-elev siden, når man trykker "Opret elev"
     private void OnClickOpret()
     {
         navManager.NavigateTo("opretelev");
     }
-   //Navigerer til den specifikke elevs elevplan.
+
+    // Navigerer til den specifikke elevs elevplan
     private void GåTilElevplan(int elevId)
     {
         navManager.NavigateTo($"elevplan/{elevId}");
     }
-    // Beregner hvor mange delmål der er opnået i alt for en elev – på tværs af alle praktikperioder
+
+    // Beregner hvor mange delmål en elev har opnået i alt (på tværs af ALLE praktikperioder)
     private (int opnaaet, int iAlt) BeregnFremgang(Bruger elev)
     {
         if (elev?.MinElevplan?.ListPerioder == null)
-            return (0, 0); // ingen elevplan = ingen data
+            return (0, 0); // Hvis elevplan ikke er sat, er der ikke noget at vise
 
         int total = 0;
         int opnaaet = 0;
@@ -139,7 +157,6 @@
             }
         }
 
-        return (opnaaet, total);
+        return (opnaaet, total); // Returnerer både opnåede og samlede mål
     }
-
 }

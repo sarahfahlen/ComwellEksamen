@@ -1,180 +1,192 @@
-@page "/elevplan"
-@page "/elevplan/{elevId:int}"  
+@page "/elevplan"                    
+@page "/elevplan/{elevId:int}"      
 
-@inject ILoginService lService
-@inject IBrugereService bService 
-@inject IElevplanService eService
-@inject NavigationManager navManager
-@using ComwellApp.Services.Brugere
+@inject ILoginService lService              
+@inject IBrugereService bService            
+@inject IElevplanService eService            
+@inject NavigationManager navManager        
+@using ComwellApp.Services.Brugere          
 @using ComwellApp.Services.Login
-@using Shared
-@using ElevplanModel = Shared.Elevplan
-@using ComwellApp.Components
+@using Shared                                
+@using ElevplanModel = Shared.Elevplan       
+@using ComwellApp.Components                 
 @using ComwellApp.Services.Elevplan
-<PageTitle>Elevplan</PageTitle>
 
+<PageTitle>Elevplan</PageTitle>             
+
+<!-- Hele layoutet for elevplansvisning -->
 <div class="elevplan-layout">
+
+    @* Hvis elevplan eller valgt elev ikke er indlæst endnu, vises en loading-tekst *@
     @if (valgtElev == null || minPlan == null)
     {
         <p>Indlæser elevplan...</p>
     }
     else
     {
-        
-
         <div class="main-indhold">
-        <div class="elevplan-header">
-            <h1>Min elevplan</h1>
+            <div class="elevplan-header">
+                <h1>Min elevplan</h1>
 
-            @if (minPlan?.ListPerioder != null)
-            {
-                <div class="periode-wrapper">
-                    <span class="periode-label">Se periode</span>
-                    <div class="periode-knapper">
-                        @for (int i = 0; i < minPlan.ListPerioder.Count; i++)
-                        {
-                            <button class="periodeknap" @onclick="() => valgtPeriodeIndex = i">
-                                @(i + 1)
-                            </button>
-                        }
-                    </div>
-                </div>
-            }
-        </div>
-
-        <div id="elevoplysning">
-            <div id="elevdata">
-                <div class="elevdata-grid">
-                    <div class="elevdata-label"> <strong> Navn </strong></div>
-                    <div class="elevdata-value">@valgtElev?.Navn</div>
-                    
-                    <div class="elevdata-label"><strong> Elev siden </strong></div>
-                    <div class="elevdata-value">@valgtElev.StartDato</div>
-
-                    <div class="elevdata-label"><strong> Ansvarlig køkkenchef </strong></div>
-                    <div class="elevdata-value">@valgtElev.MinElevplan.Ansvarlig.Navn</div>
-
-                    <div class="elevdata-label"><strong> Lokation for elevtid </strong></div>
-                    <div class="elevdata-value">@valgtElev.Afdeling.LokationNavn</div>
-                </div>
-            </div>
-            <div id="elevbillede">
-                @if (!string.IsNullOrEmpty(valgtElev.Billede))
+                @* Viser periodevælger kun hvis der faktisk er praktikperioder *@
+                @if (minPlan?.ListPerioder != null)
                 {
-                    <img src="@valgtElev.Billede" alt="Elevbillede" class="elevbillede-img"/>
+                    <div class="periode-wrapper">
+                        <span class="periode-label">Se periode</span>
+                        <div class="periode-knapper">
+                            @for (int i = 0; i < minPlan.ListPerioder.Count; i++)
+                            {
+                                <button class="periodeknap" @onclick="() => valgtPeriodeIndex = i">
+                                    @(i + 1)
+                                </button>
+                            }
+                        </div>
+                    </div>
                 }
             </div>
-        </div>
-        <div id="statusbar">
-            @if (AntalDelmaalIAlt() > 0)
-            {
-                //Beregner procentsats for færdiggørrelsesgrad, og laver til en int
-                double procent = (double)AntalDelmaalOpnaaet() / AntalDelmaalIAlt() * 100;
-                int procentInt = (int)Math.Round(procent);
-                //definerer de gradient farver vi vil have i vores statusbar
-                string gradient = "linear-gradient(to right, #e4a1a1 0%, #e4bfa1 33%, #e4d6a1 66%, #6fa96f 100%)";
 
-                //Udfylder hele baren, men "klipper" den del fra vi ikke har fuldført - altså den omvendte procentsats
-                <div class="statusbar-outer">
-                    <div class="statusbar-inner" style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
+            <!-- Viser elevens oplysninger -->
+            <div id="elevoplysning">
+                <div id="elevdata">
+                    <div class="elevdata-grid">
+                        <div class="elevdata-label"> <strong> Navn </strong></div>
+                        <div class="elevdata-value">@valgtElev?.Navn</div>
+
+                        <div class="elevdata-label"><strong> Elev siden </strong></div>
+                        <div class="elevdata-value">@valgtElev.StartDato</div>
+
+                        <div class="elevdata-label"><strong> Ansvarlig køkkenchef </strong></div>
+                        <div class="elevdata-value">@valgtElev.MinElevplan.Ansvarlig.Navn</div>
+
+                        <div class="elevdata-label"><strong> Lokation for elevtid </strong></div>
+                        <div class="elevdata-value">@valgtElev.Afdeling.LokationNavn</div>
+                    </div>
                 </div>
 
-                <p>@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
-            }
-        </div>
-        <div id="plan">
-            @if (aktivPeriode != null)
-            {
-                @foreach (var maal in HentFiltreredeMaal())
+                <!-- Viser profilbillede hvis der er et -->
+                <div id="elevbillede">
+                    @if (!string.IsNullOrEmpty(valgtElev.Billede))
+                    {
+                        <img src="@valgtElev.Billede" alt="Elevbillede" class="elevbillede-img"/>
+                    }
+                </div>
+            </div>
+
+            <!-- Statusbar med gennemførte delmål -->
+            <div id="statusbar">
+                @if (AntalDelmaalIAlt() > 0)
                 {
-                    <div class="maal-kort">
-                        <h5>@maal.MaalNavn</h5>
+                    // Beregner hvor stor en procentdel af delmålene der er opnået
+                    double procent = (double)AntalDelmaalOpnaaet() / AntalDelmaalIAlt() * 100;
+                    int procentInt = (int)Math.Round(procent);
+
+                    // Gradientfarver til baggrunden
+                    string gradient = "linear-gradient(to right, #e4a1a1 0%, #e4bfa1 33%, #e4d6a1 66%, #6fa96f 100%)";
+
+                    // Selve statusbaren, som klipper baggrund efter procent
+                    <div class="statusbar-outer">
+                        <div class="statusbar-inner" style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
                     </div>
 
-                    <div class="delmaal-container">
-                        @foreach (var delmaal in maal.ListDelmaal)
-                        {
-                            <div class="delmaal">
-                                <h4 class="delmaal-overskrift">@delmaal.Titel</h4>
-                                <p>Beskrivelse: @delmaal.Beskrivelse</p>
-                                <p>Type: @delmaal.DelmaalType</p>
-                                <p>Ansvarlig: @delmaal.Ansvarlig</p>
-                                <p>
-                                    Deadline: @(delmaal.Deadline != null
-                                                  ? delmaal.Deadline?.ToString("dd/MM-yyyy")
-                                                  : delmaal.DeadlineKommentar)
-                                </p>
-                                <p> Kommentar:
-                                    <button class="kommentar-knap" @onclick="() => AabenKommentar(delmaal.DelmaalId)">
-                                        Se kommentar
-                                    </button>
-                                </p>
+                    <p>@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
+                }
+            </div>
 
-                                <div class="status-badge @(delmaal.Status ? "status-opnået" : "status-ikkeopnået")">
-                                    @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
+            <!-- Viser elevplanens mål og delmål -->
+            <div id="plan">
+                @if (aktivPeriode != null)
+                {
+                    @foreach (var maal in HentFiltreredeMaal())
+                    {
+                        <div class="maal-kort">
+                            <h5>@maal.MaalNavn</h5>
+                        </div>
+
+                        <div class="delmaal-container">
+                            @foreach (var delmaal in maal.ListDelmaal)
+                            {
+                                <div class="delmaal">
+                                    <h4 class="delmaal-overskrift">@delmaal.Titel</h4>
+                                    <p>Beskrivelse: @delmaal.Beskrivelse</p>
+                                    <p>Type: @delmaal.DelmaalType</p>
+                                    <p>Ansvarlig: @delmaal.Ansvarlig</p>
+                                    <p>
+                                        Deadline: @(delmaal.Deadline != null
+                                                          ? delmaal.Deadline?.ToString("dd/MM-yyyy")
+                                                          : delmaal.DeadlineKommentar)
+                                    </p>
+                                    <p> Kommentar:
+                                        <button class="kommentar-knap" @onclick="() => AabenKommentar(delmaal.DelmaalId)">
+                                            Se kommentar
+                                        </button>
+                                    </p>
+
+                                    <div class="status-badge @(delmaal.Status ? "status-opnået" : "status-ikkeopnået")">
+                                        @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
+                                    </div>
                                 </div>
-                            </div>
-                        }
-                    </div>
-                    <br>
+                            }
+                        </div>
+                        <br>
+                    }
                 }
-            }
+            </div>
+
+            <!-- Modal dialog til at vise og redigere kommentarer -->
+            <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
+                <div class="modal-form">
+                    <!-- Elevens kommentar -->
+                    <label><strong>Elevens kommentar</strong></label>
+
+                    @if (!string.IsNullOrWhiteSpace(elevKommentarNavn) && elevKommentarDato != null)
+                    {
+                        <p class="kommentar-info">
+                            <strong>@elevKommentarNavn</strong>, @elevKommentarDato?.ToString("dd.MM.yyyy"):
+                        </p>
+                    }
+
+                    @if (loggedIn?.Rolle == "Elev") // Kun elev må redigere sin egen kommentar
+                    {
+                        <InputTextArea class="form-control kommentarbox" style="height:14rem;" @bind-Value="elevKommentar" />
+                    }
+                    else if (!string.IsNullOrWhiteSpace(elevKommentar))
+                    {
+                        <p>@elevKommentar</p>
+                    }
+                    else
+                    {
+                        <p><em>Ingen elevkommentar endnu.</em></p>
+                    }
+
+                    <!-- Kokkens kommentar -->
+                    <label class="mt-3"><strong>Kokkens kommentar</strong></label>
+
+                    @if (!string.IsNullOrWhiteSpace(kokKommentarNavn) && kokKommentarDato != null)
+                    {
+                        <p class="kommentar-info">
+                            <strong>@kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
+                        </p>
+                    }
+
+                    @if (loggedIn?.Rolle == "Køkkenchef") // Kun køkkenchefen må redigere sin egen kommentar
+                    {
+                        <InputTextArea class="form-control kommentarbox" style="height:14rem;" @bind-Value="kokKommentar" />
+                    }
+                    else if (!string.IsNullOrWhiteSpace(kokKommentar))
+                    {
+                        <p>@kokKommentar</p>
+                    }
+                    else
+                    {
+                        <p><em>Ingen kokkekommentar endnu.</em></p>
+                    }
+
+                    <button class="Gemkommentarknap" @onclick="GemKommentar">Gem kommentar</button>
+                </div>
+            </ModalDialog>
         </div>
-        <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
-            <div class="modal-form">
-                <!-- Elevens kommentar -->
-                <label><strong>Elevens kommentar</strong></label>
 
-            @if (!string.IsNullOrWhiteSpace(elevKommentarNavn) && elevKommentarDato != null)
-            {
-                <p class="kommentar-info">
-                    <strong>@elevKommentarNavn</strong>, @elevKommentarDato?.ToString("dd.MM.yyyy"):
-                </p>
-            }
-
-            @if (loggedIn?.Rolle == "Elev") //Tillader redigering hvis man er logget ind som elev - ellers bare visning
-            {
-                <InputTextArea class="form-control kommentarbox" style="height:14rem;" @bind-Value="elevKommentar" />
-            }
-            else if (!string.IsNullOrWhiteSpace(elevKommentar))
-            {
-                <p>@elevKommentar</p>
-            }
-            else
-            {
-                <p><em>Ingen elevkommentar endnu.</em></p>
-            }
-
-            <!-- Kokkens kommentar -->
-            <label class="mt-3"><strong>Kokkens kommentar</strong></label>
-
-            @if (!string.IsNullOrWhiteSpace(kokKommentarNavn) && kokKommentarDato != null)
-            {
-                <p class="kommentar-info">
-                    <strong>@kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
-                </p>
-            }
-
-            @if (loggedIn?.Rolle == "Køkkenchef") //Tillader redigering hvis man er logget ind som køkkenchef - ellers bare visning
-            {
-                <InputTextArea class="form-control kommentarbox" style="height:14rem;" @bind-Value="kokKommentar" />
-            }
-            else if (!string.IsNullOrWhiteSpace(kokKommentar))
-            {
-                <p>@kokKommentar</p>
-            }
-            else
-            {
-                <p><em>Ingen kokkekommentar endnu.</em></p>
-            }
-
-            <button class="Gemkommentarknap" @onclick="GemKommentar">Gem kommentar</button>
-        </div>
-    </ModalDialog>
-
-
-
-</div>
+        <!-- Sidepanel med søgning og filtrering -->
         <div class="sidepanel">
             <div class="sidepanel-værktøj">
                 <label for="soeg">Søg delmål</label>
@@ -185,20 +197,19 @@
             <div class="sidepanel-værktøj">
                 <label for="filter">Filtrer efter mål</label>
                 <button class="filter-knap" @onclick="() => visFilter = !visFilter">Filtrer</button>
-                <!-- Viser filterformular hvis visFilter == true -->
+
                 @if (visFilter)
                 {
                     <div style="margin-top: 1rem;">
                         <label>Mål</label>
                         <select @bind="valgtMaalNavn" class="form-control">
-                            <!-- Filtrer mellem mål -->
                             <option value="">Alle mål</option>
                             @foreach (var m in aktivPeriode?.ListMaal ?? new())
                             {
                                 <option value="@m.MaalNavn">@m.MaalNavn</option>
                             }
                         </select>
-                        <!-- Filtrer mellem delmålstyperne -->
+
                         <label class="mt-2">Delmålstype</label>
                         <select @bind="valgtDelmaalType" class="form-control">
                             <option value="">Alle typer</option>
@@ -207,77 +218,85 @@
                                 <option value="@t">@t</option>
                             }
                         </select>
-                        <!-- Filtrer mellem gennemførte delmål -->
+
                         <label class="mt-2">Status</label>
                         <select class="form-control" @onchange="OnStatusChanged">
-                        <option value="">Alle</option>
+                            <option value="">Alle</option>
                             <option value="true">Gennemført</option>
                             <option value="false">Ikke gennemført</option>
                         </select>
-
                     </div>
                 }
             </div>
         </div>
     }
-
 </div>
 
 
-
 @code {
-    //Gemmer den bruger som er logget ind
+    // Den bruger der lige nu er logget ind (hentes fra LocalStorage via LoginService)
     private Bruger? loggedIn;
-    //Gemmer planen for den bruger som er logget ind, ved at hente den i OnInitializedAsync
+
+    // Den elevplan vi arbejder med (enten ens egen eller én man ser som HR/Køkkenchef)
     private ElevplanModel? minPlan;
-    //Sætter default visning til at være 0 (1 praktik), og gør det muligt at ændre visning til andre
+
+    // Index til at vælge hvilken praktikperiode der vises (starter på 0 = første periode)
     private int valgtPeriodeIndex = 0;
+
+    // Den praktikperiode vi har valgt – bruges til at hente mål og delmål der hører til perioden
     private Praktikperiode? aktivPeriode => minPlan?.ListPerioder[valgtPeriodeIndex];
-    //modaldialog til at oprette og redigere kommentarer for et delmål
+
+    // Refererer til modal-dialogboksen der åbnes, når man klikker "Se kommentar"
     private ModalDialog? kommentarDialog;
-    //bruges til at binde værdien fra modaldialogen til en kommentar
+
+    // ✍Disse to er bundet til tekstfelterne i modalen (elevens og kokkens kommentarer)
     private string elevKommentar = "";
     private string kokKommentar = "";
-    //bruges til at binde brugerens navn + datoen fra modaldialogen til en kommentar
+
+    // Navn og dato for hvem der har skrevet kommentarerne (vises i toppen af modal)
     private string? elevKommentarNavn;
     private DateOnly? elevKommentarDato;
     private string? kokKommentarNavn;
     private DateOnly? kokKommentarDato;
-    //bruges til at identificere det delmål vi arbejder med 
+
+    // Bruges til at huske hvilket delmål vi redigerer kommentar til
     private int aktivtDelmaalId = 0;
-    // Sætter default på søgeordet til søgning af mål og delmål
+
+    // Søge- og filterfelter til højresiden
     private string søgeord = "";
     private string valgtMaalNavn = "";
     private string valgtDelmaalType = "";
     private bool visFilter = false;
     private bool? valgtStatus = null;
 
-
-    
+    // Hvis vi besøger siden med f.eks. elevId i URL’en, så læser vi det her
     [Parameter]
-    public int? elevId { get; set; } 
+    public int? elevId { get; set; }
+
+    // Den elev vi arbejder med (kan være én selv eller en anden)
     private Bruger? valgtElev;
 
-
-    //Tjekker om brugeren er logget ind, og gemmer som et objekt loggedIn - og sætter planen til at være brugerens elevplan
+    // 🟡 Kører hver gang der kommer parametre (fx ved skift af elevId i URL)
     protected override async Task OnParametersSetAsync()
     {
+        // Henter den loggede bruger fra LoginService
         loggedIn = await lService.GetUserLoggedIn();
 
         if (loggedIn == null)
         {
+            // Hvis ingen er logget ind, redirecter vi til login
             navManager.NavigateTo("login/elevplan");
             return;
         }
 
-        // ⛔ Bloker elever i at se andres elevplan
+        // Hvis en elev forsøger at tilgå en anden elevs plan via URL – så næg adgang
         if (loggedIn.Rolle == "Elev" && elevId.HasValue && elevId.Value != loggedIn.BrugerId)
         {
-            navManager.NavigateTo("/dashboard"); // eller lav en '403' side
+            navManager.NavigateTo("/dashboard");
             return;
         }
 
-        // ✅ Hvis HR/Admin/Køkkenchef ser en andens elevplan
+        // Hvis HR/Admin/Køkkenchef ser en specifik elevplan
         if (elevId.HasValue && elevId != loggedIn.BrugerId)
         {
             var alleElever = await lService.HentEleverTilElevplanVisning();
@@ -295,38 +314,33 @@
         }
         else
         {
-            // Elev eller faglært ser egen plan
+            // 👤 Hvis det er elev eller faglært kok, der kigger på sin egen plan
             valgtElev = loggedIn;
             minPlan = loggedIn.MinElevplan;
         }
-        
     }
 
-    
-    //Bruges til at beregne hvor mange delmål der er i den aktive periode (visningsperioden)
+    // Tæller hvor mange delmål der findes i den valgte periode
     private int AntalDelmaalIAlt()
     {
         if (aktivPeriode == null)
             return 0;
 
         int antal = 0;
-
         foreach (var mål in aktivPeriode.ListMaal)
         {
             antal += mål.ListDelmaal.Count;
         }
-
         return antal;
     }
-    
-    //Bruges til at beregne antal delmål som er opnået
+
+    // Tæller hvor mange af delmålene i perioden der er gennemført
     private int AntalDelmaalOpnaaet()
     {
         if (aktivPeriode == null)
             return 0;
 
         int opnaaet = 0;
-
         foreach (var mål in aktivPeriode.ListMaal)
         {
             foreach (var delmål in mål.ListDelmaal)
@@ -335,32 +349,31 @@
                     opnaaet++;
             }
         }
-
         return opnaaet;
     }
-    
-    //Kaldes når man trykker se kommentar - åbner kommentarer fra det delmål der trykkes på (delmaalId)
+
+    // Kaldes når man klikker "Se kommentar" – viser kommentarer for det valgte delmål
     private void AabenKommentar(int delmaalId)
     {
         aktivtDelmaalId = delmaalId;
-        //nulstiller visning, så der ikke hentes noget fra "gamle" mål
+
+        // Nulstiller tidligere kommentarer fra modal, så der ikke vises gamle
         elevKommentar = kokKommentar = "";
         elevKommentarNavn = kokKommentarNavn = null;
         elevKommentarDato = kokKommentarDato = null;
-        
+
         if (minPlan != null)
         {
-            //henter elevkommentaren fra service, hvor plan, delmaalId og rolle sendes med
+            // Henter elevens kommentar til delmålet via IElevplanService
             var _elevKommentar = eService.GetKommentar(minPlan, delmaalId, "Elev");
             if (_elevKommentar != null)
             {
-                //sætter variable til det hentede data fra Service - dette bruges i visningen i modal
                 elevKommentar = _elevKommentar.Tekst;
                 elevKommentarNavn = _elevKommentar.OprettetAf?.Navn;
                 elevKommentarDato = _elevKommentar.Dato;
             }
-            
-            //samme som ovenover, bare med kok/køkkenchef
+
+            // Henter køkkenchefens kommentar på samme måde
             var _kokKommentar = eService.GetKommentar(minPlan, delmaalId, "Køkkenchef");
             if (_kokKommentar != null)
             {
@@ -369,31 +382,25 @@
                 kokKommentarDato = _kokKommentar.Dato;
             }
         }
-        //Åbner modaldialog med den data som er fundet ovenover
-        kommentarDialog?.Open();
+
+        kommentarDialog?.Open(); //  Åbner modal
     }
 
-
-
-    //Metode der gemmer kommentar - enten som en ny (hvis den er tom) eller som en opdatering (hvis kommentar findes)
+    // Gemmer kommentar (enten elevens eller køkkenchefens)
     private async Task GemKommentar()
     {
         if (minPlan == null || loggedIn == null)
             return;
-        //Nedenunder tjekkes rollen for brugeren - så man kun kan redigere den kommentar man er berettiget til
-        
+
         if (loggedIn.Rolle == "Elev")
         {
-            //henter eksisterende kommentar og gemmer den
             var eksisterende = eService.GetKommentar(minPlan, aktivtDelmaalId, "Elev");
 
-            //hvis der eksisterer en kommentar, kaldes redigerings funktion fra service, som finder kommentaren og "erstatter" den
-            //den nye kommentar kommer fra en bindvalue i modaldialog
             if (eksisterende != null)
             {
+                // Kalder RedigerKommentar i IElevplanService
                 await eService.RedigerKommentar(minPlan, aktivtDelmaalId, eksisterende.KommentarId, elevKommentar);
             }
-            //hvis der ikke eksisterer en kommentar, oprettes en ny med værdier fra bindvalue, og tilføjkommentar fra service kaldes
             else if (!string.IsNullOrWhiteSpace(elevKommentar))
             {
                 var kommentar = new Kommentar
@@ -401,11 +408,10 @@
                     OprettetAf = loggedIn,
                     Tekst = elevKommentar
                 };
-
+                // Kalder TilfoejKommentar i IElevplanService
                 await eService.TilfoejKommentar(minPlan, aktivtDelmaalId, kommentar);
             }
         }
-        //Samme som ovenover, bare for køkkenchef/kok (skal ændres til også at gælde for faglært kok)
         else if (loggedIn.Rolle == "Køkkenchef")
         {
             var eksisterende = eService.GetKommentar(minPlan, aktivtDelmaalId, "Køkkenchef");
@@ -421,25 +427,24 @@
                     OprettetAf = loggedIn,
                     Tekst = kokKommentar
                 };
-
                 await eService.TilfoejKommentar(minPlan, aktivtDelmaalId, kommentar);
             }
         }
-        //Modaldialog lukkes
-        kommentarDialog?.Close();
-        
-        //Her skal implementeres en fejlbesked og succesbesked
+
+        kommentarDialog?.Close(); // Lukker modalen efter gem
+        // TODO: Giv bruger feedback på om det lykkedes eller fejlede
     }
 
+    // Returnerer mål ud fra de filtre brugeren har valgt – data hentes via service
     private List<Maal> HentFiltreredeMaal()
     {
-        // Hvis planen ikke er sat endnu (fx mens den loader i OnInitializedAsync returnerer vi en tom liste, så UI’et ikke fejler
         if (minPlan == null)
             return new();
-        // Kalder backend/service for at hente mål baseret på brugerens valgte filtrering
+
         return eService.HentFiltreredeMaal(minPlan, valgtPeriodeIndex, valgtMaalNavn, valgtDelmaalType, søgeord, valgtStatus);
     }
-    
+
+    // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
     private void OnStatusChanged(ChangeEventArgs e)
     {
         var value = e.Value?.ToString();
@@ -457,7 +462,6 @@
             valgtStatus = false;
         }
 
-        StateHasChanged();
+        StateHasChanged(); // Tving UI til at opdatere med nye filtre
     }
-
 }
