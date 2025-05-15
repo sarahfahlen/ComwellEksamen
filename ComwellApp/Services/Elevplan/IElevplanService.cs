@@ -19,4 +19,9 @@ public interface IElevplanService
     public Task<Shared.Elevplan> LavDefaultSkabelon(Bruger ansvarlig, string skabelonNavn);
     //Bruges til at hente de filtrede mål på elevplanen
     Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? soegeord, bool? filterStatus);
+    Task TilfoejDelmaal(Shared.Elevplan plan, int maalId, Delmaal nytDelmaal);
+    Task<List<Maal>> HentMaalFraPeriode(int elevplanId, int periodeIndex);
+    Task<List<string>> HentDelmaalTyperFraPeriode(int elevplanId, int periodeIndex);
+
+
 }

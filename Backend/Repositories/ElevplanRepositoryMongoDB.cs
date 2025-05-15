@@ -166,6 +166,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
 
 
     // Returnerer mål med filtre og søgning – bruges til elevplanvisning
+
     public async Task<List<Maal>> HentFiltreredeMaal(
         int brugerId,
         int periodeIndex,
@@ -211,5 +212,42 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
             .Where(m => m.ListDelmaal.Any()) // Kun mål der har delmål tilbage efter filtrering
             .ToList();
     }
-    
+    public async Task TilfoejDelmaal(int elevplanId, int maalId, Delmaal nytDelmaal)
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.ElevplanId, elevplanId);
+        var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
+
+        if (bruger?.MinElevplan == null)
+            throw new Exception($"Ingen elevplan med ID {elevplanId} fundet.");
+
+        var maal = bruger.MinElevplan.ListPerioder
+            .SelectMany(p => p.ListMaal)
+            .FirstOrDefault(m => m.MaalId == maalId);
+
+        if (maal == null)
+            throw new Exception($"Mål med ID {maalId} ikke fundet.");
+
+        // Her er ID allerede sat af frontend/service
+        maal.ListDelmaal.Add(nytDelmaal);
+        
+        if (string.IsNullOrWhiteSpace(nytDelmaal.DeadlineKommentar) && !nytDelmaal.Deadline.HasValue)
+            throw new Exception("Enten en deadline-dato eller en kommentar skal være udfyldt.");
+
+// Sæt DageTilDeadline hvis der er en deadline
+        if (nytDelmaal.Deadline.HasValue)
+        {
+            var iDag = DateOnly.FromDateTime(DateTime.Today);
+            nytDelmaal.DageTilDeadline = (nytDelmaal.Deadline.Value.DayNumber - iDag.DayNumber);
+        }
+
+
+        await BrugerCollection.ReplaceOneAsync(b => b.BrugerId == bruger.BrugerId, bruger);
+    }
+    public async Task<Elevplan?> HentElevplanMedMaal(int elevplanId, int periodeIndex)
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.ElevplanId, elevplanId);
+        var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
+        return bruger?.MinElevplan;
+    }
+
 }

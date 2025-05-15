@@ -116,5 +116,47 @@ public class ElevplanController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+    [HttpPost("delmaal/{elevplanId:int}/{maalId:int}")]
+    public async Task<IActionResult> TilfoejDelmaal(int elevplanId, int maalId, [FromBody] Delmaal nytDelmaal)
+    {
+        try
+        {
+            await elevplanRepo.TilfoejDelmaal(elevplanId, maalId, nytDelmaal);
+            return Ok("Delmål tilføjet.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[TilfoejDelmaal] FEJL: {ex.Message}");
+            return BadRequest(ex.Message);
+        }
+    }
+    [HttpGet("maal/{elevplanId:int}/{periodeIndex:int}")]
+    public async Task<ActionResult<List<Maal>>> HentMaal(int elevplanId, int periodeIndex)
+    {
+        var elevplan = await elevplanRepo.HentElevplanMedMaal(elevplanId, periodeIndex);
+        if (elevplan == null)
+            return NotFound("Elevplan ikke fundet");
+
+        var periode = elevplan.ListPerioder.ElementAtOrDefault(periodeIndex);
+        return periode?.ListMaal ?? new List<Maal>();
+    }
+
+    [HttpGet("delmaaltyper/{elevplanId:int}/{periodeIndex:int}")]
+    public async Task<ActionResult<List<string>>> HentUnikkeDelmaalTyper(int elevplanId, int periodeIndex)
+    {
+        var elevplan = await elevplanRepo.HentElevplanMedMaal(elevplanId, periodeIndex);
+        if (elevplan == null)
+            return NotFound();
+
+        var typer = elevplan.ListPerioder.ElementAtOrDefault(periodeIndex)?
+            .ListMaal
+            .SelectMany(m => m.ListDelmaal)
+            .Select(d => d.DelmaalType)
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Distinct()
+            .ToList();
+
+        return typer ?? new List<string>();
+    }
 
 }

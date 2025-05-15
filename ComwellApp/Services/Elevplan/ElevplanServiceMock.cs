@@ -333,4 +333,19 @@ public class ElevplanServiceMock : IElevplanService
     {
         throw new NotImplementedException();
     }
+
+    public Task TilfoejDelmaal(Shared.Elevplan plan, int maalId, Delmaal nytDelmaal)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<Maal>> HentMaalFraPeriode(int elevplanId, int periodeIndex)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<string>> HentDelmaalTyperFraPeriode(int elevplanId, int periodeIndex)
+    {
+        throw new NotImplementedException();
+    }
 }

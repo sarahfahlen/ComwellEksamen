@@ -157,6 +157,47 @@ public class ElevplanServiceServer : IElevplanService
             throw new Exception("Kunne ikke opdatere status");
         }
     }
+    public async Task TilfoejDelmaal(Elevplan plan, int maalId, Delmaal nytDelmaal)
+    {
+        // Find målet i den rigtige periode
+        var maal = plan.ListPerioder
+            .SelectMany(p => p.ListMaal)
+            .FirstOrDefault(m => m.MaalId == maalId);
+
+        if (maal == null)
+            throw new Exception($"Mål med ID {maalId} ikke fundet.");
+
+        // Generér ID til delmålet på klientsiden
+        nytDelmaal.DelmaalId = _idGenerator.GenererNytId(maal.ListDelmaal, d => d.DelmaalId);
+        nytDelmaal.Status = false;
+        nytDelmaal.Kommentarer = new(); // hvis du bruger det
+
+        // Send det til backend
+        var response = await http.PostAsJsonAsync(
+            $"api/elevplan/delmaal/{plan.ElevplanId}/{maalId}",
+            nytDelmaal);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[TilfoejDelmaalAsync] FEJL: {fejl}");
+            throw new Exception("Kunne ikke tilføje delmål.");
+        }
+        
+    }
+    public async Task<List<Maal>> HentMaalFraPeriode(int elevplanId, int periodeIndex)
+    {
+        var response = await http.GetAsync($"api/elevplan/maal/{elevplanId}/{periodeIndex}");
+        return await response.Content.ReadFromJsonAsync<List<Maal>>() ?? new();
+    }
+
+    public async Task<List<string>> HentDelmaalTyperFraPeriode(int elevplanId, int periodeIndex)
+    {
+        var response = await http.GetAsync($"api/elevplan/delmaaltyper/{elevplanId}/{periodeIndex}");
+        return await response.Content.ReadFromJsonAsync<List<string>>() ?? new();
+    }
+
+
 
 
     
