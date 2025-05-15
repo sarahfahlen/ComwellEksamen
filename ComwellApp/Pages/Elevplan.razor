@@ -179,8 +179,10 @@
                 @if (visFilter)
                 {
                     <div style="margin-top: 1rem;">
+
+                        <!-- Mål-filtrering -->
                         <label>Mål</label>
-                        <InputSelect class="form-control" @bind-value="ValgtMaalNavn" @oninput="OnChangeMaal">
+                        <InputSelect class="form-control" @bind-Value="valgtMaalNavn" @oninput="OnChangeMaal">
                             <option value="">Alle mål</option>
                             @foreach (var m in aktivPeriode?.ListMaal ?? new())
                             {
@@ -188,22 +190,23 @@
                             }
                         </InputSelect>
 
-
+                        <!-- Delmålstype-filtrering -->
                         <label class="mt-2">Delmålstype</label>
-                        <select class="form-control" @bind="ValgtDelmaalType" @bind:event="onchange">
+                        <InputSelect class="form-control" @bind-Value="valgtDelmaalType" @oninput="OnChangeDelmaalType">
                             <option value="">Alle typer</option>
                             @foreach (var t in aktivPeriode?.ListMaal.SelectMany(m => m.ListDelmaal).Select(d => d.DelmaalType).Distinct() ?? new List<string>())
                             {
                                 <option value="@t">@t</option>
                             }
-                        </select>
+                        </InputSelect>
 
+                        <!-- Status-filtrering -->
                         <label class="mt-2">Status</label>
-                        <select class="form-control" @onchange="OnStatusChanged">
-                        <option value="">Alle</option>
+                        <InputSelect class="form-control" @bind-Value="valgtStatus" @oninput="OnChangeStatus">
+                            <option value="">Alle</option>
                             <option value="true">Gennemført</option>
                             <option value="false">Ikke gennemført</option>
-                        </select>
+                        </InputSelect>
                     </div>
                 }
             </div>
@@ -461,32 +464,6 @@
 
         StateHasChanged(); // Opdater UI
     }
-    
-    // Gemmer det valgte mål-navn fra dropdown
-    private string ValgtMaalNavn
-    {
-        get => valgtMaalNavn;
-        set
-        {
-            valgtMaalNavn = value;
-
-            // Hver gang bruger vælger et nyt mål, opdateres listen af mål og delmål
-            _ = OpdaterFiltreredeMaal();
-        }
-    }
-
-    // Gemmer den valgte delmålstype fra dropdown
-    private string ValgtDelmaalType
-    {
-        get => valgtDelmaalType;
-        set
-        {
-            valgtDelmaalType = value;
-
-            // Hver gang bruger vælger en ny type, opdateres listen
-            _ = OpdaterFiltreredeMaal();
-        }
-    }
 
 
     // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
@@ -510,11 +487,47 @@
         
         StateHasChanged(); // Tving UI til at opdatere med nye filtre
     }
-
-    private void OnChangeMaal(ChangeEventArgs obj)
+    
+    // Når et mål vælges i dropdown
+    private async Task OnChangeMaal(ChangeEventArgs e)
     {
-        valgtMaalNavn = obj.Value.ToString();
-        Console.WriteLine($"mål der er valgt er: {valgtMaalNavn}");
+        valgtMaalNavn = e.Value?.ToString() ?? "";
+        Console.WriteLine($"Mål valgt: {valgtMaalNavn}");
+
+        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
     }
+
+// Når en delmålstype vælges
+    private async Task OnChangeDelmaalType(ChangeEventArgs e)
+    {
+        valgtDelmaalType = e.Value?.ToString() ?? "";
+        Console.WriteLine($"Delmålstype valgt: {valgtDelmaalType}");
+
+        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
+    }
+
+// Når status vælges (gennemført/ikke gennemført)
+    private async Task OnChangeStatus(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            valgtStatus = null;
+        }
+        else if (value == "true")
+        {
+            valgtStatus = true;
+        }
+        else if (value == "false")
+        {
+            valgtStatus = false;
+        }
+
+        Console.WriteLine($"Status valgt: {valgtStatus}");
+
+        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
+    }
+
 
 }
