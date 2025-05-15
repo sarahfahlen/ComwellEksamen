@@ -1,18 +1,18 @@
-@page "/elevplan"                    
-@page "/elevplan/{elevId:int}"      
+@page "/elevplan"
+@page "/elevplan/{elevId:int}"
 
-@inject ILoginService lService              
-@inject IBrugereService bService            
-@inject IElevplanService eService            
-@inject NavigationManager navManager        
-@using ComwellApp.Services.Brugere          
+@inject ILoginService lService
+@inject IBrugereService bService
+@inject IElevplanService eService
+@inject NavigationManager navManager
+@using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
-@using Shared                                
-@using ElevplanModel = Shared.Elevplan       
-@using ComwellApp.Components                 
+@using Shared
+@using ElevplanModel = Shared.Elevplan
+@using ComwellApp.Components
 @using ComwellApp.Services.Elevplan
 
-<PageTitle>Elevplan</PageTitle>             
+<PageTitle>Elevplan</PageTitle>
 
 <!-- Hele layoutet for elevplansvisning -->
 <div class="elevplan-layout">
@@ -49,7 +49,7 @@
             <div id="elevoplysning">
                 <div id="elevdata">
                     <div class="elevdata-grid">
-                        <div class="elevdata-label"> <strong> Navn </strong></div>
+                        <div class="elevdata-label"><strong> Navn </strong></div>
                         <div class="elevdata-value">@valgtElev?.Navn</div>
 
                         <div class="elevdata-label"><strong> Elev siden </strong></div>
@@ -85,7 +85,8 @@
 
                     // Selve statusbaren, som klipper baggrund efter procent
                     <div class="statusbar-outer">
-                        <div class="statusbar-inner" style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
+                        <div class="statusbar-inner"
+                             style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
                     </div>
 
                     <p>@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
@@ -93,9 +94,18 @@
             </div>
             @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "Admin")
             {
-                <button class="btn btn-primary tilfoej-delmaal-knap" @onclick="VisTilfoejDelmaalModal">Tilføj delmål</button>
+                <button class="btn btn-primary tilfoej-delmaal-knap" @onclick="() => tilfoejDelmaalDialog?.Open()">
+                    Tilføj delmål
+                </button>
             }
-
+            <!-- Opret nyt delmaal -->
+            <ModalDialog @ref="tilfoejDelmaalDialog" Title="Tilføj nyt delmål">
+                <OpretDelmaalComponent
+                    minPlan="@minPlan"
+                    OnGemSuccess="OpdaterFiltreredeMaal"
+                    OnClose="() => tilfoejDelmaalDialog?.Close()"/>
+            </ModalDialog>
+            
             <!-- Viser elevplanens mål og delmål -->
             <div id="plan">
                 @if (aktivPeriode != null)
@@ -108,71 +118,11 @@
 
                         <DelmaalComponent maal="maal"
                                           OnInputDelmaal="AabenKommentar"
-                                          OnToggleStatus="ToggleStatus" />
+                                          OnToggleStatus="ToggleStatus"/>
                     }
                 }
             </div>
-            <ModalDialog @ref="tilfoejDelmaalDialog" Title="Tilføj nyt delmål">
-            <EditForm Model="nytDelmaal" OnValidSubmit="GemDelmaal">
-                <DataAnnotationsValidator />
-                <div class="modal-form">
-
-                    <label>Vælg praktikperiode</label>
-                    <select class="form-control" @onchange="OnPeriodeChanged">
-                        <option value="-1">-- Vælg periode --</option>
-                        @for (int i = 0; i < minPlan?.ListPerioder.Count; i++)
-                        {
-                            <option value="@i">Periode @(i + 1)</option>
-                        }
-                    </select>
-
-                    @if (valgtPeriodeIndexTilDelmaal >= 0)
-                    {
-                        <label class="mt-2">Vælg mål</label>
-                        <select class="form-control" @bind="valgtMaalIdTilDelmaal">
-                            @foreach (var maal in maalTilValgtPeriode)
-                            {
-                                <option value="@maal.MaalId">@maal.MaalNavn</option>
-                            }
-                        </select>
-
-                        <label class="mt-2">Titel</label>
-                        <InputText class="form-control" @bind-Value="nytDelmaal.Titel" />
-                        <ValidationMessage For="@(() => nytDelmaal.Titel)" />
-
-                        <label class="mt-2">Beskrivelse</label>
-                        <InputTextArea class="form-control" @bind-Value="nytDelmaal.Beskrivelse" />
-                        <ValidationMessage For="@(() => nytDelmaal.Beskrivelse)" />
-
-                        <label class="mt-2">Type</label>
-                        <select class="form-control" @bind="nytDelmaal.DelmaalType">
-                            <option value="">-- Vælg delmålstype --</option>
-                            @foreach (var type in unikkeDelmaalTyper)
-                            {
-                                <option value="@type">@type</option>
-                            }
-                        </select>
-                        <ValidationMessage For="@(() => nytDelmaal.DelmaalType)" />
-
-                        <label class="mt-2">Deadline</label>
-                        <InputDate class="form-control mb-2"
-                                   @bind-Value="nytDelmaal.Deadline"
-                                   disabled="@(!string.IsNullOrWhiteSpace(nytDelmaal.DeadlineKommentar))" />
-
-                        <span class="form-label">Eller skriv en kommentar</span>
-                        <InputText class="form-control"
-                                   placeholder="Fx 'Senest efter uge 45'"
-                                   @bind-Value="nytDelmaal.DeadlineKommentar"
-                                   disabled="@(nytDelmaal.Deadline.HasValue)" />
-
-                        <button class="btn btn-success mt-3" type="submit">Gem delmål</button>
-                    }
-                </div>
-            </EditForm>
-            </ModalDialog>
-
-
-
+            
             <!-- Modal dialog til at vise og redigere kommentarer -->
             <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
                 <div class="modal-form">
@@ -188,7 +138,8 @@
 
                     @if (loggedIn?.Rolle == "Elev") // Kun elev må redigere sin egen kommentar
                     {
-                        <InputTextArea class="form-control kommentarbox" style="height:14rem;" @bind-Value="elevKommentar" />
+                        <InputTextArea class="form-control kommentarbox" style="height:14rem;"
+                                       @bind-Value="elevKommentar"/>
                     }
                     else if (!string.IsNullOrWhiteSpace(elevKommentar))
                     {
@@ -208,11 +159,12 @@
                             <strong>@kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
                         </p>
                     }
-                    
+
                     <!-- Sørger for at både køkkenchef og kok kan redigere kommentar -->
                     @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "FaglærtKok")
                     {
-                        <InputTextArea class="form-control kommentarbox" style="height:14rem;" @bind-Value="kokKommentar" />
+                        <InputTextArea class="form-control kommentarbox" style="height:14rem;"
+                                       @bind-Value="kokKommentar"/>
                     }
                     else if (!string.IsNullOrWhiteSpace(kokKommentar))
                     {
@@ -233,7 +185,7 @@
             <div class="sidepanel-værktøj">
                 <label for="soeg">Søg delmål</label>
                 <input type="text" id="soeg" class="soeg-input" placeholder="Skriv søgeord..."
-                       @bind="soegeord" @oninput="async _ => await OpdaterFiltreredeMaal()" />
+                       @bind="soegeord" @oninput="async _ => await OpdaterFiltreredeMaal()"/>
             </div>
 
             <div class="sidepanel-værktøj">
@@ -250,7 +202,7 @@
                             {
                                 <option value="@m.MaalNavn">@m.MaalNavn</option>
                             }
-                            
+
                         </InputSelect>
 
 
@@ -265,7 +217,7 @@
 
                         <label class="mt-2">Status</label>
                         <select class="form-control" @onchange="OnStatusChanged">
-                        <option value="">Alle</option>
+                            <option value="">Alle</option>
                             <option value="true">Gennemført</option>
                             <option value="false">Ikke gennemført</option>
                         </select>
@@ -326,17 +278,6 @@
 
     private ModalDialog? tilfoejDelmaalDialog;
 
-// Midlertidigt nyt delmål
-    private Delmaal nytDelmaal = new();
-
-    private int valgtPeriodeIndexTilDelmaal = -1;
-    private List<Maal> maalTilValgtPeriode = new();
-
-
-
-
-
-
 
     // 🟡 Kører hver gang der kommer parametre (fx ved skift af elevId i URL)
     protected override async Task OnParametersSetAsync()
@@ -382,15 +323,6 @@
         }
 
         await OpdaterFiltreredeMaal();
-
-        // 🆕 Udfylder dropdown med unikke delmålstyper
-        unikkeDelmaalTyper = aktivPeriode?
-            .ListMaal
-            .SelectMany(m => m.ListDelmaal)
-            .Select(d => d.DelmaalType)
-            .Distinct()
-            .Where(t => !string.IsNullOrWhiteSpace(t))
-            .ToList() ?? new();
     }
 
     // Tæller hvor mange delmål der findes i den valgte periode
@@ -398,7 +330,7 @@
     {
         if (aktivPeriode == null)
             return 0;
- 
+
         int antal = 0;
         foreach (var mål in aktivPeriode.ListMaal)
         {
@@ -457,7 +389,6 @@
                 kokKommentarDato = _kokKommentar.Dato;
             }
         }
-
         kommentarDialog?.Open(); //  Åbner modal
     }
 
@@ -510,14 +441,14 @@
         kommentarDialog?.Close(); // Lukker modalen efter gem
         // TODO: Giv bruger feedback på om det lykkedes eller fejlede
     }
-    
+
     //Funktion der bruges til at ændre status på et delmaal
     private async Task ToggleStatus(Delmaal delmaal)
     {
         //Tjekker om den som er logget ind har rettighederne
         if (loggedIn == null || !(loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "FaglærtKok" || loggedIn.Rolle == "Admin"))
             return;
-        
+
         //ændrer status på delmålet, og gemmer det i loggen
         delmaal.Status = !delmaal.Status;
 
@@ -534,12 +465,8 @@
         {
             Console.WriteLine($"[ToggleStatus] FEJL: {ex.Message}");
         }
-
-        
     }
-
-
-
+    
     private async Task OpdaterFiltreredeMaal()
     {
         if (valgtElev == null)
@@ -555,7 +482,7 @@
 
         StateHasChanged(); // Opdater UI
     }
-    
+
     // Gemmer det valgte mål-navn fra dropdown
     private string ValgtMaalNavn
     {
@@ -600,11 +527,12 @@
         {
             valgtStatus = false;
         }
+
         await OpdaterFiltreredeMaal();
-        
+
         StateHasChanged(); // Tving UI til at opdatere med nye filtre
     }
-    
+
     // Når et mål vælges i dropdown
     private async Task OnChangeMaal(ChangeEventArgs e)
     {
@@ -646,73 +574,6 @@
         await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
     }
 
-// Åbn modal + nulstil data
-    private async void VisTilfoejDelmaalModal()
-    {
-        nytDelmaal = new Delmaal();
-        valgtPeriodeIndexTilDelmaal = -1;
-        valgtMaalIdTilDelmaal = 0;
-        await HentTyperFraBackend();
-        await HentMaalFraBackend(); 
-        tilfoejDelmaalDialog?.Open();
-    }
-
-// Gemmer og sender til backend
-    private async Task GemDelmaal()
-    {
-        if (minPlan == null)
-            return;
-
-        if (valgtPeriodeIndexTilDelmaal < 0 || valgtMaalIdTilDelmaal == 0)
-        {
-            Console.WriteLine("⚠️ Praktikperiode eller mål ikke valgt");
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(nytDelmaal.Titel))
-        {
-            Console.WriteLine("⚠️ Titel mangler");
-            return;
-        }
-
-        bool harDato = nytDelmaal.Deadline.HasValue;
-        bool harKommentar = !string.IsNullOrWhiteSpace(nytDelmaal.DeadlineKommentar);
-
-        try
-        {
-            await eService.TilfoejDelmaal(minPlan, valgtMaalIdTilDelmaal, nytDelmaal);
-            tilfoejDelmaalDialog?.Close();
-            await OpdaterFiltreredeMaal();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[GemDelmaal] FEJL: {ex.Message}");
-        }
-    }
-    private List<string> unikkeDelmaalTyper = new();
-
-    private async Task HentTyperFraBackend()
-    {
-        if (minPlan != null && valgtPeriodeIndexTilDelmaal >= 0)
-        {
-            unikkeDelmaalTyper = await eService.HentDelmaalTyperFraPeriode(minPlan.ElevplanId, valgtPeriodeIndexTilDelmaal);
-        }
-    }
-
-    private async Task HentMaalFraBackend()
-    {
-        if (minPlan != null && valgtPeriodeIndexTilDelmaal >= 0)
-        {
-            maalTilValgtPeriode = await eService.HentMaalFraPeriode(minPlan.ElevplanId, valgtPeriodeIndexTilDelmaal);
-        }
-        Console.WriteLine($"✅ Hentede {maalTilValgtPeriode.Count} mål fra backend til periode {valgtPeriodeIndexTilDelmaal}");
-    }
-    
-    private async Task OnPeriodeChanged(ChangeEventArgs e)
-    {
-        valgtPeriodeIndexTilDelmaal = int.Parse(e.Value?.ToString() ?? "-1");
-        await HentMaalFraBackend();
-    }
 }
     
 

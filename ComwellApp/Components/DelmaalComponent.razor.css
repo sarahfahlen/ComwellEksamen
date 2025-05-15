@@ -19,6 +19,7 @@
     transform: translateY(0);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .delmaal-overskrift {
     text-align: center;
     font-size: 1.05rem;
@@ -65,6 +66,11 @@
     font-weight: 600;
     margin-top: 1rem;
     display: inline-block;
+    cursor: pointer;
+}
+
+.status-badge:hover {
+    transform: translateY(-2px);
 }
 
 .status-badge.gennemført {
