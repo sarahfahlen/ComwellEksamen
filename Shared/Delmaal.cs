@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -9,9 +10,10 @@ public class Delmaal
     [BsonIgnoreIfDefault]
     public ObjectId _id { get; set; }
     public int DelmaalId { get; set; }
+    [Required(ErrorMessage = "Delmålstype er påkrævet")]
     public string DelmaalType { get; set; }
+    [Required(ErrorMessage = "Titel er påkrævet")]
     public string Titel { get; set; }
-    
     public string? Beskrivelse {get;set;}
     public string? Ansvarlig { get; set; }
     public DateOnly? Deadline { get; set; }

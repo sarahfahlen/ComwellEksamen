@@ -91,7 +91,7 @@
                     <p>@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
                 }
             </div>
-            @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "FaglærtKok" || loggedIn?.Rolle == "HR")
+            @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "Admin")
             {
                 <button class="btn btn-primary tilfoej-delmaal-knap" @onclick="VisTilfoejDelmaalModal">Tilføj delmål</button>
             }
@@ -113,7 +113,10 @@
                 }
             </div>
             <ModalDialog @ref="tilfoejDelmaalDialog" Title="Tilføj nyt delmål">
+            <EditForm Model="nytDelmaal" OnValidSubmit="GemDelmaal">
+                <DataAnnotationsValidator />
                 <div class="modal-form">
+
                     <label>Vælg praktikperiode</label>
                     <select class="form-control" @onchange="OnPeriodeChanged">
                         <option value="-1">-- Vælg periode --</option>
@@ -135,9 +138,11 @@
 
                         <label class="mt-2">Titel</label>
                         <InputText class="form-control" @bind-Value="nytDelmaal.Titel" />
+                        <ValidationMessage For="@(() => nytDelmaal.Titel)" />
 
                         <label class="mt-2">Beskrivelse</label>
                         <InputTextArea class="form-control" @bind-Value="nytDelmaal.Beskrivelse" />
+                        <ValidationMessage For="@(() => nytDelmaal.Beskrivelse)" />
 
                         <label class="mt-2">Type</label>
                         <select class="form-control" @bind="nytDelmaal.DelmaalType">
@@ -147,6 +152,8 @@
                                 <option value="@type">@type</option>
                             }
                         </select>
+                        <ValidationMessage For="@(() => nytDelmaal.DelmaalType)" />
+
                         <label class="mt-2">Deadline</label>
                         <InputDate class="form-control mb-2"
                                    @bind-Value="nytDelmaal.Deadline"
@@ -158,13 +165,12 @@
                                    @bind-Value="nytDelmaal.DeadlineKommentar"
                                    disabled="@(nytDelmaal.Deadline.HasValue)" />
 
-
-
-                        <button class="btn btn-success mt-3" @onclick="GemDelmaal">Gem delmål</button>
+                        <button class="btn btn-success mt-3" type="submit">Gem delmål</button>
                     }
                 </div>
-
+            </EditForm>
             </ModalDialog>
+
 
 
             <!-- Modal dialog til at vise og redigere kommentarer -->
