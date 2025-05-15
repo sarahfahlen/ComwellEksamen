@@ -416,7 +416,6 @@
                     opnaaet++;
             }
         }
-
         return opnaaet;
     }
 
@@ -504,14 +503,14 @@
         kommentarDialog?.Close(); // Lukker modalen efter gem
         // TODO: Giv bruger feedback på om det lykkedes eller fejlede
     }
-
+    
     //Funktion der bruges til at ændre status på et delmaal
     private async Task ToggleStatus(Delmaal delmaal)
     {
         //Tjekker om den som er logget ind har rettighederne
         if (loggedIn == null || !(loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "FaglærtKok" || loggedIn.Rolle == "Admin"))
             return;
-
+        
         //ændrer status på delmålet, og gemmer det i loggen
         delmaal.Status = !delmaal.Status;
 
@@ -529,9 +528,11 @@
             Console.WriteLine($"[ToggleStatus] FEJL: {ex.Message}");
         }
 
-
+        
     }
-    
+
+
+
     private async Task OpdaterFiltreredeMaal()
     {
         if (valgtElev == null)
@@ -547,7 +548,7 @@
 
         StateHasChanged(); // Opdater UI
     }
-
+    
     // Gemmer det valgte mål-navn fra dropdown
     private string ValgtMaalNavn
     {
@@ -592,16 +593,50 @@
         {
             valgtStatus = false;
         }
-
         await OpdaterFiltreredeMaal();
-
+        
         StateHasChanged(); // Tving UI til at opdatere med nye filtre
     }
-
-    private void OnChangeMaal(ChangeEventArgs obj)
+    
+    // Når et mål vælges i dropdown
+    private async Task OnChangeMaal(ChangeEventArgs e)
     {
-        valgtMaalNavn = obj.Value.ToString();
-        Console.WriteLine($"mål der er valgt er: {valgtMaalNavn}");
+        valgtMaalNavn = e.Value?.ToString() ?? "";
+        Console.WriteLine($"Mål valgt: {valgtMaalNavn}");
+
+        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
+    }
+
+// Når en delmålstype vælges
+    private async Task OnChangeDelmaalType(ChangeEventArgs e)
+    {
+        valgtDelmaalType = e.Value?.ToString() ?? "";
+        Console.WriteLine($"Delmålstype valgt: {valgtDelmaalType}");
+
+        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
+    }
+
+// Når status vælges (gennemført/ikke gennemført)
+    private async Task OnChangeStatus(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            valgtStatus = null;
+        }
+        else if (value == "true")
+        {
+            valgtStatus = true;
+        }
+        else if (value == "false")
+        {
+            valgtStatus = false;
+        }
+
+        Console.WriteLine($"Status valgt: {valgtStatus}");
+
+        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
     }
 
 // Åbn modal + nulstil data
