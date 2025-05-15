@@ -1,0 +1,34 @@
+@using Shared
+<div class="delmaal-container">
+    @foreach (var delmaal in maal.ListDelmaal)
+    {
+        <div class="delmaal">
+            <h4 class="delmaal-overskrift">@delmaal.Titel</h4>
+            <p>Beskrivelse: @delmaal.Beskrivelse</p>
+            <p>Type: @delmaal.DelmaalType</p>
+            <p>Ansvarlig: @delmaal.Ansvarlig</p>
+            <p>
+                Deadline: @(delmaal.Deadline != null
+                                  ? delmaal.Deadline?.ToString("dd/MM-yyyy")
+                                  : delmaal.DeadlineKommentar)
+            </p>
+            <p> Kommentar:
+                <button class="kommentar-knap" @onclick="() => OnInputDelmaal.InvokeAsync(delmaal.DelmaalId)">
+                    Se kommentar
+                </button>
+            </p>
+
+            <div class="status-badge @(delmaal.Status ? "status-opnået" : "status-ikkeopnået")">
+                @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
+            </div>
+        </div>
+    }
+</div>
+@code {
+    [Parameter] public required Maal maal { get; set; }
+    
+    [Parameter] public required EventCallback<int> OnInputDelmaal { get; set; }
+
+
+
+}

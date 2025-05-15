@@ -72,6 +72,33 @@ public class ElevplanController : ControllerBase
             return BadRequest($"Fejl ved redigering af kommentar: {ex.Message}");
         }
     }
+    
+    // Hente filtrerede mål fra en elevplan via query-parametre
+    [HttpGet("filtrerede-maal")]
+    public async Task<ActionResult<List<Maal>>> HentFiltreredeMaal(
+        [FromQuery] int brugerId,               // Brugerens ID – bruges til at finde den rigtige elevplan
+        [FromQuery] int periodeIndex,           // Index for den praktikperiode der ønskes (0, 1, 2, ...)
+        [FromQuery] string? valgtMaalNavn,           // Valgt mål-navn (bruges som filter)
+        [FromQuery] string? valgtDelmaalType,        // Valgt type af delmål (fx "Intro", "Kursus" – bruges som filter)
+        [FromQuery] string? soegeord,           // Søgeord til fritekstsøgning i delmålstitler
+        [FromQuery] bool? filterStatus)               // Statusfilter: true = gennemført, false = ikke gennemført
+    {
+        try
+        {
+            // Kalder repository for at hente filtrerede mål ud fra parametrene
+            var resultater = await elevplanRepo.HentFiltreredeMaal(
+                brugerId, periodeIndex, valgtMaalNavn, valgtDelmaalType, soegeord, filterStatus);
 
+
+            // Returnerer listen med mål (OK = 200)
+            return Ok(resultater);
+        }
+        catch (Exception ex)
+        {
+            // Hvis noget går galt, returneres en fejlbesked (400 Bad Request)
+            Console.WriteLine($"[HentFiltreredeMaal] FEJL: {ex.Message}");
+            return BadRequest(ex.Message);
+        }
+    }
 
 }

@@ -96,37 +96,13 @@
             <div id="plan">
                 @if (aktivPeriode != null)
                 {
-                    @foreach (var maal in HentFiltreredeMaal())
+                    @foreach (var maal in filtreredeMaal)
                     {
                         <div class="maal-kort">
                             <h5>@maal.MaalNavn</h5>
                         </div>
 
-                        <div class="delmaal-container">
-                            @foreach (var delmaal in maal.ListDelmaal)
-                            {
-                                <div class="delmaal">
-                                    <h4 class="delmaal-overskrift">@delmaal.Titel</h4>
-                                    <p>Beskrivelse: @delmaal.Beskrivelse</p>
-                                    <p>Type: @delmaal.DelmaalType</p>
-                                    <p>Ansvarlig: @delmaal.Ansvarlig</p>
-                                    <p>
-                                        Deadline: @(delmaal.Deadline != null
-                                                          ? delmaal.Deadline?.ToString("dd/MM-yyyy")
-                                                          : delmaal.DeadlineKommentar)
-                                    </p>
-                                    <p> Kommentar:
-                                        <button class="kommentar-knap" @onclick="() => AabenKommentar(delmaal.DelmaalId)">
-                                            Se kommentar
-                                        </button>
-                                    </p>
-
-                                    <div class="status-badge @(delmaal.Status ? "status-opnået" : "status-ikkeopnået")">
-                                        @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
-                                    </div>
-                                </div>
-                            }
-                        </div>
+                        <DelmaalComponent maal="maal" OnInputDelmaal="AabenKommentar"/>
                         <br>
                     }
                 }
@@ -192,7 +168,7 @@
             <div class="sidepanel-værktøj">
                 <label for="soeg">Søg delmål</label>
                 <input type="text" id="soeg" class="soeg-input" placeholder="Skriv søgeord..."
-                       @bind="søgeord" @bind:event="oninput" />
+                       @bind="soegeord" @oninput="async _ => await OpdaterFiltreredeMaal()" />
             </div>
 
             <div class="sidepanel-værktøj">
@@ -203,16 +179,17 @@
                 {
                     <div style="margin-top: 1rem;">
                         <label>Mål</label>
-                        <select @bind="valgtMaalNavn" class="form-control">
+                        <InputSelect class="form-control" @bind-value="ValgtMaalNavn" @oninput="OnChangeMaal">
                             <option value="">Alle mål</option>
                             @foreach (var m in aktivPeriode?.ListMaal ?? new())
                             {
                                 <option value="@m.MaalNavn">@m.MaalNavn</option>
                             }
-                        </select>
+                        </InputSelect>
+
 
                         <label class="mt-2">Delmålstype</label>
-                        <select @bind="valgtDelmaalType" class="form-control">
+                        <select class="form-control" @bind="ValgtDelmaalType" @bind:event="onchange">
                             <option value="">Alle typer</option>
                             @foreach (var t in aktivPeriode?.ListMaal.SelectMany(m => m.ListDelmaal).Select(d => d.DelmaalType).Distinct() ?? new List<string>())
                             {
@@ -222,7 +199,7 @@
 
                         <label class="mt-2">Status</label>
                         <select class="form-control" @onchange="OnStatusChanged">
-                            <option value="">Alle</option>
+                        <option value="">Alle</option>
                             <option value="true">Gennemført</option>
                             <option value="false">Ikke gennemført</option>
                         </select>
@@ -264,7 +241,8 @@
     private int aktivtDelmaalId = 0;
 
     // Søge- og filterfelter til højresiden
-    private string søgeord = "";
+    private List<Maal> filtreredeMaal = new(); // Indeholder mål og deres delmål efter filtrering
+    private string soegeord = "";
     private string valgtMaalNavn = "";
     private string valgtDelmaalType = "";
     private bool visFilter = false;
@@ -319,6 +297,7 @@
             valgtElev = loggedIn;
             minPlan = loggedIn.MinElevplan;
         }
+        await OpdaterFiltreredeMaal();
     }
 
     // Tæller hvor mange delmål der findes i den valgte periode
@@ -437,17 +416,51 @@
         // TODO: Giv bruger feedback på om det lykkedes eller fejlede
     }
 
-    // Returnerer mål ud fra de filtre brugeren har valgt – data hentes via service
-    private List<Maal> HentFiltreredeMaal()
+    private async Task OpdaterFiltreredeMaal()
     {
-        if (minPlan == null)
-            return new();
+        if (valgtElev == null)
+            return;
 
-        return eService.HentFiltreredeMaal(minPlan, valgtPeriodeIndex, valgtMaalNavn, valgtDelmaalType, søgeord, valgtStatus);
+        filtreredeMaal = await eService.HentFiltreredeMaal(
+            valgtElev.BrugerId,
+            valgtPeriodeIndex,
+            valgtMaalNavn,
+            valgtDelmaalType,
+            soegeord,
+            valgtStatus);
+
+        StateHasChanged(); // Opdater UI
+    }
+    
+    // Gemmer det valgte mål-navn fra dropdown
+    private string ValgtMaalNavn
+    {
+        get => valgtMaalNavn;
+        set
+        {
+            valgtMaalNavn = value;
+
+            // Hver gang bruger vælger et nyt mål, opdateres listen af mål og delmål
+            _ = OpdaterFiltreredeMaal();
+        }
     }
 
+    // Gemmer den valgte delmålstype fra dropdown
+    private string ValgtDelmaalType
+    {
+        get => valgtDelmaalType;
+        set
+        {
+            valgtDelmaalType = value;
+
+            // Hver gang bruger vælger en ny type, opdateres listen
+            _ = OpdaterFiltreredeMaal();
+        }
+    }
+
+
     // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
-    private void OnStatusChanged(ChangeEventArgs e)
+    private async void OnStatusChanged(ChangeEventArgs e)
     {
         var value = e.Value?.ToString();
 
@@ -463,7 +476,15 @@
         {
             valgtStatus = false;
         }
-
+        await OpdaterFiltreredeMaal();
+        
         StateHasChanged(); // Tving UI til at opdatere med nye filtre
     }
+
+    private void OnChangeMaal(ChangeEventArgs obj)
+    {
+        valgtMaalNavn = obj.Value.ToString();
+        Console.WriteLine($"mål der er valgt er: {valgtMaalNavn}");
+    }
+
 }

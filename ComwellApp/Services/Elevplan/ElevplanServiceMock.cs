@@ -75,7 +75,7 @@ public class ElevplanServiceMock : IElevplanService
                 ListDelmaal = m.ListDelmaal
                     .Where(d =>
                         (string.IsNullOrWhiteSpace(valgtDelmaalType) || d.DelmaalType == valgtDelmaalType) &&
-                        (string.IsNullOrWhiteSpace(søg) || d.Beskrivelse.ToLower().Contains(søg)) &&
+                        (string.IsNullOrWhiteSpace(søg) || d.Titel.ToLower().Contains(søg)) &&
                         (filterStatus == null || d.Status == filterStatus)
                     )
                     .ToList()
@@ -321,5 +321,11 @@ public class ElevplanServiceMock : IElevplanService
                 }
             }
         };
+    }
+
+    public Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType,
+        string? soegeord, bool? filterStatus)
+    {
+        throw new NotImplementedException();
     }
 }

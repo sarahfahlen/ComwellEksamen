@@ -40,31 +40,37 @@ public class ElevplanServiceServer : IElevplanService
         return skabelon;
     }
 
-    public List<Maal> HentFiltreredeMaal(Elevplan plan, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? søgeord, bool? filterStatus)
+    public async Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? soegeord, bool? filterStatus)
     {
-        if (plan == null || plan.ListPerioder.Count <= periodeIndex)
-            return new();
+        // Saml query-parametre som URL
+        string url = $"api/elevplan/filtrerede-maal" +
+                     $"?brugerId={brugerId}" +
+                     $"&periodeIndex={periodeIndex}" +
+                     $"&maalNavn={Uri.EscapeDataString(valgtMaalNavn ?? "")}" +
+                     $"&delmaalType={Uri.EscapeDataString(valgtDelmaalType ?? "")}" +
+                     $"&soegeord={Uri.EscapeDataString(soegeord ?? "")}" +
+                     $"&status={(filterStatus.HasValue ? filterStatus.Value.ToString().ToLower() : "")}";
+        try
+        {
+            var response = await http.GetAsync(url);
 
-        var periode = plan.ListPerioder[periodeIndex];
-        var søg = søgeord?.ToLower() ?? "";
-
-        return periode.ListMaal
-            .Where(m => string.IsNullOrWhiteSpace(valgtMaalNavn) || m.MaalNavn == valgtMaalNavn)
-            .Select(m => new Maal
+            if (!response.IsSuccessStatusCode)
             {
-                MaalId = m.MaalId,
-                MaalNavn = m.MaalNavn,
-                ListDelmaal = m.ListDelmaal
-                    .Where(d =>
-                        (string.IsNullOrWhiteSpace(valgtDelmaalType) || d.DelmaalType == valgtDelmaalType) &&
-                        (string.IsNullOrWhiteSpace(søg) || d.Beskrivelse.ToLower().Contains(søg)) &&
-                        (filterStatus == null || d.Status == filterStatus)
-                    )
-                    .ToList()
-            })
-            .Where(m => m.ListDelmaal.Any())
-            .ToList();
+                var fejl = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[HentFiltreredeMaal] FEJL: {fejl}");
+                throw new Exception("Kunne ikke hente filtrerede mål fra server.");
+            }
+
+            var maalListe = await response.Content.ReadFromJsonAsync<List<Maal>>();
+            return maalListe ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[HentFiltreredeMaal] FEJL: {ex.Message}");
+            return new();
+        }
     }
+
 
     public async Task TilfoejKommentar(Elevplan minPlan, int delmaalId, Kommentar nyKommentar)
     {

@@ -138,9 +138,51 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         await BrugerCollection.ReplaceOneAsync(b => b.BrugerId == bruger.BrugerId, bruger);
     }
 
+    // Returnerer mål med filtre og søgning – bruges til elevplanvisning
+    public async Task<List<Maal>> HentFiltreredeMaal(
+        int brugerId,
+        int periodeIndex,
+        string? valgtMaalNavn,
+        string? valgtDelmaalType,
+        string? soegeord,
+        bool? filterStatus)
+    {
+        // Finder brugeren baseret på brugerId
+        var bruger = await BrugerCollection.Find(b => b.BrugerId == brugerId).FirstOrDefaultAsync();
+
+        // Hvis brugeren ikke har nogen elevplan
+        if (bruger?.MinElevplan == null)
+            return new List<Maal>();
+
+        var plan = bruger.MinElevplan;
+
+        // Sikrer at periodeIndex er gyldigt
+        if (periodeIndex < 0 || periodeIndex >= plan.ListPerioder.Count)
+            return new List<Maal>();
 
 
 
 
+        var periode = plan.ListPerioder[periodeIndex];
+        var søg = soegeord?.ToLower() ?? "";
+
+        // Gennemgår alle mål i perioden og anvender filtre
+        return periode.ListMaal
+            .Where(m => string.IsNullOrWhiteSpace(valgtMaalNavn) || m.MaalNavn == valgtMaalNavn)
+            .Select(m => new Maal
+            {
+                MaalId = m.MaalId,
+                MaalNavn = m.MaalNavn,
+                ListDelmaal = m.ListDelmaal
+                    .Where(d =>
+                        (string.IsNullOrWhiteSpace(valgtDelmaalType) || d.DelmaalType == valgtDelmaalType) &&
+                        (string.IsNullOrWhiteSpace(søg) || d.Titel.ToLower().Contains(søg)) &&
+                        (filterStatus == null || d.Status == filterStatus)
+                    )
+                    .ToList()
+            })
+            .Where(m => m.ListDelmaal.Any()) // Kun mål der har delmål tilbage efter filtrering
+            .ToList();
+    }
     
 }

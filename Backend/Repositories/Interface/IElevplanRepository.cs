@@ -16,5 +16,13 @@ public interface IElevplanRepository
     Task RedigerKommentarAsync (int elevplanId, int delmaalId, int kommentarId, string nyTekst);
 
 
-    
+    // Brugt til at hente en elevplans mål med filtre og søgning fra frontend
+    Task<List<Maal>> HentFiltreredeMaal(
+        int brugerId,                     // Brugerens ID – bruges til at finde elevplanen
+        int periodeIndex,                 // Index for den praktikperiode der ønskes
+        string? valgtMaalNavn,            // Mål-navn filter – fx "Intro"
+        string? valgtDelmaalType,         // Delmålstype filter – fx "Samtale"
+        string? soegeord,                  // Søgeord – bruges til fritekstsøgning i delmålstitel
+        bool? filterStatus                // Filter på gennemført-status: true/false/null
+    );
 }

@@ -199,34 +199,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.delmaal-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    margin-top: 1rem;
-    margin-bottom: 2rem;
-}
-
-.delmaal {
-    background-color: #fff;
-    padding: 1.25rem;
-    border-radius: 14px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    font-size: 0.95rem;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transform: translateY(0);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.delmaal-overskrift {
-    text-align: center;
-    font-size: 1.05rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #1C2B38;
-}
 
 .status-badge {
     align-self: flex-end;
@@ -248,43 +220,12 @@
     color: #8c4d4d;
 }
 
-
-.delmaal:hover {
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-    transform: translateY(-3px);
-}
-
-.delmaal p {
-    margin: 0.4rem 0;
-    line-height: 1.4;
-}
-
 .kommentar-info {
     font-size: 0.9rem;
     font-style: italic;
     color: #555;
     margin-top: 0.4rem;
     margin-bottom: 0.3rem;
-}
-
-.kommentar-knap {
-    background-color: transparent;
-    border: 0px solid #d2b894;
-    color: #1C2B38;
-    border-radius: 8px;
-    padding: 0.35rem 0.8rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    align-self: flex-end;
-    width: fit-content;
-    margin-top: -1rem;
-}
-
-.kommentar-knap:hover {
-    background-color: #d2b894;
-    color: white;
-    cursor: pointer;
 }
 
 .Gemkommentarknap {
