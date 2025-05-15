@@ -5,77 +5,97 @@ using Shared;
 
 namespace Backend.Repositories;
 
+
+// Denne klasse håndterer al kommunikation med databasen (MongoDB).
+// Her arbejder vi direkte med "Brugere"-collectionen.
+// Det er herfra vi fx sender data videre til controllerne, og det er det frontend bruger via services.
+
 public class BrugereRepositoryMongoDB : IBrugereRepository
 {
+    private IMongoClient client; // Klienten der opretter forbindelse til MongoDB-serveren (Atlas eller lokal)
+    private IMongoCollection<Bruger> BrugerCollection; // Collection = tabel i MongoDB – her arbejder vi med brugere
+
+
+    //Konstruktøren kører når objektet bliver oprettet – her opretter vi databasen og samlingen.
+    public BrugereRepositoryMongoDB()
+    {
+        // Atlas-forbindelse – adgang via brugernavn og kode til cloud MongoDB (Atlas)
+        var password = "Comwell";
+        var mongoUri = $"mongodb+srv://Comwell:{password}@comwell.mils9ta.mongodb.net/?retryWrites=true&w=majority&appName=Comwell";
+
+
+        // var mongoUri = "mongodb://localhost:27017/";
+
+        try
+        {
+            // Prøver at oprette forbindelsen
+            client = new MongoClient(mongoUri);
+        }
+        catch (Exception e)
+        {
+            // Hvis noget går galt (forkert kode, manglende IP-whitelist, mm.)
+            Console.WriteLine("Der opstod en fejl ved forbindelsen til MongoDB. Tjek brugernavn/adgangskode og IP-whitelist.");
+            Console.WriteLine($"Fejl: {e.Message}");
+            throw; // Stop programmet – vi kan ikke fortsætte uden forbindelse
+        }
+
+        // Navnet på vores database og "tabel" i MongoDB
+        var dbName = "Comwell";
+        var collectionName = "Brugere";
+
+        // Nu henter vi selve collectionen vi skal arbejde med – altså listen over brugere
+        BrugerCollection = client.GetDatabase(dbName)
+            .GetCollection<Bruger>(collectionName);
+    }
+
+ 
+    // Tilføjer en ny bruger til databasen.
+    // Bruges når vi kalder `TilfoejElev(...)` i frontendens BrugereServiceServer.
+    public async Task TilfoejElev(Bruger nyBruger)
+    {
+        await BrugerCollection.InsertOneAsync(nyBruger);
+    }
     
-        private IMongoClient client;
-        private IMongoCollection<Bruger> BrugerCollection;
+    // Henter alle brugere – uanset rolle.
+    public async Task<List<Bruger>> HentAlle()
+    {
+        var filter = Builders<Bruger>.Filter.Empty; // = hent alle dokumenter i collectionen
+        return await BrugerCollection.Find(filter).ToListAsync();
+    }
 
-        public BrugereRepositoryMongoDB()
-        {
-            // atlas database
-            var password = "Comwell";
-            var mongoUri = $"mongodb+srv://Comwell:{password}@comwell.mils9ta.mongodb.net/?retryWrites=true&w=majority&appName=Comwell";
+   
+    // Henter alle elever – altså brugere med rollen "Elev".
+    // Bruges i dashboard og elevplan-visninger hvor kun elever vises.
+    public async Task<List<Bruger>> HentAlleElever()
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b.Rolle, "Elev"); // kun der hvor Rolle == "Elev"
+        return await BrugerCollection.Find(filter).ToListAsync();
+    }
 
-            //local mongodb
-            //var mongoUri = "mongodb://localhost:27017/";
+    // Henter alle brugere med rollen "Køkkenchef".
+    // Bruges fx når man skal vælge en ansvarlig køkkenchef i opret-elev formularen.
 
-            try
-            {
-                client = new MongoClient(mongoUri);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("There was a problem connecting to your " +
-                                  "Atlas cluster. Check that the URI includes a valid " +
-                                  "username and password, and that your IP address is " +
-                                  $"in the Access List. Message: {e.Message}");
-                throw;
-            }
+    public async Task<List<Bruger>> HentAlleKøkkenchefer()
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b.Rolle, "Køkkenchef"); // kun brugere med denne rolle
+        return await BrugerCollection.Find(filter).ToListAsync();
+    }
 
-            // Provide the name of the database and collection you want to use.
-            var dbName = "Comwell";
-            var collectionName = "Brugere";
+    
+    // Henter alle unikke lokationer fra brugernes tilknyttede afdelinger.
+    // Bruges fx i frontend, hvor man vælger hvilket køkken eller afdeling eleven skal tilknyttes.
+    public async Task<List<Lokation>> HentAlleLokationer()
+    {
+        // Vi starter med kun at hente brugere der har en afdeling (for ellers er der ingen lokation)
+        var filter = Builders<Bruger>.Filter.Ne(b => b.Afdeling, null); 
+        var brugere = await BrugerCollection.Find(filter).ToListAsync();
 
-            BrugerCollection = client.GetDatabase(dbName)
-                .GetCollection<Bruger>(collectionName);
-            
-        }
-        
-        //Tilføjer den nye elev til MongoDB
-        public async Task TilfoejElev(Bruger nyBruger)
-        {
-            await BrugerCollection.InsertOneAsync(nyBruger);
-        }
-
-        
-        public async Task<List<Bruger>> HentAlle()
-        {
-            var filter = Builders<Bruger>.Filter.Empty;
-            return await BrugerCollection.Find(filter).ToListAsync();
-        }
-        public async Task<List<Bruger>> HentAlleElever()
-        {
-            var filter = Builders<Bruger>.Filter.Eq(b => b.Rolle, "Elev");
-            return await BrugerCollection.Find(filter).ToListAsync();
-        }
-
-        public async Task<List<Bruger>> HentAlleKøkkenchefer()
-        {
-            var filter = Builders<Bruger>.Filter.Eq(b => b.Rolle, "Køkkenchef");
-            return await BrugerCollection.Find(filter).ToListAsync();
-        }
-        public async Task<List<Lokation>> HentAlleLokationer()
-        {
-            var filter = Builders<Bruger>.Filter.Ne(b => b.Afdeling, null);
-            var brugere = await BrugerCollection.Find(filter).ToListAsync();
-
-            return brugere
-                .Where(b => b.Afdeling != null)
-                .Select(b => b.Afdeling!)
-                .GroupBy(l => l.LokationId)
-                .Select(g => g.First())
-                .ToList();
-        }
-
+        // Nu filtrerer vi, så vi kun får én af hver unikke lokation
+        return brugere
+            .Where(b => b.Afdeling != null)
+            .Select(b => b.Afdeling!)
+            .GroupBy(l => l.LokationId)
+            .Select(g => g.First())
+            .ToList();
+    }
 }

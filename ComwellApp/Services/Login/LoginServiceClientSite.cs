@@ -35,7 +35,7 @@ public class LoginServiceClientSite : ILoginService
         }
 
         // Tjek gemte elever
-        var gemteElever = await HentAlleGemteEleverFraLocalStorage();
+        var gemteElever = await HentEleverTilElevplanVisning();
         foreach (var elev in gemteElever)
         {
             if (email == elev.Email && adgangskode == elev.Adgangskode)
@@ -57,7 +57,7 @@ public class LoginServiceClientSite : ILoginService
         await _localStorage.SetItemAsync("gemteElever", gemte);
     }
 
-    public async Task<List<Bruger>> HentAlleGemteEleverFraLocalStorage()
+    public async Task<List<Bruger>> HentEleverTilElevplanVisning()
     {
         return await _localStorage.GetItemAsync<List<Bruger>>("gemteElever") ?? new List<Bruger>();
     }
@@ -71,7 +71,7 @@ public class LoginServiceClientSite : ILoginService
 
     public async Task OpdaterBruger(Bruger bruger)
     {
-        var gemte = await HentAlleGemteEleverFraLocalStorage();
+        var gemte = await HentEleverTilElevplanVisning();
         var index = gemte.FindIndex(b => b.BrugerId == bruger.BrugerId);
 
         if (index != -1)

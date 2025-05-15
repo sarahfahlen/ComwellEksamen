@@ -263,16 +263,24 @@
     protected override async Task OnParametersSetAsync()
     {
         loggedIn = await lService.GetUserLoggedIn();
+
         if (loggedIn == null)
         {
             navManager.NavigateTo("login/elevplan");
             return;
         }
 
-        // Hvis elevId er sat (en HR eller Køkkenchef ser en elevs side)
+        // ⛔ Bloker elever i at se andres elevplan
+        if (loggedIn.Rolle == "Elev" && elevId.HasValue && elevId.Value != loggedIn.BrugerId)
+        {
+            navManager.NavigateTo("/dashboard"); // eller lav en '403' side
+            return;
+        }
+
+        // ✅ Hvis HR/Admin/Køkkenchef ser en andens elevplan
         if (elevId.HasValue && elevId != loggedIn.BrugerId)
         {
-            var alleElever = await lService.HentAlleGemteEleverFraLocalStorage();
+            var alleElever = await lService.HentEleverTilElevplanVisning();
             valgtElev = alleElever.FirstOrDefault(e => e.BrugerId == elevId.Value);
 
             if (valgtElev != null)
@@ -287,23 +295,13 @@
         }
         else
         {
+            // Elev eller faglært ser egen plan
             valgtElev = loggedIn;
             minPlan = loggedIn.MinElevplan;
         }
-
-
-        // Simulér gennemførte delmål til test
-        var alleDelmaal = minPlan?.ListPerioder
-            .SelectMany(p => p.ListMaal)
-            .SelectMany(m => m.ListDelmaal)
-            .Take(9);
-
-        if (alleDelmaal != null)
-        {
-            foreach (var d in alleDelmaal)
-                d.Status = true;
-        }
+        
     }
+
     
     //Bruges til at beregne hvor mange delmål der er i den aktive periode (visningsperioden)
     private int AntalDelmaalIAlt()

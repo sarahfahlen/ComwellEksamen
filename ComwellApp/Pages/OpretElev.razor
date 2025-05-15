@@ -1,22 +1,26 @@
-@page "/opretelev"
+@page "/opretelev" <!-- Gør siden tilgængelig på denne route -->
+
+<!-- Services vi bruger til at hente data og sende elev-info til backend -->
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
 @using Shared
-@inject IBrugereService bService
-@inject ILoginService LoginService
+<!--Service der håndterer bruger-relateret kommunikation-->
+@inject IBrugereService bService 
 @inject NavigationManager Navigation
 
+<!-- FORMULAR: Hele visningen er en <EditForm>, som binder sig til en ny 'Bruger' (elev) -->
 <EditForm Model="@nyElev" OnSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
-  
+    <DataAnnotationsValidator /> <!-- Sørger for at validerings-attributter virker -->
+
     <div class="opret-container">
-        <!-- Tilbage-knap til dashboard -->
+
+        <!-- Tilbage-knap -->
         <button class="tilbage-knap" @onclick="Tilbage">← Tilbage</button>
 
         <h3 class="overskrift">Oprettelse af elev</h3>
 
         <div class="opret-grid">
-            <!-- Inputfelter for navn og telefonnummer -->
+            <!-- Navn og telefonnummer -->
             <div class="form-row">
                 <div class="form-floating-group halv-bredde">
                     <InputText id="navn" class="form-control floating-input" @bind-Value="nyElev.Navn" placeholder=" " />
@@ -31,24 +35,24 @@
                 </div>
             </div>
 
-            <!-- Inputfelt til e-mail -->
+            <!-- Email -->
             <div class="form-floating-group hel-bredde">
                 <InputText id="email" type="email" class="form-control floating-input" @bind-Value="nyElev.Email" placeholder=" " />
                 <label for="email">E-mail</label>
                 <ValidationMessage For="@(() => nyElev.Email)" />
             </div>
 
-            <!-- Adgangskode til eleven -->
+            <!-- Adgangskode -->
             <div class="form-floating-group hel-bredde">
                 <InputText id="adgangskode" class="form-control floating-input" @bind-Value="nyElev.Adgangskode" placeholder=" " />
                 <label for="adgangskode">Adgangskode</label>
                 <ValidationMessage For="@(() => nyElev.Adgangskode)" />
             </div>
 
-            <!-- Vælg køkken, startdato og upload billede -->
+            <!-- Lokation (køkken), startdato og billede -->
             <div class="form-row">
                 <div class="form-floating-group tre-delt">
-                    <select class="form-control" @bind="valgtKoekkenId">
+                    <select class="form-control" @bind="KoekkenId">
                         <option disabled selected value="">Vælg køkken</option>
                         @foreach (var k in alleKoekkener)
                         {
@@ -69,16 +73,17 @@
                     <InputFile id="billede" class="form-control" OnChange="HandleFileSelected" />
                 </div>
             </div>
+
+            <!-- Ansvarlig køkkenchef og erhverv -->
             <div class="form-row">
-                <div class="form-floating-group halv-bredde">
-                    <select id="ansvarlig" class="form-control" @bind="valgtKoekkenchefId">
-                        <option disabled selected value="">Vælg ansvarlig køkkenchef</option>
-                        @foreach (var k in koekenchefer)
-                        {
-                            <option value="@k.BrugerId">@k.Navn</option>
-                        }
-                    </select>
-                </div>
+                <select id="ansvarlig" class="form-control" @bind="valgtKoekkenchefId">
+                    <option value="">Vælg ansvarlig køkkenchef</option>
+                    @foreach (var k in koekenchefer)
+                    {
+                        <option value="@k.BrugerId">@k.Navn</option>
+                    }
+                </select>
+
                 <div class="form-floating-group halv-bredde">
                     <select class="form-control" @bind="nyElev.Erhverv">
                         <option disabled selected value="">Vælg uddannelse</option>
@@ -87,7 +92,8 @@
                     <ValidationMessage For="@(() => nyElev.Erhverv)" />
                 </div>
             </div>
-            <!-- Knap til at gemme/indsende -->
+
+            <!-- Gem-knap -->
             <div class="form-floating-group opret-knap-container">
                 <button class="btn btn-primary" type="submit">Opret</button>
             </div>
@@ -98,44 +104,66 @@
 </EditForm>
 
 @code {
-    private int? valgtKoekkenId;
-    private int? valgtKoekkenchefId;
+    private int? valgtKoekkenId; // Den valgte lokation
+    private int? valgtKoekkenchefId; // Den valgte ansvarlige
 
-    private List<Bruger> koekenchefer = new();           // Alle køkkenchefer (fra backend)
-    private List<Lokation> alleKoekkener = new();        // Alle unikke lokationer (fra backend)
+    private List<Bruger> koekenchefer = new(); // Alle ansvarlige køkkenchefer
+    private List<Lokation> alleKoekkener = new(); // Alle lokationer brugeren kan vælge imellem
 
-    private IBrowserFile? BilledeFil;
+    private IBrowserFile? BilledeFil; // Billedet brugeren uploader
 
+    // Elevens model der bindes til formularen
     private Bruger nyElev = new()
     {
-        StartDato = DateOnly.FromDateTime(DateTime.Today)
+        StartDato = DateOnly.FromDateTime(DateTime.Today) // Sæt default startdato
     };
 
-    protected override async Task OnInitializedAsync()
+    // Når en lokation vælges, opdaterer vi 'valgtKoekkenId' og kalder OnLokationValgt
+    private int? KoekkenId
     {
-        // Hent køkkenchefer og lokationer fra backend
-        koekenchefer = await bService.HentAlleKøkkenchefer();
-        alleKoekkener = (await bService.HentAlleLokationer())
-                        .OrderBy(l => l.LokationNavn)
-                        .ToList();
+        get => valgtKoekkenId;
+        set
+        {
+            valgtKoekkenId = value;
+            _ = OnLokationValgt(value); 
+        }
     }
 
+    // Når siden loades: hent lokationer (ikke ansvarlige endnu)
+    protected override async Task OnInitializedAsync()
+    {
+        alleKoekkener = (await bService.HentAlleLokationer())
+            .OrderBy(l => l.LokationNavn)
+            .ToList();
+
+        koekenchefer = new(); // Rydder ansvarlige indtil der vælges køkken
+    }
+
+    // Når bruger vælger billede, gem det i memory
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
         BilledeFil = e.File;
-    } 
+    }
 
+    // Tilbage-knappen sender brugeren til dashboard
     private void Tilbage()
     {
         Navigation.NavigateTo("/dashboard");
     }
 
+    // Når brugeren trykker "Opret" gemmes eleven
     private async Task HandleSubmit()
     {
+        if (valgtKoekkenId == null)
+        {
+            Console.WriteLine("Der er ikke valgt en lokation.");
+            return;
+        }
+
         Console.WriteLine("Forsøger at oprette elev...");
         try
         {
-            // Profilbillede upload
+            // Hvis billede er valgt, konverterer vi det til Base64 og gemmer det som tekst
             if (BilledeFil != null)
             {
                 using var stream = BilledeFil.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
@@ -146,13 +174,15 @@
             }
             else
             {
+                // Hvis intet billede vælges, brug standard-profilbillede
                 nyElev.Billede = "billeder/intetprofilbillede.jpg";
             }
 
-            // Rolle og lokation
+            // Sæt rolle og afdeling/lokation
             nyElev.Rolle = "Elev";
             nyElev.Afdeling = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
 
+            // Find ansvarlig person (køkkenchef)
             var ansvarlig = koekenchefer.FirstOrDefault(k => k.BrugerId == valgtKoekkenchefId);
 
             if (ansvarlig == null)
@@ -161,22 +191,33 @@
                 return;
             }
 
-            // Vælg skabelon baseret på erhverv
+            // Vælg skabelonnavn baseret på elevens uddannelse
             string skabelonNavn = nyElev.Erhverv switch
             {
                 "Kok" => "KokSkabelon",
                 _ => throw new Exception("Ukendt erhverv – kan ikke vælge skabelon")
             };
 
-            // Send til backend
+            // Send alt til backend – og backend opretter også elevplan
             await bService.TilfoejElev(nyElev, ansvarlig, skabelonNavn);
 
             Console.WriteLine("Elev oprettet – omdirigering...");
-            Navigation.NavigateTo("/dashboard");
+            Navigation.NavigateTo("/dashboard"); // Tilbage til oversigt
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[HandleSubmit] Der opstod en fejl: {ex.Message}");
         }
+    }
+
+    // Når bruger vælger en lokation, henter vi ansvarlige personer (køkkenchefer)
+    private async Task OnLokationValgt(int? id)
+    {
+        if (id == null) return;
+
+        valgtKoekkenchefId = null;
+        koekenchefer = await bService.HentKoekkencheferForLokation(id.Value);
+
+        StateHasChanged(); // Opdater UI’et med de nye køkkenchefer
     }
 }

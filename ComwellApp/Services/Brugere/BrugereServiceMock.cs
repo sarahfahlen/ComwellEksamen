@@ -83,11 +83,11 @@ public class BrugereServiceMock : IBrugereService
         return Task.FromResult(elev?.MinElevplan);
     }
 
-    public Task<List<Bruger>> HentAlleKøkkenchefer()
+    public Task<List<Bruger>> HentKoekkencheferForLokation(int lokationId)
     {
         throw new NotImplementedException();
     }
-
+    
     public Task<List<Lokation>> HentAlleLokationer()
     {
         throw new NotImplementedException();

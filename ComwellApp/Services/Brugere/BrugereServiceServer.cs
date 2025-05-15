@@ -1,11 +1,13 @@
 using System.Net.Http.Json;
 using Shared;
+
 namespace ComwellApp.Services.Brugere;
 
+// Dette er implementation af IBrugereService, som sender data frem og tilbage med backend.
 public class BrugereServiceServer : IBrugereService
 {
-    private readonly HttpClient http;
-    private readonly IdGeneratorService _idGenerator;
+    private readonly HttpClient http; // Bruges til at sende HTTP-requests til vores backend
+    private readonly IdGeneratorService _idGenerator; // Bruges til at generere unikke ID’er til fx elevplaner, delmål og elever
 
     public BrugereServiceServer(HttpClient http, IdGeneratorService idGenerator)
     {
@@ -13,92 +15,108 @@ public class BrugereServiceServer : IBrugereService
         _idGenerator = idGenerator;
     }
 
+    // Interne lister (bliver dog ikke rigtig brugt her)
     private List<Shared.Elevplan> _allePlaner = new();
     private List<Bruger> _alleBrugere = new();
-    
-   public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig, string skabelonType)
-{
-    //Henter alle eksisterende brugere og opretter nyt BrugerId ud fra denne liste
-    var alleBrugere = await HentAlle();
-    nyBruger.BrugerId = _idGenerator.GenererNytId(alleBrugere, b => b.BrugerId);
 
-    //Hent skabelon fra vores elevplan controller
-    var response = await http.GetAsync($"api/elevplan/skabelon/{skabelonType}");
-    if (!response.IsSuccessStatusCode)
+   
+    // Oprettelse af ny elev + automatisk elevplan
+   
+    public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig, string skabelonType)
     {
-        var fejl = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"[TilfoejElev] FEJL: {fejl}");
-        throw new Exception($"Fejl ved hentning af skabelon '{skabelonType}'");
-    }
+        // Først henter vi ALLE brugere, for at kunne generere et unikt BrugerId
+        var alleBrugere = await HentAlle();
+        nyBruger.BrugerId = _idGenerator.GenererNytId(alleBrugere, b => b.BrugerId);
 
-    var plan = await response.Content.ReadFromJsonAsync<Shared.Elevplan>();
-    if (plan == null)
-        throw new Exception("Skabelonen kunne ikke konverteres til Elevplan");
-
-    //Sætter elevplanId til at matche brugerId, og tildeler den ansvarlige baseret på hvad der kommer fra frontend
-    plan.ElevplanId = nyBruger.BrugerId;
-    plan.Ansvarlig = ansvarlig;
-
-    //Sørger for at generere ID til alle mål, delmål og opgaver i elevplanen samt sætte status til false
-    var alleMaal = new List<Maal>();
-    var alleDelmaal = new List<Delmaal>();
-    var alleOpgaver = new List<Opgaver>();
-
-    foreach (var periode in plan.ListPerioder)
-    {
-        foreach (var maal in periode.ListMaal)
+        // Henter elevplan-skabelon fra backend (fx "KokSkabelon")
+        var response = await http.GetAsync($"api/elevplan/skabelon/{skabelonType}");
+        if (!response.IsSuccessStatusCode)
         {
-            maal.MaalId = _idGenerator.GenererNytId(alleMaal, m => m.MaalId);
-            alleMaal.Add(maal);
+            // Hvis der er fejl, læs besked fra backend og vis den i konsollen
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[TilfoejElev] FEJL: {fejl}");
+            throw new Exception($"Fejl ved hentning af skabelon '{skabelonType}'");
+        }
 
-            foreach (var delmaal in maal.ListDelmaal)
+        // Konverterer JSON-svaret til en rigtig .NET Elevplan
+        var plan = await response.Content.ReadFromJsonAsync<Shared.Elevplan>();
+        if (plan == null)
+            throw new Exception("Skabelonen kunne ikke konverteres til Elevplan");
+
+        // Gør planen klar: tildel ansvarlig og elevplanId
+        plan.ElevplanId = nyBruger.BrugerId;
+        plan.Ansvarlig = ansvarlig;
+
+        //  Gennemgår ALLE mål, delmål og opgaver og giver dem unikke ID'er og sætter status til "ikke gennemført"
+        var alleMaal = new List<Maal>();
+        var alleDelmaal = new List<Delmaal>();
+        var alleOpgaver = new List<Opgaver>();
+
+        foreach (var periode in plan.ListPerioder)
+        {
+            foreach (var maal in periode.ListMaal)
             {
-                delmaal.DelmaalId = _idGenerator.GenererNytId(alleDelmaal, d => d.DelmaalId);
-                delmaal.Status = false;
-                alleDelmaal.Add(delmaal);
+                maal.MaalId = _idGenerator.GenererNytId(alleMaal, m => m.MaalId);
+                alleMaal.Add(maal);
 
-                foreach (var opgave in delmaal.ListOpgaver)
+                foreach (var delmaal in maal.ListDelmaal)
                 {
-                    opgave.OpgaveId = _idGenerator.GenererNytId(alleOpgaver, o => o.OpgaveId);
-                    opgave.OpgaveGennemfoert = false;
-                    alleOpgaver.Add(opgave);
+                    delmaal.DelmaalId = _idGenerator.GenererNytId(alleDelmaal, d => d.DelmaalId);
+                    delmaal.Status = false;
+                    alleDelmaal.Add(delmaal);
+
+                    foreach (var opgave in delmaal.ListOpgaver)
+                    {
+                        opgave.OpgaveId = _idGenerator.GenererNytId(alleOpgaver, o => o.OpgaveId);
+                        opgave.OpgaveGennemfoert = false;
+                        alleOpgaver.Add(opgave);
+                    }
                 }
             }
         }
+
+        // Elevplanen færdiggøres og tilknyttes brugeren
+        nyBruger.MinElevplan = plan;
+
+        // Til sidst gemmer vi den nye bruger (inkl. elevplan) i databasen
+        var postResponse = await http.PostAsJsonAsync("api/brugere", nyBruger);
+        if (!postResponse.IsSuccessStatusCode)
+        {
+            var fejl = await postResponse.Content.ReadAsStringAsync();
+            Console.WriteLine($"[TilfoejElev] FEJL ved oprettelse: {fejl}");
+            throw new Exception("Kunne ikke oprette bruger med elevplan");
+        }
     }
 
-    //Tildeler planen til den nye elev
-    nyBruger.MinElevplan = plan;
-
-    //Kalder bruger controller og gemmer eleven
-    var postResponse = await http.PostAsJsonAsync("api/brugere", nyBruger);
-    if (!postResponse.IsSuccessStatusCode)
-    {
-        var fejl = await postResponse.Content.ReadAsStringAsync();
-        Console.WriteLine($"[TilfoejElev] FEJL ved oprettelse: {fejl}");
-        throw new Exception("Kunne ikke oprette bruger med elevplan");
-    }
-}
-
+   
+    // Henter alle brugere fra backend (kun elever)
 
     public async Task<List<Bruger>> HentAlle()
     {
         return await http.GetFromJsonAsync<List<Bruger>>("api/brugere/elever")
-               ?? new List<Bruger>();
+               ?? new List<Bruger>(); // fallback hvis server returnerer null
     }
 
-    public async Task<List<Bruger>> HentAlleKøkkenchefer()
+
+    // Henter alle køkkenchefer for en specifik lokation (id)
+ 
+    public async Task<List<Bruger>> HentKoekkencheferForLokation(int lokationId)
     {
-        var kokke = await http.GetFromJsonAsync<List<Bruger>>("api/brugere/køkkenchefer");
+        var url = $"api/brugere/køkkencheferlokation/{lokationId}";
+        var kokke = await http.GetFromJsonAsync<List<Bruger>>(url);
         return kokke ?? new List<Bruger>();
     }
+
+  
+    // Henter alle lokationer, som bruges i dropdown
+   
     public async Task<List<Lokation>> HentAlleLokationer()
     {
         var result = await http.GetFromJsonAsync<List<Lokation>>("api/brugere/lokationer");
         return result ?? new List<Lokation>();
     }
 
-
+    // Denne metode er ikke implementeret endnu (men er påkrævet af interfacet)
     public Task<Shared.Elevplan?> GetElevplanForUser(Bruger bruger)
     {
         throw new NotImplementedException();

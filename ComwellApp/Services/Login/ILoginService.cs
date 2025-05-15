@@ -13,7 +13,7 @@ public interface ILoginService
     
     Task GemElevILocalStorage(Bruger elev);
     
-    Task<List<Bruger>> HentAlleGemteEleverFraLocalStorage();
+    Task<List<Bruger>> HentEleverTilElevplanVisning();
 
     Task OpdaterBruger(Bruger bruger);
     Task<bool> SkiftAdgangskode(int brugerId, string nuværendeKode, string nyKode);
