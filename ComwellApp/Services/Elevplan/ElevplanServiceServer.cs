@@ -77,6 +77,13 @@ public class ElevplanServiceServer : IElevplanService
         if (delmaal == null)
             throw new Exception("Delmål ikke fundet i planen.");
 
+        //Tvinger rollen til at være faglærtkok, selvom det er køkkenchef der opretter
+        //Dette er for at sikre at de to har samme kommentarfelt
+        if (nyKommentar.OprettetAf?.Rolle == "Køkkenchef")
+        {
+            nyKommentar.OprettetAf.Rolle = "FaglærtKok";
+        }
+
         //Opretter Id til den nye kommentar, og sætter dagens dato på
         nyKommentar.KommentarId = _idGenerator.GenererNytId(delmaal.Kommentarer, k => k.KommentarId);
         nyKommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
@@ -94,20 +101,44 @@ public class ElevplanServiceServer : IElevplanService
             throw new Exception("Kunne ikke tilføje kommentar");
         }
     }
-
-    public Task RedigerKommentar(Elevplan minPlan, int delmaalId, int kommentarId, string nyTekst)
+    
+    public async Task RedigerKommentar(Elevplan minPlan, int delmaalId, int kommentarId, string nyTekst)
     {
-        throw new NotImplementedException();
+        //Kalder vores controller for at sende den nye kommentar
+        var response = await http.PutAsJsonAsync(
+            $"api/elevplan/kommentar/{minPlan.ElevplanId}/{delmaalId}/{kommentarId}",
+            nyTekst);
+
+        //fejlhåndtering
+        if (!response.IsSuccessStatusCode)
+        {
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[RedigerKommentar] FEJL: {fejl}");
+            throw new Exception("Kunne ikke redigere kommentar.");
+        }
     }
 
-    public Kommentar? GetKommentar(Elevplan plan, int delmaalId, string brugerRolle)
+    public async Task<Kommentar?> GetKommentarAsync(int elevplanId, int delmaalId, string brugerRolle)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var response = await http.GetAsync($"api/elevplan/kommentar/{elevplanId}/{delmaalId}/{brugerRolle}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<Kommentar>();
+            }
+
+            Console.WriteLine($"[GetKommentarAsync] Kommentar ikke fundet. Statuskode: {response.StatusCode}");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[GetKommentarAsync] Fejl: {ex.Message}");
+            return null;
+        }
     }
 
-    public List<Elevplan> GetAllElevplaner()
-    {
-        throw new NotImplementedException();
-    }
+    
     
 }

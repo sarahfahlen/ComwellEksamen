@@ -28,7 +28,21 @@ public class ElevplanController : ControllerBase
         return Ok(skabelon);
     }
     
-    //Tilføjer en ny kommentar fra frontend til repository
+    //Henter kommentaren baseret på elevplan, delmål og rolle - ved at kalde på repo
+    [HttpGet("kommentar/{elevplanId:int}/{delmaalId:int}/{brugerRolle}")]
+    public async Task<ActionResult<Kommentar>> GetKommentar(int elevplanId, int delmaalId, string brugerRolle)
+    {
+        var kommentar = await elevplanRepo.GetKommentarAsync(elevplanId, delmaalId, brugerRolle);
+        
+        //fejlhåndtering
+        if (kommentar == null)
+            return NotFound("Ingen kommentar fundet for det givne delmål og rolle.");
+
+        return Ok(kommentar);
+    }
+
+    
+    //Tilføjer en ny kommentar ved at kalde repo funktion
     [HttpPost("kommentar/{elevplanId:int}/{delmaalId:int}")]
     public async Task<IActionResult> TilfoejKommentar(int elevplanId, int delmaalId, [FromBody] Kommentar kommentar)
     {
@@ -43,5 +57,21 @@ public class ElevplanController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+    
+    //Opdaterer kommentaren via put, og kalder funktion fra repo
+    [HttpPut("kommentar/{elevplanId:int}/{delmaalId:int}/{kommentarId:int}")]
+    public async Task<IActionResult> RedigerKommentar(int elevplanId, int delmaalId, int kommentarId, [FromBody] string nyTekst)
+    {
+        try
+        {
+            await elevplanRepo.RedigerKommentarAsync(elevplanId, delmaalId, kommentarId, nyTekst);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Fejl ved redigering af kommentar: {ex.Message}");
+        }
+    }
+
 
 }

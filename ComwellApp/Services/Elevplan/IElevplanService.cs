@@ -11,7 +11,7 @@ public interface IElevplanService
     //Bruges til at redigere eksisterende kommentarer på et delmål
     public Task RedigerKommentar(Shared.Elevplan minPlan, int delmaalId, int kommentarId, string nyTekst);
     //Bruges til at hente kommentar der passer til delmål og den rolle man er logget ind som
-    public Kommentar? GetKommentar(Shared.Elevplan plan, int delmaalId, string brugerRolle);
+    public Task<Kommentar?> GetKommentarAsync(int elevplanId, int delmaalId, string brugerRolle);
     //Bruges til at oprette default skabelon til nye elever
     public Task<Shared.Elevplan> LavDefaultSkabelon(Bruger ansvarlig, string skabelonNavn);
     //Bruges til at hente de filtrede mål på elevplanen

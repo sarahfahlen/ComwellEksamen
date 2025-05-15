@@ -53,19 +53,9 @@ public class ElevplanServiceMock : IElevplanService
         return Task.CompletedTask;
     }
     
-    public Kommentar? GetKommentar(Shared.Elevplan plan, int delmaalId, string brugerRolle)
+    public Task<Kommentar?> GetKommentarAsync(int elevplanId, int delmaalId, string brugerRolle)
     {
-        //Her finder vi det rigtige delmål ud fra id
-        var delmaal = plan.ListPerioder
-            .SelectMany(p => p.ListMaal)
-            .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.DelmaalId == delmaalId);
-
-        if (delmaal == null)
-            return null;
-        //Her sender vi den kommentar der skal vises, ud fra brugerrolle
-        return delmaal.Kommentarer
-            .FirstOrDefault(k => k.OprettetAf?.Rolle == brugerRolle);
+        throw new NotImplementedException();
     }
 
     public List<Maal> HentFiltreredeMaal(Shared.Elevplan plan, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? søgeord, bool? filterStatus)

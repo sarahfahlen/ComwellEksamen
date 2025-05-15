@@ -68,8 +68,8 @@
                 <!-- Knappen til at gå til elevens elevplan -->
                 @if (
                     // Vises hvis man er sig selv (elev/kok) eller har en overordnet rolle
-                    (loggedIn.BrugerId == elev.BrugerId && (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok")) ||
-                    (loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR")
+                    (loggedIn.BrugerId == elev.BrugerId && (loggedIn.Rolle == "Elev")) ||
+                    (loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "FaglærtKok")
                 )
                 {
                     <button class="btn btn-outline-secondary se-elevplan-knap" @onclick="@(() => GåTilElevplan(elev.BrugerId))">

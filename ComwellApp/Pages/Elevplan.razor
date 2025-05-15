@@ -159,7 +159,7 @@
                     }
 
                     <!-- Kokkens kommentar -->
-                    <label class="mt-3"><strong>Kokkens kommentar</strong></label>
+                    <label class="mt-3"><strong>Kok og køkkenchef's kommentar</strong></label>
 
                     @if (!string.IsNullOrWhiteSpace(kokKommentarNavn) && kokKommentarDato != null)
                     {
@@ -167,8 +167,9 @@
                             <strong>@kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
                         </p>
                     }
-
-                    @if (loggedIn?.Rolle == "Køkkenchef") // Kun køkkenchefen må redigere sin egen kommentar
+                    
+                    <!-- Sørger for at både køkkenchef og kok kan redigere kommentar -->
+                    @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "FaglærtKok")
                     {
                         <InputTextArea class="form-control kommentarbox" style="height:14rem;" @bind-Value="kokKommentar" />
                     }
@@ -353,7 +354,7 @@
     }
 
     // Kaldes når man klikker "Se kommentar" – viser kommentarer for det valgte delmål
-    private void AabenKommentar(int delmaalId)
+    private async Task AabenKommentar(int delmaalId)
     {
         aktivtDelmaalId = delmaalId;
 
@@ -365,7 +366,7 @@
         if (minPlan != null)
         {
             // Henter elevens kommentar til delmålet via IElevplanService
-            var _elevKommentar = eService.GetKommentar(minPlan, delmaalId, "Elev");
+            var _elevKommentar = await eService.GetKommentarAsync(minPlan.ElevplanId, delmaalId, "Elev");
             if (_elevKommentar != null)
             {
                 elevKommentar = _elevKommentar.Tekst;
@@ -373,8 +374,8 @@
                 elevKommentarDato = _elevKommentar.Dato;
             }
 
-            // Henter køkkenchefens kommentar på samme måde
-            var _kokKommentar = eService.GetKommentar(minPlan, delmaalId, "Køkkenchef");
+            // Henter køkkenchefens/kokkens kommentar på samme måde
+            var _kokKommentar = await eService.GetKommentarAsync(minPlan.ElevplanId, delmaalId, "FaglærtKok");;
             if (_kokKommentar != null)
             {
                 kokKommentar = _kokKommentar.Tekst;
@@ -386,7 +387,7 @@
         kommentarDialog?.Open(); //  Åbner modal
     }
 
-    // Gemmer kommentar (enten elevens eller køkkenchefens)
+    // Gemmer kommentar (enten elevens eller køkkenchefens/kokkens)
     private async Task GemKommentar()
     {
         if (minPlan == null || loggedIn == null)
@@ -394,7 +395,7 @@
 
         if (loggedIn.Rolle == "Elev")
         {
-            var eksisterende = eService.GetKommentar(minPlan, aktivtDelmaalId, "Elev");
+            var eksisterende = await eService.GetKommentarAsync(minPlan.ElevplanId, aktivtDelmaalId, "Elev");
 
             if (eksisterende != null)
             {
@@ -412,9 +413,10 @@
                 await eService.TilfoejKommentar(minPlan, aktivtDelmaalId, kommentar);
             }
         }
-        else if (loggedIn.Rolle == "Køkkenchef")
+        else if (loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "FaglærtKok")
         {
-            var eksisterende = eService.GetKommentar(minPlan, aktivtDelmaalId, "Køkkenchef");
+            var eksisterende = await eService.GetKommentarAsync(minPlan.ElevplanId, aktivtDelmaalId, "FaglærtKok");
+            ;
 
             if (eksisterende != null)
             {

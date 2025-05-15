@@ -76,6 +76,70 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         //Opdaterer brugeren - dette gøres da kommentarer er dybt embedded og derfor er svære at tilgå
         await BrugerCollection.ReplaceOneAsync(b => b.BrugerId == bruger.BrugerId, bruger);
     }
+    
+    public async Task<Kommentar?> GetKommentarAsync(int elevplanId, int delmaalId, string brugerRolle)
+    {
+        //Finder den rette elevplan, ved at matche elevplanID med det medsendte ID
+        var filter = Builders<Bruger>.Filter.Eq("MinElevplan.ElevplanId", elevplanId);
+        var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
+
+        if (bruger?.MinElevplan == null)
+            return null;
+
+        //Finder det rette delmål, ved at kigge i den fundne elevplans delmål efter det specifikke ID
+        var delmaal = bruger.MinElevplan.ListPerioder?
+            .SelectMany(p => p.ListMaal)
+            .SelectMany(m => m.ListDelmaal)
+            .FirstOrDefault(d => d.DelmaalId == delmaalId);
+
+        if (delmaal == null)
+            return null;
+
+        //Returnerer kommentaren som matcher brugeren som er logget ind's rolle - faglært og køkkenchef tæller for 1
+        if (brugerRolle == "FaglærtKok" || brugerRolle == "Køkkenchef")
+        {
+            return delmaal.Kommentarer?
+                .FirstOrDefault(k => k.OprettetAf?.Rolle == "FaglærtKok" || k.OprettetAf?.Rolle == "Køkkenchef");
+        }
+
+        return delmaal.Kommentarer?
+            .FirstOrDefault(k => k.OprettetAf?.Rolle == brugerRolle);
+
+    }
+    
+    public async Task RedigerKommentarAsync(int elevplanId, int delmaalId, int kommentarId, string nyTekst)
+    {
+        //Finder først den rigtige elevplan, og delmål, præcis som ovenover
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.ElevplanId, elevplanId);
+        var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
+
+        if (bruger?.MinElevplan == null)
+            throw new Exception($"Ingen elevplan med ID {elevplanId} fundet.");
+
+        var delmaal = bruger.MinElevplan.ListPerioder
+            .SelectMany(p => p.ListMaal)
+            .SelectMany(m => m.ListDelmaal)
+            .FirstOrDefault(d => d.DelmaalId == delmaalId);
+
+        if (delmaal == null)
+            throw new Exception($"Delmål med ID {delmaalId} ikke fundet.");
+        
+        //finder den eksisterende kommentar
+        var kommentar = delmaal.Kommentarer.FirstOrDefault(k => k.KommentarId == kommentarId);
+
+        if (kommentar == null)
+            throw new Exception($"Kommentar med ID {kommentarId} ikke fundet.");
+        
+        //indsætter den nye tekst og opdaterer datoen
+        kommentar.Tekst = nyTekst;
+        kommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
+
+        //opdaterer hele brugerens dokument, med den nye kommentar 
+        await BrugerCollection.ReplaceOneAsync(b => b.BrugerId == bruger.BrugerId, bruger);
+    }
+
+
+
 
 
     
