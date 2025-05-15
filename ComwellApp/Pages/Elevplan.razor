@@ -102,8 +102,9 @@
                             <h5>@maal.MaalNavn</h5>
                         </div>
 
-                        <DelmaalComponent maal="maal" OnInputDelmaal="AabenKommentar"/>
-                        <br>
+                        <DelmaalComponent maal="maal"
+                                          OnInputDelmaal="AabenKommentar"
+                                          OnToggleStatus="ToggleStatus" />
                     }
                 }
             </div>
@@ -415,6 +416,35 @@
         kommentarDialog?.Close(); // Lukker modalen efter gem
         // TODO: Giv bruger feedback på om det lykkedes eller fejlede
     }
+    
+    //Funktion der bruges til at ændre status på et delmaal
+    private async Task ToggleStatus(Delmaal delmaal)
+    {
+        //Tjekker om den som er logget ind har rettighederne
+        if (loggedIn == null || !(loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "FaglærtKok" || loggedIn.Rolle == "Admin"))
+            return;
+        
+        //ændrer status på delmålet, og gemmer det i loggen
+        delmaal.Status = !delmaal.Status;
+
+        if (delmaal.Status)
+        {
+            delmaal.StatusLog = $"Ændret af {loggedIn.Navn} d. {DateTime.Now:dd/MM-yyyy}";
+        }
+
+        try
+        {
+            await eService.OpdaterStatus(minPlan, delmaal);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ToggleStatus] FEJL: {ex.Message}");
+        }
+
+        
+    }
+
+
 
     private async Task OpdaterFiltreredeMaal()
     {

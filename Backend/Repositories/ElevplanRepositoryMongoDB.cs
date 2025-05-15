@@ -137,6 +137,33 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         //opdaterer hele brugerens dokument, med den nye kommentar 
         await BrugerCollection.ReplaceOneAsync(b => b.BrugerId == bruger.BrugerId, bruger);
     }
+    
+    public async Task OpdaterStatusAsync(int elevplanId, Delmaal delmaal)
+    {
+        //Finder den rette elevplan, ved at søge efter elevplanID
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.ElevplanId, elevplanId);
+        var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
+
+        if (bruger?.MinElevplan == null)
+            throw new Exception("Elevplan ikke fundet");
+        
+        //finder det delmål som skal have skiftet sin status, ved at matche delmålID med det som sendes med
+        var _delmaal = bruger.MinElevplan.ListPerioder
+            .SelectMany(p => p.ListMaal)
+            .SelectMany(m => m.ListDelmaal)
+            .FirstOrDefault(d => d.DelmaalId == delmaal.DelmaalId);
+
+        if (_delmaal == null)
+            throw new Exception("Delmål ikke fundet");
+        
+        //Sætter de nye felter ind i det fundne delmål
+        _delmaal.Status = delmaal.Status;
+        _delmaal.StatusLog = delmaal.StatusLog;
+        
+        //Opdaterer brugeren, for at gemme den nye status
+        await BrugerCollection.ReplaceOneAsync(b => b.BrugerId == bruger.BrugerId, bruger);
+    }
+
 
     // Returnerer mål med filtre og søgning – bruges til elevplanvisning
     public async Task<List<Maal>> HentFiltreredeMaal(

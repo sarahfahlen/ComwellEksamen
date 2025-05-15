@@ -199,27 +199,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-
-.status-badge {
-    align-self: flex-end;
-    padding: 0.3rem 0.8rem;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-top: 1rem;
-    display: inline-block;
-}
-
-.status-opnået {
-    background-color: #f9f6f2;
-    color: #334328;
-}
-
-.status-ikkeopnået {
-    background-color: #f9f6f2;
-    color: #8c4d4d;
-}
-
 .kommentar-info {
     font-size: 0.9rem;
     font-style: italic;

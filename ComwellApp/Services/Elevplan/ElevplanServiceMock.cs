@@ -58,6 +58,11 @@ public class ElevplanServiceMock : IElevplanService
         throw new NotImplementedException();
     }
 
+    public Task OpdaterStatus(Shared.Elevplan plan, Delmaal delmaal)
+    {
+        throw new NotImplementedException();
+    }
+
     public List<Maal> HentFiltreredeMaal(Shared.Elevplan plan, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? søgeord, bool? filterStatus)
     {
         if (plan == null || plan.ListPerioder.Count <= periodeIndex)

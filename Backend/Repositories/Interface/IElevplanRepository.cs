@@ -15,6 +15,9 @@ public interface IElevplanRepository
     //Bruges til at redigere kommentarer, baseret på elevplan, delmål, kommentar og den nye tekst
     Task RedigerKommentarAsync (int elevplanId, int delmaalId, int kommentarId, string nyTekst);
 
+    //Bruges til at opdatere status for et delmål, baseret på elevplan og det pågældende delmål
+    Task OpdaterStatusAsync(int elevplanId, Delmaal delmaal);
+
 
     // Brugt til at hente en elevplans mål med filtre og søgning fra frontend
     Task<List<Maal>> HentFiltreredeMaal(

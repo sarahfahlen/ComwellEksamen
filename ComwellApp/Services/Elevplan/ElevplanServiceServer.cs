@@ -144,6 +144,20 @@ public class ElevplanServiceServer : IElevplanService
             return null;
         }
     }
+    
+    public async Task OpdaterStatus(Elevplan plan, Delmaal delmaal)
+    {
+        //Kalder vores controller, og sender det rigtige delmål med - hvor status er opdateret
+        var response = await http.PutAsJsonAsync($"api/elevplan/statusopdatering/{plan.ElevplanId}", delmaal);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[OpdaterStatus] FEJL: {fejl}");
+            throw new Exception("Kunne ikke opdatere status");
+        }
+    }
+
 
     
     

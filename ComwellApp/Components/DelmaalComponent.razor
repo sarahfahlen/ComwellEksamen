@@ -17,8 +17,13 @@
                     Se kommentar
                 </button>
             </p>
+            @if (delmaal.Status && !string.IsNullOrWhiteSpace(delmaal.StatusLog))
+            {
+                <p class="status-log">@delmaal.StatusLog</p>
+            }
 
-            <div class="status-badge @(delmaal.Status ? "status-opnået" : "status-ikkeopnået")">
+            <div class="status-badge @(delmaal.Status ? "gennemført" : "ikke-gennemført")"
+                 @onclick="() => OnToggleStatus.InvokeAsync(delmaal)">
                 @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
             </div>
         </div>
@@ -27,7 +32,12 @@
 @code {
     [Parameter] public required Maal maal { get; set; }
     
+    //Sender det valgte delmåls ID tilbage til parent komponenten (Elevplan side), så vi kan bruge åbenKommentar
     [Parameter] public required EventCallback<int> OnInputDelmaal { get; set; }
+    
+    //Samme som ovenfor, men så vi kan bruge ToggleStatus for hvert delmål
+    [Parameter] public EventCallback<Delmaal> OnToggleStatus { get; set; }
+
 
 
 

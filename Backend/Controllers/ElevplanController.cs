@@ -60,6 +60,22 @@ public class ElevplanController : ControllerBase
     
     //Opdaterer kommentaren via put, og kalder funktion fra repo
     [HttpPut("kommentar/{elevplanId:int}/{delmaalId:int}/{kommentarId:int}")]
+    
+    //Opdaterer status på det delmål der er sendt med fra vores service, ved at kalde funktion fra repo
+    [HttpPut("statusopdatering/{elevplanId:int}")]
+    public async Task<IActionResult> OpdaterStatus(int elevplanId, [FromBody] Delmaal delmaal)
+    {
+        try
+        {
+            await elevplanRepo.OpdaterStatusAsync(elevplanId, delmaal);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Fejl: {ex.Message}");
+        }
+    }
+
     public async Task<IActionResult> RedigerKommentar(int elevplanId, int delmaalId, int kommentarId, [FromBody] string nyTekst)
     {
         try

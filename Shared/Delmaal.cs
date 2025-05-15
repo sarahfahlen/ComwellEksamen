@@ -20,6 +20,8 @@ public class Delmaal
     public int? DageTilDeadline { get; set; }
     public bool Status { get; set; } = false;
     
+    public string? StatusLog { get; set; }
+    
     public List<Kommentar> Kommentarer { get; set; } = new ();
     
     public List <Opgaver> ListOpgaver { get; set; } = new ();
