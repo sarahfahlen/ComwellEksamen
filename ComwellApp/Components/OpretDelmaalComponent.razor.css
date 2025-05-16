@@ -1,0 +1,74 @@
+.form-floating-group {
+    position: relative;
+    width: 100%;
+}
+
+.form-control {
+    width: 100%;
+    font-size: 1rem;
+    padding: 1rem 1rem 0.5rem 1rem;
+    border: 1px solid #D2B894;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: inset 0 1px 2px rgba(210, 184, 148, 0.1);
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-weight: 600;
+    color: #1C2B38;
+}
+
+.form-control:focus {
+    border-color: #c6a979;
+    box-shadow: 0 0 0 3px rgba(210, 184, 148, 0.25);
+    outline: none;
+}
+
+/* Floating labels */
+label {
+    font-weight: 600;
+    color: #1C2B38;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.form-floating-group label {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-size: 1rem;
+    color: black;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+.form-control.floating-input:focus + label,
+.form-control.floating-input:not(:placeholder-shown) + label {
+    top: 0.2rem;
+    left: 0.75rem;
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.gemdelmaal-knap-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.Gemdelmaalknap {
+    background-color: #d2b894; /* Beige farve */
+    color: #f3ede5; /* Mørk tekst for kontrast */
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.4rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.Gemdelmaalknap:hover {
+    background-color: #c6a979; /* Lidt mørkere beige */
+    transform: translateY(-1px); /* Løfter knappen en smule */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
