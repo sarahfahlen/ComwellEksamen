@@ -9,5 +9,7 @@ public interface IBrugereRepository
 
     Task<List<Bruger>> HentAlleKøkkenchefer();
     Task<List<Lokation>> HentAlleLokationer();
+    Task<Elevplan?> HentElevplanForBruger(int brugerId);
+
 
 }
