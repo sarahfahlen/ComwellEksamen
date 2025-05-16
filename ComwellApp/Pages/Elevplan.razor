@@ -197,7 +197,9 @@
             <div class="sidepanel-værktøj">
                 <label for="soeg">Søg delmål</label>
                 <input type="text" id="soeg" class="soeg-input" placeholder="Skriv søgeord..."
-                       @bind="soegeord" @oninput="async _ => await OpdaterFiltreredeMaal()"/>
+                       @bind-value="soegeord" @bind-value:event="oninput" @onkeypress="HandleKeyPress"/>
+
+                <button class="soege-knap" @onclick="soegningknap">Søg</button>
             </div>
 
             <div class="sidepanel-værktøj">
@@ -214,7 +216,6 @@
                             {
                                 <option value="@m.MaalNavn">@m.MaalNavn</option>
                             }
-
                         </InputSelect>
 
 
@@ -276,8 +277,9 @@
     private string soegeord = "";
     private string valgtMaalNavn = "";
     private string valgtDelmaalType = "";
-    private bool visFilter = false;
     private bool? valgtStatus = null;
+    private bool visFilter = false;
+    
 
 // Det valgte mål ID fra dropdown
     private int valgtMaalIdTilDelmaal;
@@ -335,6 +337,7 @@
             valgtElev = loggedIn;
             minPlan = loggedIn.MinElevplan;
         }
+        //Henter elevplan for den pågældene elev
         minPlan = await bService.HentElevplanForBruger(valgtElev.BrugerId);
 
         // Tjek om der blev fundet en elevplan
@@ -489,6 +492,21 @@
         }
     }
     
+    private async Task soegningknap()
+    {
+        Console.WriteLine($"Søger på: {soegeord}");
+        await OpdaterFiltreredeMaal();
+    }
+    
+    // Aktiverer søgning når ENTER trykkes
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await soegningknap();
+        }
+    }
+    
     private async Task OpdaterFiltreredeMaal()
     {
         if (valgtElev == null)
@@ -531,30 +549,6 @@
         }
     }
 
-
-    // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
-    private async void OnStatusChanged(ChangeEventArgs e)
-    {
-        var value = e.Value?.ToString();
-
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            valgtStatus = null;
-        }
-        else if (value.Equals("true", StringComparison.OrdinalIgnoreCase))
-        {
-            valgtStatus = true;
-        }
-        else if (value.Equals("false", StringComparison.OrdinalIgnoreCase))
-        {
-            valgtStatus = false;
-        }
-
-        await OpdaterFiltreredeMaal();
-
-        StateHasChanged(); // Tving UI til at opdatere med nye filtre
-    }
-
     // Når et mål vælges i dropdown
     private async Task OnChangeMaal(ChangeEventArgs e)
     {
@@ -573,7 +567,8 @@
         await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
     }
 
-    // Når status vælges (gennemført/ikke gennemført)
+   
+    // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
     private async Task OnChangeStatus(ChangeEventArgs e)
     {
         var value = e.Value?.ToString();
@@ -582,18 +577,18 @@
         {
             valgtStatus = null;
         }
-        else if (value == "true")
+        else if (value.Equals("true", StringComparison.OrdinalIgnoreCase))
         {
             valgtStatus = true;
         }
-        else if (value == "false")
+        else if (value.Equals("false", StringComparison.OrdinalIgnoreCase))
         {
             valgtStatus = false;
         }
 
         Console.WriteLine($"Status valgt: {valgtStatus}");
 
-        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
+        await OpdaterFiltreredeMaal();
     }
     
     private async Task AabenRedigerDelmaal(Delmaal valgtDelmaal)
@@ -605,7 +600,5 @@
 
         tilfoejDelmaalDialog?.Open();
     }
-
-
-
+    
 }

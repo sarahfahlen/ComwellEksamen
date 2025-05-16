@@ -188,6 +188,24 @@
     transform: translateY(-2px);
 }
 
+.soege-knap {
+    background-color: transparent;
+    border: 2px solid #d2b894;
+    color: #1C2B38;
+    border-radius: 8px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.soege-knap:hover {
+    background-color: #f5f0e9;
+    color: #1C2B38;
+    cursor: pointer;
+    transform: translateY(-2px);
+}
+
 /* === Mål og delmål === */
 .maal-kort {
     background: linear-gradient(to right, #D2B894 30%, rgba(210, 184, 148, 0.53) 100%);
