@@ -136,6 +136,26 @@ public class BrugereServiceServer : IBrugereService
         return await response.Content.ReadFromJsonAsync<Shared.Elevplan>();
     }
     
+    public async Task<List<Bruger>> HentFiltreredeElever(string? navn, string? lokation, string? kursus, string? erhverv, int? deadlineDage)
+    {
+        string url = $"api/brugere/filtrerede?" +
+                     $"navn={Uri.EscapeDataString(navn ?? "")}" +
+                     $"&lokation={Uri.EscapeDataString(lokation ?? "")}" +
+                     $"&kursus={Uri.EscapeDataString(kursus ?? "")}" +
+                     $"&erhverv={Uri.EscapeDataString(erhverv ?? "")}" +
+                     $"&deadlineDage={(deadlineDage.HasValue ? deadlineDage.Value.ToString() : "")}";
+
+        var response = await http.GetAsync(url);
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"[HentFiltreredeElever] FEJL: {await response.Content.ReadAsStringAsync()}");
+            return new List<Bruger>();
+        }
+
+        return await response.Content.ReadFromJsonAsync<List<Bruger>>() ?? new();
+    }
+
+    
     //Funktion til dynamisk at beregne deadline for et delmål, baseret på DageTilDeadline
     private void BeregnDeadlinesIElevplan(Shared.Elevplan plan)
     {
