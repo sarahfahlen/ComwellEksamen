@@ -15,16 +15,52 @@
     <button class="btn btn-primary Deadlines" @onclick="DeadlinesKnap">Deadlines</button>
 }
 
-<!--  Sideoverskrift og opret-knap -->
+<!-- Header med overskrift, søg, filtrer og opret-knap -->
 <div class="overskrift-knap-wrapper">
     <h1 class="overskrift">Elevoversigt</h1>
 
+    <!-- Søgefelt + søgeknap -->
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <input type="text" id="soeg" class="soeg-input" placeholder="Skriv navn..." @bind-value="soegeord" @bind-value:event="oninput" @onkeypress="HandleKeyPress" />
+
+        <button class="soege-knap" @onclick="SoegningKnap">Søg</button>
+
+        <button class="filter-knap" @onclick="() => visFilter = !visFilter">Filtrer</button>
+    </div>
+    
     <!-- Viser kun knappen "Opret elev", hvis den loggede bruger har en rolle der må -->
     @if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR"))
     {
         <button class="btn btn-primary opret-knap" @onclick="OnClickOpret">Opret elev</button>
     }
 </div>
+
+@if (visFilter)
+{
+    <div class="filter-box" style="margin-top: 1rem; border: 1px dashed #ccc; padding: 1rem; border-radius: 8px;">
+        <div class="form-floating-group halv-bredde">
+        <label>Lokation</label>
+        <InputSelect class="form-control" @bind-Value="valgtLokation" />
+        </div>
+
+        <div class="form-floating-group halv-bredde">
+        <label class="mt-2">Kursus</label>
+        <InputSelect class="form-control" @bind-Value="valgtKursus" />
+        </div>
+
+        <div class="form-floating-group halv-bredde">
+        <label class="mt-2">Erhverv</label>
+        <InputSelect class="form-control" @bind-Value="valgtErhverv" />
+        </div>
+
+        <div class="form-floating-group halv-bredde">
+        <label class="mt-2">Deadline (antal dage til)</label>
+        <InputDate class="form-control" @bind-Value="valgtDeadlineDage" />
+        </div>
+
+        <button class="soege-knap mt-3" @onclick="OpdaterFiltreredeElever">Anvend filter</button>
+    </div>
+}
 
 <!-- Her vises alle elever som kort -->
 <div class="elevkort-container">
@@ -93,6 +129,13 @@
 
     // Den liste vi viser på siden (kan være filtreret udgave af alleElever)
     private List<Bruger> elever = new();
+    
+    private string soegeord = "";
+    private string valgtLokation = "";
+    private string valgtKursus = "";
+    private string valgtErhverv = "";
+    private int? valgtDeadlineDage = null;
+    private bool visFilter = false;
 
     // Når siden loades (komponent initialiseres), henter vi data
     protected override async Task OnInitializedAsync()
@@ -165,5 +208,30 @@
         }
 
         return (opnaaet, total); // Returnerer både opnåede og samlede mål
+    }
+    
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SoegningKnap();
+        }
+    }
+
+    private async Task SoegningKnap()
+    {
+        await OpdaterFiltreredeElever();
+    }
+
+    private async Task OpdaterFiltreredeElever()
+    {
+        elever = await bService.HentFiltreredeElever(
+            soegeord,
+            valgtLokation,
+            valgtKursus,
+            valgtErhverv,
+            valgtDeadlineDage);
+
+        StateHasChanged();
     }
 }

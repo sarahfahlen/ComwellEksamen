@@ -139,6 +139,26 @@ public class BrugereController : ControllerBase
 
         return Ok(plan);
     }
+    
+    [HttpGet("filtrerede")]
+    public async Task<ActionResult<List<Bruger>>> HentFiltreredeElever(
+        [FromQuery] string? navn,
+        [FromQuery] string? lokation,
+        [FromQuery] string? kursus,
+        [FromQuery] string? erhverv,
+        [FromQuery] int? deadlineDage)
+    {
+        try
+        {
+            var resultater = await _repo.HentFiltreredeElever(navn, lokation, kursus, erhverv, deadlineDage);
+            return Ok(resultater);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Fejl under filtrering: {ex.Message}");
+        }
+    }
+
 
 
 }

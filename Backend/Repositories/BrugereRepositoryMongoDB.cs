@@ -105,5 +105,34 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         var bruger = await BrugerCollection.Find(b => b.BrugerId == brugerId).FirstOrDefaultAsync();
         return bruger?.MinElevplan;
     }
+    
+    public async Task<List<Bruger>> HentFiltreredeElever(string? navn, string? lokation, string? kursus, string? erhverv, int? deadlineDage)
+    {
+        var builder = Builders<Bruger>.Filter;
+        var filters = new List<FilterDefinition<Bruger>>();
+
+        if (!string.IsNullOrWhiteSpace(navn))
+            filters.Add(builder.Regex(b => b.Navn, new MongoDB.Bson.BsonRegularExpression(navn, "i")));
+
+        if (!string.IsNullOrWhiteSpace(lokation))
+            filters.Add(builder.Eq(b => b.Afdeling.LokationNavn, lokation));
+
+        if (!string.IsNullOrWhiteSpace(kursus))
+            filters.Add(builder.ElemMatch(b => b.MinElevplan.ListPerioder, p => p.ListMaal.Any(m => m.MaalNavn == kursus)));
+
+        if (!string.IsNullOrWhiteSpace(erhverv))
+            filters.Add(builder.ElemMatch(b => b.MinElevplan.ListPerioder, p => p.ListMaal.Any(m => m.ListDelmaal.Any(d => d.Titel.Contains(erhverv)))));
+
+        if (deadlineDage.HasValue)
+            filters.Add(builder.ElemMatch(b => b.MinElevplan.ListPerioder,
+                p => p.ListMaal.Any(m =>
+                    m.ListDelmaal.Any(d => d.Deadline.HasValue && (d.Deadline.Value.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber) <= deadlineDage.Value)
+                )));
+
+        var combinedFilter = filters.Any() ? builder.And(filters) : builder.Empty;
+
+        return await BrugerCollection.Find(combinedFilter).ToListAsync();
+    }
+
 
 }
