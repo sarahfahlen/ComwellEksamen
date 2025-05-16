@@ -88,4 +88,26 @@
     background-color: #f9f6f2;
     color: #334328;
 }
+.rediger-knap {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background-color: #D2B894;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.rediger-knap:hover {
+    background-color: #b89f7d;
+    transform: scale(1.05);
+}
+
 

@@ -64,7 +64,9 @@ html, body {
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
     transform: translateY(-3px);
 }
-
+.deadlines{
+    justify-content: space-between;
+}
 .dashboard-box-container {
     display: flex;
     justify-content: center;
@@ -75,8 +77,23 @@ html, body {
     margin-bottom: 2rem;
     padding: 0 2rem;
 }
+.dashboard-box ul,
+.dashboard-box li{
+    font-size: 0.95rem; /* gør tekst lidt mindre */
+    line-height: 1.4;
+    margin-bottom: 0.3rem;
+}
+.dashboard-box ul{
+    flex-grow: 1;
+}
+.deadlinestekst{
+    margin-top: auto;
+    font-size: 10px;
+    font-style: italic;
+    color: #333;
+}
 
-/* Klikbart område */
+    /* Klikbart område */
 .klikbarsted {
     cursor: pointer;
 }

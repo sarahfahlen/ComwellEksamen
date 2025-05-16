@@ -4,6 +4,8 @@
 @inject ILoginService lService         
 @inject NavigationManager navManager   
 
+@using ComwellApp.Services.Brugere
+@using ComwellApp.Services.Elevplan
 @using ComwellApp.Services.Login       
 @using Shared                          
 
@@ -22,26 +24,44 @@
     </div>
 
     <div class="dashboard-box-container">
-        <div class="dashboard-box">
+        <div class="dashboard-box klikbarsted deadlines" @onclick="ÅbenDeadlinesModal">
             <h4>Kommende Deadlines</h4>
-            <!-- Indhold tilføjes senere -->
+            @if (kommendeDeadlines.Any())
+            {
+                <ul>
+                    @foreach (var deadline in kommendeDeadlines.Take(2))
+                    {
+                        <li>
+                            <strong>@deadline.Titel</strong> – @deadline.Deadline?.ToString("dd.MM.yyyy")
+                        </li>
+                    }
+                </ul>
+                @if (kommendeDeadlines.Count > 2)
+                {
+                    <p class="deadlinestekst">Klik for at se alle @kommendeDeadlines.Count deadlines</p>
+                }
+            }
+            else
+            {
+                <p>Ingen kommende deadlines de næste 7 dage.</p>
+            }
         </div>
+
         @if (loggedIn?.Rolle == "Elev")
         {
             <div class="dashboard-box klikbarsted">
                 <h4>Learning Module</h4>
-                <!-- Også tom for nu -->
             </div>
         }
+
         <div class="dashboard-box klikbarsted" @onclick="ÅbenModal">
-            <!-- Åbner modal med praktisk info -->
             <h4>Praktisk Info</h4>
             <p>Klik her for kontaktoplysninger</p>
         </div>
     </div>
-</div>
 
-@if (visModal)
+
+    @if (visModal)
 {
     <!-- Modal vises kun hvis brugeren har klikket -->
     <div class="modal-overlay" @onclick="LukModal">
@@ -57,25 +77,70 @@
         </div>
     </div>
 }
+@if (visDeadlinesModal)
+{
+    <div class="modal-overlay" @onclick="LukDeadlinesModal">
+        <div class="modal-content" @onclick:stopPropagation>
+            <h5>Alle deadlines – næste 7 dage</h5>
 
+            <ul>
+                @foreach (var d in kommendeDeadlines)
+                {
+                    <li style="margin-bottom: 0.75rem;">
+                        <strong>@d.Titel</strong> – @d.Deadline?.ToString("dd.MM.yyyy")
+                        @if (!string.IsNullOrWhiteSpace(d.DeadlineKommentar))
+                        {
+                            <br />
+                            <small><em>@d.DeadlineKommentar</em></small>
+                        }
+                    </li>
+                }
+            </ul>
+
+            <button class="btn btn-secondary mt-3" @onclick="LukDeadlinesModal">Luk</button>
+        </div>
+    </div>
+}
+</div>
 @code {
     // Her gemmer vi den bruger der er logget ind
     private Bruger? loggedIn;     
-    
+    private bool visDeadlinesModal = false;
     // Styrer om modalen (kontaktinfo) vises eller ej
     private bool visModal = false;    
+    private List<Delmaal> kommendeDeadlines = new();
 
-    // Denne metode kaldes automatisk når siden indlæses
+    [Inject] private IElevplanService eService { get; set; }
+    [Inject] private IBrugereService bService { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        // Henter den bruger som er logget ind (fra lokal storage via service)
         loggedIn = await lService.GetUserLoggedIn();
 
-        // Hvis ingen bruger er logget ind, sendes de til login-siden
         if (loggedIn == null)
         {
             navManager.NavigateTo("login/hjem");
             return;
+        }
+
+        if (loggedIn.Rolle == "Elev")
+        {
+            var elevplan = await bService.HentElevplanForBruger(loggedIn.BrugerId);
+            if (elevplan != null)
+            {
+                var iDag = DateOnly.FromDateTime(DateTime.Today);
+                var om7Dage = iDag.AddDays(7);
+
+                // Gennemgår alle delmål i alle perioder
+                kommendeDeadlines = elevplan.ListPerioder
+                    .SelectMany(p => p.ListMaal)
+                    .SelectMany(m => m.ListDelmaal)
+                    .Where(d => d.Deadline.HasValue &&
+                                d.Deadline.Value >= iDag &&
+                                d.Deadline.Value <= om7Dage)
+                    .OrderBy(d => d.Deadline)
+                    .ToList();
+            }
         }
     }
 
@@ -89,6 +154,15 @@
     private void LukModal()
     {
         visModal = false;
+    }
+    private void ÅbenDeadlinesModal()
+    {
+        visDeadlinesModal = true;
+    }
+
+    private void LukDeadlinesModal()
+    {
+        visDeadlinesModal = false;
     }
 }
 
