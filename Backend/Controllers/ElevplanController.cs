@@ -113,6 +113,7 @@ public class ElevplanController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+    
     [HttpPost("delmaal/{elevplanId:int}/{maalId:int}")]
     public async Task<IActionResult> TilfoejDelmaal(int elevplanId, int maalId, [FromBody] Delmaal nytDelmaal)
     {

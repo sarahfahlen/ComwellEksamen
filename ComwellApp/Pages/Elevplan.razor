@@ -321,6 +321,14 @@
             valgtElev = loggedIn;
             minPlan = loggedIn.MinElevplan;
         }
+        minPlan = await bService.HentElevplanForBruger(valgtElev.BrugerId);
+
+        // Tjek om der blev fundet en elevplan
+        if (minPlan == null)
+        {
+            Console.WriteLine($"Ingen elevplan fundet for brugerId {valgtElev.BrugerId}");
+            return;
+        }
 
         await OpdaterFiltreredeMaal();
     }

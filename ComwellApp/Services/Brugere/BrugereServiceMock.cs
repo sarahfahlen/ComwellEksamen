@@ -2,6 +2,7 @@ using ComwellApp.Services;
 using ComwellApp.Services.Brugere;
 using ComwellApp.Services.Elevplan;
 using Shared;
+using NotImplementedException = System.NotImplementedException;
 
 public class BrugereServiceMock : IBrugereService
 {
@@ -77,10 +78,9 @@ public class BrugereServiceMock : IBrugereService
         return Task.FromResult(_brugere);
     }
 
-    public Task<Elevplan?> GetElevplanForUser(Bruger bruger)
+    public Task<Elevplan?> HentElevplanForBruger(int brugerId)
     {
-        var elev = _brugere.FirstOrDefault(b => b.BrugerId == bruger.BrugerId);
-        return Task.FromResult(elev?.MinElevplan);
+        throw new NotImplementedException();
     }
 
     public Task<List<Bruger>> HentKoekkencheferForLokation(int lokationId)

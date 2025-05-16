@@ -8,7 +8,7 @@ public class BrugereServiceServer : IBrugereService
 {
     private readonly HttpClient http; // Bruges til at sende HTTP-requests til vores backend
     private readonly IdGeneratorService _idGenerator; // Bruges til at generere unikke ID’er til fx elevplaner, delmål og elever
-
+    private static readonly List<Bruger> _brugere = new();
     public BrugereServiceServer(HttpClient http, IdGeneratorService idGenerator)
     {
         this.http = http;
@@ -117,10 +117,19 @@ public class BrugereServiceServer : IBrugereService
         return result ?? new List<Lokation>();
     }
 
-    // Denne metode er ikke implementeret endnu (men er påkrævet af interfacet)
-    public Task<Shared.Elevplan?> GetElevplanForUser(Bruger bruger)
+    // Hent elevplan ud fra brugerId
+    public async Task<Shared.Elevplan?> HentElevplanForBruger(int brugerId)
     {
-        throw new NotImplementedException();
+        var response = await http.GetAsync($"api/brugere/{brugerId}/elevplan");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[GetElevplanForUser] FEJL: {fejl}");
+            return null;
+        }
+
+        return await response.Content.ReadFromJsonAsync<Shared.Elevplan>();
     }
     
     //Funktion til dynamisk at beregne deadline for et delmål, baseret på DageTilDeadline

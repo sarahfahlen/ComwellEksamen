@@ -98,4 +98,12 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
             .Select(g => g.First())
             .ToList();
     }
+    
+    // Henter elevplan ud fra brugerens brugerId
+    public async Task<Elevplan?> HentElevplanForBruger(int brugerId)
+    {
+        var bruger = await BrugerCollection.Find(b => b.BrugerId == brugerId).FirstOrDefaultAsync();
+        return bruger?.MinElevplan;
+    }
+
 }

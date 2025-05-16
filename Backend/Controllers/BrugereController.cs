@@ -34,99 +34,111 @@ public class BrugereController : ControllerBase
         // Til sidst svarer vi tilbage med 200 OK og en besked
         return Ok("Bruger med elevplan oprettet");
     }
-// GET: /api/brugere
-[HttpGet]
-public async Task<ActionResult<List<Bruger>>> HentAlle()
-{
-    try
+    // GET: /api/brugere
+    [HttpGet]
+    public async Task<ActionResult<List<Bruger>>> HentAlle()
     {
-        // Vi beder repo’en hente alle brugere (uanset rolle)
-        var brugere = await _repo.HentAlle();
+        try
+        {
+            // Vi beder repo’en hente alle brugere (uanset rolle)
+            var brugere = await _repo.HentAlle();
 
-        // Hvis der mod forventning ikke kommer noget tilbage, sender vi 404
-        if (brugere == null || !brugere.Any())
-            return NotFound("Ingen brugere blev fundet i databasen.");
+            // Hvis der mod forventning ikke kommer noget tilbage, sender vi 404
+            if (brugere == null || !brugere.Any())
+                return NotFound("Ingen brugere blev fundet i databasen.");
 
-        // Vi pakker listen ind i et 200 OK-svar og returnerer den
-        return Ok(brugere);
+            // Vi pakker listen ind i et 200 OK-svar og returnerer den
+            return Ok(brugere);
+        }
+        catch (Exception ex)
+        {
+            // Hvis noget går galt, sender vi en 500-fejl og logger fejlen
+            return StatusCode(500, $"Der opstod en fejl ved hentning af brugere: {ex.Message}");
+        }
     }
-    catch (Exception ex)
+
+
+    // GET: /api/brugere/elever
+    // Denne endpoint henter kun dem, der har rollen "Elev" – bruges f.eks. i dashboard 
+    [HttpGet("elever")]
+    public async Task<ActionResult<List<Bruger>>> HentAlleElever()
     {
-        // Hvis noget går galt, sender vi en 500-fejl og logger fejlen
-        return StatusCode(500, $"Der opstod en fejl ved hentning af brugere: {ex.Message}");
+        try
+        {
+            var elever = await _repo.HentAlleElever();
+
+            if (elever == null || !elever.Any())
+                return NotFound("Der er ingen elever registreret.");
+
+            return Ok(elever);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Fejl under hentning af elever: {ex.Message}");
+        }
     }
-}
 
 
-// GET: /api/brugere/elever
-// Denne endpoint henter kun dem, der har rollen "Elev" – bruges f.eks. i dashboard 
-[HttpGet("elever")]
-public async Task<ActionResult<List<Bruger>>> HentAlleElever()
-{
-    try
+    // GET: /api/brugere/køkkencheferlokation/{lokationId}
+    // Returnerer køkkenchefer knyttet til en specifik lokation
+    [HttpGet("køkkencheferlokation/{lokationId:int}")]
+    public async Task<ActionResult<List<Bruger>>> HentKøkkencheferTilLokation(int lokationId)
     {
-        var elever = await _repo.HentAlleElever();
+        try
+        {
+            if (lokationId <= 0)
+                return BadRequest("Ugyldigt lokations-ID – det skal være større end 0.");
 
-        if (elever == null || !elever.Any())
-            return NotFound("Der er ingen elever registreret.");
+            var brugere = await _repo.HentAlleKøkkenchefer(); // Repo returnerer allerede KUN køkkenchefer
 
-        return Ok(elever);
+            // Filtrerer dem, der arbejder på den valgte lokation
+            var filtrerede = brugere
+                .Where(b => b.Afdeling?.LokationId == lokationId)
+                .ToList();
+
+            if (!filtrerede.Any())
+                return NotFound($"Ingen køkkenchefer fundet for lokation med ID {lokationId}.");
+
+            return Ok(filtrerede);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Fejl under hentning af køkkenchefer: {ex.Message}");
+        }
     }
-    catch (Exception ex)
+
+
+    // GET: /api/brugere/lokationer
+    // Denne metode bruges til at hente en liste af alle unikke lokationer, baseret på brugernes tilknytning
+    [HttpGet("lokationer")]
+    public async Task<ActionResult<List<Lokation>>> HentAlleLokationer()
     {
-        return StatusCode(500, $"Fejl under hentning af elever: {ex.Message}");
+        try
+        {
+            // Vi bruger repo til at hente alle lokationer (unik baseret på LokationId)
+            var lokationer = await _repo.HentAlleLokationer();
+
+            if (lokationer == null || !lokationer.Any())
+                return NotFound("Der blev ikke fundet nogen lokationer.");
+
+            return Ok(lokationer);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Fejl under hentning af lokationer: {ex.Message}");
+        }
     }
-}
-
-
-// GET: /api/brugere/køkkencheferlokation/{lokationId}
-// Returnerer køkkenchefer knyttet til en specifik lokation
-[HttpGet("køkkencheferlokation/{lokationId:int}")]
-public async Task<ActionResult<List<Bruger>>> HentKøkkencheferTilLokation(int lokationId)
-{
-    try
+    
+    // Henter brugerens elevplan ud fra brugerId
+    [HttpGet("{brugerId}/elevplan")]
+    public async Task<ActionResult<Elevplan>> HentElevplanForBruger(int brugerId)
     {
-        if (lokationId <= 0)
-            return BadRequest("Ugyldigt lokations-ID – det skal være større end 0.");
+        var plan = await _repo.HentElevplanForBruger(brugerId);
+        if (plan == null)
+            return NotFound($"Ingen elevplan fundet for brugerId {brugerId}");
 
-        var brugere = await _repo.HentAlleKøkkenchefer(); // Repo returnerer allerede KUN køkkenchefer
-
-        // Filtrerer dem, der arbejder på den valgte lokation
-        var filtrerede = brugere
-            .Where(b => b.Afdeling?.LokationId == lokationId)
-            .ToList();
-
-        if (!filtrerede.Any())
-            return NotFound($"Ingen køkkenchefer fundet for lokation med ID {lokationId}.");
-
-        return Ok(filtrerede);
+        return Ok(plan);
     }
-    catch (Exception ex)
-    {
-        return StatusCode(500, $"Fejl under hentning af køkkenchefer: {ex.Message}");
-    }
-}
 
-
-// GET: /api/brugere/lokationer
-// Denne metode bruges til at hente en liste af alle unikke lokationer, baseret på brugernes tilknytning
-[HttpGet("lokationer")]
-public async Task<ActionResult<List<Lokation>>> HentAlleLokationer()
-{
-    try
-    {
-        // Vi bruger repo til at hente alle lokationer (unik baseret på LokationId)
-        var lokationer = await _repo.HentAlleLokationer();
-
-        if (lokationer == null || !lokationer.Any())
-            return NotFound("Der blev ikke fundet nogen lokationer.");
-
-        return Ok(lokationer);
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, $"Fejl under hentning af lokationer: {ex.Message}");
-    }
-}
 
 }
