@@ -36,7 +36,7 @@
 </div>
 
 @if (visFilter)
-{
+{ 
     <div class="filter-box">
         <div class="filter-row">
             <div class="filter-item">
@@ -55,7 +55,7 @@
             </div>
         </div>
 
-        < class="filter-row">
+        <div class="filter-row">
             <div class="filter-item">
                 <label>Erhverv</label>
                 <InputSelect class="form-control" @bind-Value="valgtErhverv">
@@ -77,8 +77,10 @@
                     }
                 </InputSelect>
             </div>
-
-        <button class="soege-knap mt-3" @onclick="OpdaterFiltreredeElever">Anvend filter</button>
+        </div>
+        <div>
+            <button class="soege-knap mt-3" @onclick="OpdaterFiltreredeElever">Anvend filter</button>
+        </div>
     </div>
 }
 
