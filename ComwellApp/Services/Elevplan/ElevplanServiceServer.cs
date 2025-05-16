@@ -71,6 +71,8 @@ public class ElevplanServiceServer : IElevplanService
         }
     }
 
+    
+
 
     public async Task TilfoejKommentar(Elevplan minPlan, int delmaalId, Kommentar nyKommentar)
     {
@@ -159,7 +161,6 @@ public class ElevplanServiceServer : IElevplanService
     }
     public async Task TilfoejDelmaal(Elevplan plan, int maalId, Delmaal nytDelmaal)
     {
-        // Find målet i den rigtige periode
         var maal = plan.ListPerioder
             .SelectMany(p => p.ListMaal)
             .FirstOrDefault(m => m.MaalId == maalId);
@@ -167,12 +168,17 @@ public class ElevplanServiceServer : IElevplanService
         if (maal == null)
             throw new Exception($"Mål med ID {maalId} ikke fundet.");
 
-        // Generér ID til delmålet på klientsiden
+        // Generer ID til delmål
         nytDelmaal.DelmaalId = _idGenerator.GenererNytId(maal.ListDelmaal, d => d.DelmaalId);
         nytDelmaal.Status = false;
-        nytDelmaal.Kommentarer = new(); // hvis du bruger det
 
-        // Send det til backend
+        // Generer ID til opgaver og marker som ikke gennemført
+        foreach (var opg in nytDelmaal.ListOpgaver)
+        {
+            opg.OpgaveId = _idGenerator.GenererNytId(nytDelmaal.ListOpgaver, d => d.OpgaveId);
+            opg.OpgaveGennemfoert = false;
+        }
+
         var response = await http.PostAsJsonAsync(
             $"api/elevplan/delmaal/{plan.ElevplanId}/{maalId}",
             nytDelmaal);
@@ -183,8 +189,8 @@ public class ElevplanServiceServer : IElevplanService
             Console.WriteLine($"[TilfoejDelmaalAsync] FEJL: {fejl}");
             throw new Exception("Kunne ikke tilføje delmål.");
         }
-        
     }
+
     public async Task<List<Maal>> HentMaalFraPeriode(int elevplanId, int periodeIndex)
     {
         var response = await http.GetAsync($"api/elevplan/maal/{elevplanId}/{periodeIndex}");

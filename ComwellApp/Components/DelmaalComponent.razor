@@ -9,8 +9,8 @@
             <p>Ansvarlig: @delmaal.Ansvarlig</p>
             <p>
                 Deadline: @(delmaal.Deadline != null
-                                  ? delmaal.Deadline?.ToString("dd/MM-yyyy")
-                                  : delmaal.DeadlineKommentar)
+                              ? delmaal.Deadline?.ToString("dd/MM-yyyy")
+                              : delmaal.DeadlineKommentar)
             </p>
             <p> Kommentar:
                 <button class="kommentar-knap" @onclick="() => OnInputDelmaal.InvokeAsync(delmaal.DelmaalId)">
@@ -26,8 +26,32 @@
                  @onclick="() => OnToggleStatus.InvokeAsync(delmaal)">
                 @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
             </div>
+            @if (delmaal.ListOpgaver != null && delmaal.ListOpgaver.Any())
+            {
+                <div class="opgave-liste">
+                    <h5>Opgaver</h5>
+                    <ul>
+                        @foreach (var opg in delmaal.ListOpgaver)
+                        {
+                            <li>
+                                <strong>@opg.OpgaveNavn:</strong> @opg.OpgaveDetaljer
+                                @if (opg.OpgaveGennemfoert)
+                                {
+                                    <span class="badge badge-success">✔️</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-warning">❌</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+
         </div>
     }
+    
 </div>
 @code {
     [Parameter] public required Maal maal { get; set; }

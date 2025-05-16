@@ -78,9 +78,27 @@
                            disabled="@(nytDelmaal.Deadline.HasValue)"/>
                 <label>Kommentar til deadline</label>
             </div>
+            <h5 class="mt-3">Opgaver</h5>
+            @foreach (var opgave in nytDelmaal.ListOpgaver)
+            {
+                <div class="opgave-wrapper">
+                    <div class="form-floating-group">
+                        <InputText class="form-control floating-input" @bind-Value="opgave.OpgaveNavn" placeholder=" " />
+                        <label>Opgave navn</label>
+                    </div>
+
+                    <div class="form-floating-group">
+                        <InputText class="form-control floating-input" @bind-Value="opgave.OpgaveDetaljer" placeholder=" " />
+                        <label>Opgave detaljer</label>
+                    </div>
+
+                    <button type="button" class="fjern-opgave" @onclick="() => FjernOpgave(opgave)">Fjern</button>
+                </div>
+            }
+            <button type="button" class="tilføj-opgaver" @onclick="TilfoejOpgave">Tilføj ny opgave</button>
 
             <div class="gemdelmaal-knap-container">
-                <button type="submit" class="Gemdelmaalknap">Gem delmål</button>
+                <button type="submit" class="Gemdelmaalknap">Opret delmål</button>
             </div>
         }
     </div>
@@ -141,5 +159,15 @@
             Console.WriteLine($" Fejl ved oprettelse: {ex.Message}");
         }
     }
+    private void TilfoejOpgave()
+    {
+        nytDelmaal.ListOpgaver.Add(new Opgaver());
+    }
+
+    private void FjernOpgave(Opgaver opg)
+    {
+        nytDelmaal.ListOpgaver.Remove(opg);
+    }
+
 
 }

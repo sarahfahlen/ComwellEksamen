@@ -20,7 +20,7 @@ public interface IElevplanRepository
 
     Task TilfoejDelmaal(int elevplanId, int maalId, Delmaal nytDelmaal);
     Task<Elevplan?> HentElevplanMedMaal(int elevplanId, int periodeIndex);
-
+    
 
     // Brugt til at hente en elevplans mål med filtre og søgning fra frontend
     Task<List<Maal>> HentFiltreredeMaal(

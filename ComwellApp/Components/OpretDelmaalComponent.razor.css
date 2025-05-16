@@ -72,3 +72,40 @@ label {
     transform: translateY(-1px); /* Løfter knappen en smule */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
+/* Knap til at tilføje opgaver */
+.tilføj-opgaver {
+    margin-top: 1rem;
+    background-color: #f3ede5;
+    color: #1C2B38;
+    border: 1px solid #d2b894;
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.tilføj-opgaver:hover {
+    background-color: #e8dbc7;
+    transform: translateY(-1px);
+    cursor: pointer;
+}
+
+/* Knap til at fjerne en opgave */
+.fjern-opgave {
+    margin-top: 0.5rem;
+    background-color: #fff2f2;
+    color: #9c2b2b;
+    border: 1px solid #e4a1a1;
+    border-radius: 6px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.fjern-opgave:hover {
+    background-color: #ffdede;
+    transform: translateY(-1px);
+    cursor: pointer;
+}
