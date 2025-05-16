@@ -197,7 +197,9 @@
             <div class="sidepanel-værktøj">
                 <label for="soeg">Søg delmål</label>
                 <input type="text" id="soeg" class="soeg-input" placeholder="Skriv søgeord..."
-                       @bind="soegeord" @oninput="async _ => await OpdaterFiltreredeMaal()"/>
+                       @bind-value="soegeord" @bind-value:event="oninput" @onkeypress="HandleKeyPress"/>
+
+                <button class="soege-knap" @onclick="soegningknap">Søg</button>
             </div>
 
             <div class="sidepanel-værktøj">
@@ -214,7 +216,6 @@
                             {
                                 <option value="@m.MaalNavn">@m.MaalNavn</option>
                             }
-
                         </InputSelect>
 
 
@@ -491,6 +492,21 @@
         }
     }
     
+    private async Task soegningknap()
+    {
+        Console.WriteLine($"Søger på: {soegeord}");
+        await OpdaterFiltreredeMaal();
+    }
+    
+    // Aktiverer søgning når ENTER trykkes
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await soegningknap();
+        }
+    }
+    
     private async Task OpdaterFiltreredeMaal()
     {
         if (valgtElev == null)
@@ -584,7 +600,5 @@
 
         tilfoejDelmaalDialog?.Open();
     }
-
-
-
+    
 }
