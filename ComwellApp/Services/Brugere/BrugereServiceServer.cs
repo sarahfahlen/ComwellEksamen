@@ -43,9 +43,10 @@ public class BrugereServiceServer : IBrugereService
         if (plan == null)
             throw new Exception("Skabelonen kunne ikke konverteres til Elevplan");
 
-        // Gør planen klar: tildel ansvarlig og elevplanId
+        // Gør planen klar: tildel ansvarlig, elevplanId og beregn deadlines dynamisk
         plan.ElevplanId = nyBruger.BrugerId;
         plan.Ansvarlig = ansvarlig;
+        BeregnDeadlinesIElevplan(plan);
 
         //  Gennemgår ALLE mål, delmål og opgaver og giver dem unikke ID'er og sætter status til "ikke gennemført"
         var alleMaal = new List<Maal>();
@@ -121,4 +122,25 @@ public class BrugereServiceServer : IBrugereService
     {
         throw new NotImplementedException();
     }
+    
+    //Funktion til dynamisk at beregne deadline for et delmål, baseret på DageTilDeadline
+    private void BeregnDeadlinesIElevplan(Shared.Elevplan plan)
+    {
+        foreach (var periode in plan.ListPerioder)
+        {
+            if (periode.StartDato == null) continue;
+
+            foreach (var maal in periode.ListMaal)
+            {
+                foreach (var delmaal in maal.ListDelmaal)
+                {
+                    if (delmaal.DageTilDeadline.HasValue)
+                    {
+                        delmaal.Deadline = periode.StartDato.Value.AddDays(delmaal.DageTilDeadline.Value);
+                    }
+                }
+            }
+        }
+    }
+
 }
