@@ -43,13 +43,13 @@ public class ElevplanServiceServer : IElevplanService
     public async Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? soegeord, bool? filterStatus)
     {
         // Saml query-parametre som URL
-        string url = $"api/elevplan/filtrerede-maal" +
+        string url = $"api/elevplan/filtreredemaal" +
                      $"?brugerId={brugerId}" +
                      $"&periodeIndex={periodeIndex}" +
-                     $"&maalNavn={Uri.EscapeDataString(valgtMaalNavn ?? "")}" +
-                     $"&delmaalType={Uri.EscapeDataString(valgtDelmaalType ?? "")}" +
+                     $"&valgtMaalNavn={Uri.EscapeDataString(valgtMaalNavn ?? "")}" +
+                     $"&valgtDelmaalType={Uri.EscapeDataString(valgtDelmaalType ?? "")}" +
                      $"&soegeord={Uri.EscapeDataString(soegeord ?? "")}" +
-                     $"&status={(filterStatus.HasValue ? filterStatus.Value.ToString().ToLower() : "")}";
+                     $"&filterStatus={(filterStatus.HasValue ? filterStatus.Value.ToString().ToLower() : "")}";
         try
         {
             var response = await http.GetAsync(url);

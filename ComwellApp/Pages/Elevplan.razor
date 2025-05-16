@@ -276,8 +276,9 @@
     private string soegeord = "";
     private string valgtMaalNavn = "";
     private string valgtDelmaalType = "";
-    private bool visFilter = false;
     private bool? valgtStatus = null;
+    private bool visFilter = false;
+    
 
 // Det valgte mål ID fra dropdown
     private int valgtMaalIdTilDelmaal;
@@ -335,6 +336,7 @@
             valgtElev = loggedIn;
             minPlan = loggedIn.MinElevplan;
         }
+        //Henter elevplan for den pågældene elev
         minPlan = await bService.HentElevplanForBruger(valgtElev.BrugerId);
 
         // Tjek om der blev fundet en elevplan
@@ -531,30 +533,6 @@
         }
     }
 
-
-    // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
-    private async void OnStatusChanged(ChangeEventArgs e)
-    {
-        var value = e.Value?.ToString();
-
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            valgtStatus = null;
-        }
-        else if (value.Equals("true", StringComparison.OrdinalIgnoreCase))
-        {
-            valgtStatus = true;
-        }
-        else if (value.Equals("false", StringComparison.OrdinalIgnoreCase))
-        {
-            valgtStatus = false;
-        }
-
-        await OpdaterFiltreredeMaal();
-
-        StateHasChanged(); // Tving UI til at opdatere med nye filtre
-    }
-
     // Når et mål vælges i dropdown
     private async Task OnChangeMaal(ChangeEventArgs e)
     {
@@ -573,7 +551,8 @@
         await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
     }
 
-    // Når status vælges (gennemført/ikke gennemført)
+   
+    // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
     private async Task OnChangeStatus(ChangeEventArgs e)
     {
         var value = e.Value?.ToString();
@@ -582,18 +561,18 @@
         {
             valgtStatus = null;
         }
-        else if (value == "true")
+        else if (value.Equals("true", StringComparison.OrdinalIgnoreCase))
         {
             valgtStatus = true;
         }
-        else if (value == "false")
+        else if (value.Equals("false", StringComparison.OrdinalIgnoreCase))
         {
             valgtStatus = false;
         }
 
         Console.WriteLine($"Status valgt: {valgtStatus}");
 
-        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
+        await OpdaterFiltreredeMaal();
     }
     
     private async Task AabenRedigerDelmaal(Delmaal valgtDelmaal)

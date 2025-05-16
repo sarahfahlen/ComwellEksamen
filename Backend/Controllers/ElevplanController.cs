@@ -87,7 +87,7 @@ public class ElevplanController : ControllerBase
     }
     
     // Hente filtrerede mål fra en elevplan via query-parametre
-    [HttpGet("filtrerede-maal")]
+    [HttpGet("filtreredemaal")]
     public async Task<ActionResult<List<Maal>>> HentFiltreredeMaal(
         [FromQuery] int brugerId,               // Brugerens ID – bruges til at finde den rigtige elevplan
         [FromQuery] int periodeIndex,           // Index for den praktikperiode der ønskes (0, 1, 2, ...)
