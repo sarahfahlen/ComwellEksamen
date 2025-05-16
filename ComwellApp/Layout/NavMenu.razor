@@ -1,4 +1,6 @@
 ﻿@using Blazored.LocalStorage
+@using ComwellApp.Services.Brugere
+@using ComwellApp.Services.Elevplan
 @using ComwellApp.Services.Login
 @using Shared
 @inject ILocalStorageService localStorage
@@ -152,10 +154,38 @@
     private bool isMenuOpen = false;
     private bool isUserMenuOpen = false;
     private Bruger? currentUser;
+    [Inject] private IElevplanService eService { get; set; }
+    [Inject] private IBrugereService bService { get; set; }
+
+    private List<string> deadlines = new();
+
 
     protected override async Task OnInitializedAsync()
     {
         currentUser = await lService.GetUserLoggedIn();
+
+        if (currentUser != null && currentUser.Rolle == "Elev")
+        {
+            var elevplan = await bService.HentElevplanForBruger(currentUser.BrugerId);
+            if (elevplan != null)
+            {
+                var iDag = DateOnly.FromDateTime(DateTime.Today);
+                var om7Dage = iDag.AddDays(7);
+
+                deadlines = elevplan.ListPerioder
+                    .SelectMany(p => p.ListMaal)
+                    .SelectMany(m => m.ListDelmaal)
+                    .Where(d => d.Deadline.HasValue &&
+                                !d.Status && // kun hvis status er false
+                                d.Deadline.Value >= iDag &&
+                                d.Deadline.Value <= om7Dage)
+                    .OrderBy(d => d.Deadline)
+                    .Select(d =>
+                        $"{d.Titel} – {d.Deadline.Value.ToString("dd.MM.yyyy")}"
+                    )
+                    .ToList();
+            }
+        }
     }
 
     private void ToggleMenu()
@@ -188,11 +218,7 @@
         }
     }
     
-    private List<string> deadlines = new() {
-        "Delmål 1 – Deadline i morgen",
-        "Delmål 2 – Deadline om 2 dage",
-        "Delmål 3 – Ikke nået endnu"
-    };
+  
 
     private void CloseMenu()
     {

@@ -10,6 +10,10 @@
 @using Shared
 
 <PageTitle>Dashboard</PageTitle> <!-- Vises i browserens faneblad -->
+@if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "Køkkenchef"))
+{
+    <button class="btn btn-primary Deadlines" @onclick="DeadlinesKnap">Deadlines</button>
+}
 
 <!--  Sideoverskrift og opret-knap -->
 <div class="overskrift-knap-wrapper">
@@ -132,7 +136,10 @@
     {
         navManager.NavigateTo("opretelev");
     }
-
+    private void DeadlinesKnap()
+    {
+        navManager.NavigateTo("deadlines");
+    }
     // Navigerer til den specifikke elevs elevplan
     private void GåTilElevplan(int elevId)
     {

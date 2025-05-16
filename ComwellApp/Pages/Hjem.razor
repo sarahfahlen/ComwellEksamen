@@ -135,9 +135,10 @@
                 kommendeDeadlines = elevplan.ListPerioder
                     .SelectMany(p => p.ListMaal)
                     .SelectMany(m => m.ListDelmaal)
-                    .Where(d => d.Deadline.HasValue &&
-                                d.Deadline.Value >= iDag &&
-                                d.Deadline.Value <= om7Dage)
+                        .Where(d => d.Deadline.HasValue &&
+                                    !d.Status && // kun hvis status er false
+                                    d.Deadline.Value >= iDag &&
+                                    d.Deadline.Value <= om7Dage)
                     .OrderBy(d => d.Deadline)
                     .ToList();
             }

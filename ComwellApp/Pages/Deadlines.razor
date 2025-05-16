@@ -1,0 +1,130 @@
+@page "/deadlines"
+
+@inject ILoginService lService
+@inject IBrugereService bService
+@using ComwellApp.Services.Brugere
+@using ComwellApp.Services.Login
+@using Shared
+
+<h3 class="overskrift">Oversigt over deadlines</h3>
+
+@if (loggedIn == null)
+{
+    <p>Indlæser bruger...</p>
+}
+else if (loggedIn.Rolle == "Elev")
+{
+    <p>Du har ikke adgang til denne side.</p>
+}
+else if (!alleDeadlines.Any())
+{
+    <p>Ingen relevante deadlines fundet.</p>
+}
+else
+{
+    <div class="deadlines-container">
+        @foreach (var gruppe in alleDeadlines.GroupBy(d => d.Navn))
+        {
+            <div class="elev-boks">
+                <h4>@gruppe.Key</h4>
+                <p><strong>Lokation:</strong> @gruppe.First().Lokation</p>
+                <p><strong>Erhverv:</strong> @gruppe.First().Erhverv</p>
+
+                <div class="elev-delmaal">
+                    @foreach (var d in gruppe)
+                    {
+                        <div class="deadline-kort">
+                            <div class="titel">@d.Titel</div>
+                            <div class="dato">Deadline: <strong>@d.Deadline?.ToString("dd.MM.yyyy")</strong></div>
+                            <div class="status @(d.ErOverskredet ? "overskredet" : "kommende")">
+                                @if (d.ErOverskredet)
+                                {
+                                    var dageSiden = d.Deadline.HasValue
+                                        ? DateOnly.FromDateTime(DateTime.Today).DayNumber - d.Deadline.Value.DayNumber
+                                        : 0;
+
+                                    <span>Overskredet – @dageSiden @(dageSiden == 1 ? "dag" : "dage") siden</span>
+                                }
+                                else
+                                {
+                                    <span>Kommende</span>
+                                }
+                                
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(d.DeadlineKommentar))
+                            {
+                                <div class="kommentar">@d.DeadlineKommentar</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private Bruger? loggedIn;
+    private List<DelmaalVisning> alleDeadlines = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        loggedIn = await lService.GetUserLoggedIn();
+        if (loggedIn == null || loggedIn.Rolle == "Elev") return;
+
+        var alleBrugere = await bService.HentAlle();
+        var idag = DateOnly.FromDateTime(DateTime.Today);
+
+        foreach (var elev in alleBrugere)
+        {
+            var plan = await bService.HentElevplanForBruger(elev.BrugerId);
+            if (plan == null) continue;
+
+            bool erKoekkenchefForElev = plan.Ansvarlig?.BrugerId == loggedIn.BrugerId;
+
+            var delmaalListe = plan.ListPerioder
+                .SelectMany(p => p.ListMaal)
+                .SelectMany(m => m.ListDelmaal);
+
+            IEnumerable<Delmaal> relevanteDelmaal = Enumerable.Empty<Delmaal>();
+
+            if (loggedIn.Rolle is "Admin" or "HR")
+            {
+                relevanteDelmaal = delmaalListe
+                    .Where(d => d.Deadline.HasValue && d.Deadline.Value < idag && !d.Status);
+            }
+            else if (loggedIn.Rolle == "Køkkenchef" && erKoekkenchefForElev)
+            {
+                relevanteDelmaal = delmaalListe
+                    .Where(d => d.Deadline.HasValue && !d.Status);
+            }
+
+            foreach (var d in relevanteDelmaal)
+            {
+                alleDeadlines.Add(new DelmaalVisning
+                {
+                    Navn = elev.Navn,
+                    Lokation = elev.Afdeling?.LokationNavn ?? "Ukendt",
+                    Erhverv = elev.Erhverv ?? "Ukendt",
+                    Titel = d.Titel,
+                    Deadline = d.Deadline,
+                    DeadlineKommentar = d.DeadlineKommentar,
+                    ErOverskredet = d.Deadline < idag
+                });
+            }
+        }
+
+        alleDeadlines = alleDeadlines.OrderBy(d => d.Deadline).ToList();
+    }
+
+    public class DelmaalVisning
+    {
+        public string Navn { get; set; } = "";
+        public string Lokation { get; set; } = "";
+        public string Erhverv { get; set; } = "";
+        public string Titel { get; set; } = "";
+        public DateOnly? Deadline { get; set; }
+        public string? DeadlineKommentar { get; set; }
+        public bool ErOverskredet { get; set; }
+    }
+}
