@@ -140,25 +140,33 @@ public class BrugereController : ControllerBase
         return Ok(plan);
     }
     
-    [HttpGet("filtrerede")]
+    [HttpGet("filtreredeelever")]
     public async Task<ActionResult<List<Bruger>>> HentFiltreredeElever(
-        [FromQuery] string? navn,
+        [FromQuery] string? soegeord,
         [FromQuery] string? lokation,
         [FromQuery] string? kursus,
         [FromQuery] string? erhverv,
-        [FromQuery] int? deadlineDage)
+        [FromQuery] int? deadline,
+        [FromQuery] string? rolle,
+        [FromQuery] string? brugerLokation)
     {
-        try
-        {
-            var resultater = await _repo.HentFiltreredeElever(navn, lokation, kursus, erhverv, deadlineDage);
-            return Ok(resultater);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest($"Fejl under filtrering: {ex.Message}");
-        }
+        var elever = await _repo.HentFiltreredeElever(soegeord, lokation, kursus, erhverv, deadline, rolle, brugerLokation);
+        return Ok(elever);
     }
 
 
+    [HttpGet("erhverv")]
+    public async Task<ActionResult<List<string>>> HentErhverv()
+    {
+        try
+        {
+            var erhverv = await _repo.HentErhverv();
+            return Ok(erhverv);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Fejl ved hentning af erhverv: {ex.Message}");
+        }
+    }
 
 }

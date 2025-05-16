@@ -33,7 +33,7 @@ public class Bruger
     
     public DateOnly? SlutDato { get; set;}
     
-  
+    public string? Kursus { get; set; }
     public Lokation? Afdeling { get; set; }
 
     public Elevplan? MinElevplan { get; set; }

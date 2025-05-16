@@ -136,23 +136,23 @@ public class BrugereServiceServer : IBrugereService
         return await response.Content.ReadFromJsonAsync<Shared.Elevplan>();
     }
     
-    public async Task<List<Bruger>> HentFiltreredeElever(string? navn, string? lokation, string? kursus, string? erhverv, int? deadlineDage)
+    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? brugerLokation)
     {
-        string url = $"api/brugere/filtrerede?" +
-                     $"navn={Uri.EscapeDataString(navn ?? "")}" +
-                     $"&lokation={Uri.EscapeDataString(lokation ?? "")}" +
-                     $"&kursus={Uri.EscapeDataString(kursus ?? "")}" +
-                     $"&erhverv={Uri.EscapeDataString(erhverv ?? "")}" +
-                     $"&deadlineDage={(deadlineDage.HasValue ? deadlineDage.Value.ToString() : "")}";
+        var url = $"api/brugere/filtreredeelever?soegeord={Uri.EscapeDataString(soegeord)}" +
+                  $"&lokation={Uri.EscapeDataString(lokation)}" +
+                  $"&kursus={Uri.EscapeDataString(kursus)}" +
+                  $"&erhverv={Uri.EscapeDataString(erhverv)}" +
+                  $"&deadline={(deadline.HasValue ? deadline.Value.ToString() : "")}" +
+                  $"&rolle={Uri.EscapeDataString(rolle)}" +
+                  $"&brugerLokation={Uri.EscapeDataString(brugerLokation ?? "")}";
 
-        var response = await http.GetAsync(url);
-        if (!response.IsSuccessStatusCode)
-        {
-            Console.WriteLine($"[HentFiltreredeElever] FEJL: {await response.Content.ReadAsStringAsync()}");
-            return new List<Bruger>();
-        }
+        return await http.GetFromJsonAsync<List<Bruger>>(url) ?? new();
+    }
 
-        return await response.Content.ReadFromJsonAsync<List<Bruger>>() ?? new();
+    public async Task<List<string>> HentAlleErhverv()
+    {
+        var erhverv = await http.GetFromJsonAsync<List<string>>("api/brugere/erhverv");
+        return erhverv ?? new List<string>();
     }
 
     

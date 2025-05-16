@@ -106,33 +106,52 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         return bruger?.MinElevplan;
     }
     
-    public async Task<List<Bruger>> HentFiltreredeElever(string? navn, string? lokation, string? kursus, string? erhverv, int? deadlineDage)
+    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? brugerLokation)
     {
-        var builder = Builders<Bruger>.Filter;
-        var filters = new List<FilterDefinition<Bruger>>();
+        var filterBuilder = Builders<Bruger>.Filter;
+        var filter = filterBuilder.Eq(b => b.Rolle, "Elev"); // Vis kun elever
 
-        if (!string.IsNullOrWhiteSpace(navn))
-            filters.Add(builder.Regex(b => b.Navn, new MongoDB.Bson.BsonRegularExpression(navn, "i")));
+        // Begræns til brugerens lokation, medmindre det er HR/Admin
+        if (rolle != "HR" && rolle != "Admin" && !string.IsNullOrEmpty(brugerLokation))
+        {
+            filter &= filterBuilder.Eq(b => b.Afdeling.LokationNavn, brugerLokation);
+        }
 
+        // Almindelige filtre
         if (!string.IsNullOrWhiteSpace(lokation))
-            filters.Add(builder.Eq(b => b.Afdeling.LokationNavn, lokation));
+            filter &= filterBuilder.Eq(b => b.Afdeling.LokationNavn, lokation);
 
         if (!string.IsNullOrWhiteSpace(kursus))
-            filters.Add(builder.ElemMatch(b => b.MinElevplan.ListPerioder, p => p.ListMaal.Any(m => m.MaalNavn == kursus)));
+            filter &= filterBuilder.Eq(b => b.Kursus, kursus);
 
         if (!string.IsNullOrWhiteSpace(erhverv))
-            filters.Add(builder.ElemMatch(b => b.MinElevplan.ListPerioder, p => p.ListMaal.Any(m => m.ListDelmaal.Any(d => d.Titel.Contains(erhverv)))));
+            filter &= filterBuilder.Eq(b => b.Erhverv, erhverv);
 
-        if (deadlineDage.HasValue)
-            filters.Add(builder.ElemMatch(b => b.MinElevplan.ListPerioder,
-                p => p.ListMaal.Any(m =>
-                    m.ListDelmaal.Any(d => d.Deadline.HasValue && (d.Deadline.Value.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber) <= deadlineDage.Value)
-                )));
-
-        var combinedFilter = filters.Any() ? builder.And(filters) : builder.Empty;
-
-        return await BrugerCollection.Find(combinedFilter).ToListAsync();
+        if (!string.IsNullOrWhiteSpace(soegeord))
+            filter &= filterBuilder.Regex(b => b.Navn, new MongoDB.Bson.BsonRegularExpression(soegeord, "i"));
+        
+        if (deadline.HasValue)
+        {
+            filter &= filterBuilder.Where(b =>
+                b.MinElevplan.ListPerioder
+                    .SelectMany(p => p.ListMaal)
+                    .SelectMany(m => m.ListDelmaal)
+                    .Any(d => d.DageTilDeadline.HasValue && d.DageTilDeadline.Value <= deadline.Value));
+        }
+        
+        return await BrugerCollection.Find(filter).ToListAsync();
     }
 
+    public async Task<List<string>> HentErhverv()
+    {
+        var filter = Builders<Bruger>.Filter.Ne(b => b.Erhverv, null);
+        var brugere = await BrugerCollection.Find(filter).ToListAsync();
+
+        return brugere
+            .Where(b => !string.IsNullOrWhiteSpace(b.Erhverv))
+            .Select(b => b.Erhverv!)
+            .Distinct()
+            .ToList();
+    }
 
 }

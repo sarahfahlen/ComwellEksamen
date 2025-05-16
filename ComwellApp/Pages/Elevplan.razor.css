@@ -252,19 +252,20 @@
 }
 
 .tilfoej-delmaal-knap {
-    background-color: #d2b894; /* Beige farve */
-    color: #f3ede5; /* Mørk tekst for kontrast */
-    border: none;
+    background-color: transparent; /* Beige farve */
+    color: black; 
+    border: 2px solid #d2b894;;
     border-radius: 8px;
     padding: 0.6rem 1.4rem;
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 500;
     transition: background-color 0.3s ease, transform 0.2s ease;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .tilfoej-delmaal-knap:hover {
     background-color: #c6a979; /* Lidt mørkere beige */
+    color: white;
     transform: translateY(-1px); /* Løfter knappen en smule */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }

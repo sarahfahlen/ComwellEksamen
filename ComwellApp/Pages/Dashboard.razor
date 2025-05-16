@@ -37,30 +37,51 @@
 
 @if (visFilter)
 {
-    <div class="filter-box" style="margin-top: 1rem; border: 1px dashed #ccc; padding: 1rem; border-radius: 8px;">
-        <div class="form-floating-group halv-bredde">
-        <label>Lokation</label>
-        <InputSelect class="form-control" @bind-Value="valgtLokation" />
+    <div class="filter-box">
+        <div class="filter-row">
+            <div class="filter-item">
+                <label>Lokation</label>
+                <InputSelect class="form-control" @bind-Value="valgtLokation">
+                    <option value="">Alle lokationer</option>
+                    @foreach (var l in lokationer)
+                    {
+                        <option value="@l.LokationNavn">@l.LokationNavn</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="filter-item">
+                <label>Kursus</label>
+                <InputSelect class="form-control" @bind-Value="valgtKursus" />
+            </div>
         </div>
 
-        <div class="form-floating-group halv-bredde">
-        <label class="mt-2">Kursus</label>
-        <InputSelect class="form-control" @bind-Value="valgtKursus" />
-        </div>
-
-        <div class="form-floating-group halv-bredde">
-        <label class="mt-2">Erhverv</label>
-        <InputSelect class="form-control" @bind-Value="valgtErhverv" />
-        </div>
-
-        <div class="form-floating-group halv-bredde">
-        <label class="mt-2">Deadline (antal dage til)</label>
-        <InputDate class="form-control" @bind-Value="valgtDeadlineDage" />
-        </div>
+        < class="filter-row">
+            <div class="filter-item">
+                <label>Erhverv</label>
+                <InputSelect class="form-control" @bind-Value="valgtErhverv">
+                    <option value="">Alle erhverv</option>
+                    @foreach (var erhverv in erhvervMuligheder)
+                    {
+                        <option value="@erhverv">@erhverv</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="filter-item">
+                <label>Deadline (antal dage til)</label>
+                <InputSelect class="form-control" @bind-Value="valgtDeadline">
+                    <option value="">Alle</option>
+                    <option value="overskredet">Overskredet</option>
+                    @for (int i = 1; i <= 7; i++)
+                    {
+                        <option value="@i">@i dag(e)</option>
+                    }
+                </InputSelect>
+            </div>
 
         <button class="soege-knap mt-3" @onclick="OpdaterFiltreredeElever">Anvend filter</button>
     </div>
 }
+
 
 <!-- Her vises alle elever som kort -->
 <div class="elevkort-container">
@@ -136,6 +157,9 @@
     private string valgtErhverv = "";
     private int? valgtDeadlineDage = null;
     private bool visFilter = false;
+    private List<Lokation> lokationer = new();
+    private List<string> erhvervMuligheder = new();
+    private int? valgtDeadline = null;
 
     // Når siden loades (komponent initialiseres), henter vi data
     protected override async Task OnInitializedAsync()
@@ -151,7 +175,9 @@
 
         // Hent alle elever via IBrugereService (sender kald til backend)
         alleElever = await bService.HentAlle();
-
+        
+        lokationer = await bService.HentAlleLokationer();
+        erhvervMuligheder = await bService.HentAlleErhverv();
         FiltrerElever(); // sortér elever baseret på rolle/lokation
     }
 
@@ -225,12 +251,17 @@
 
     private async Task OpdaterFiltreredeElever()
     {
+        if (loggedIn == null) return;
+
         elever = await bService.HentFiltreredeElever(
             soegeord,
             valgtLokation,
             valgtKursus,
             valgtErhverv,
-            valgtDeadlineDage);
+            valgtDeadline,
+            loggedIn.Rolle,
+            loggedIn.Afdeling?.LokationNavn
+        );
 
         StateHasChanged();
     }

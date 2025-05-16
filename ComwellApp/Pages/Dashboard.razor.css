@@ -113,6 +113,26 @@
     cursor: pointer;
 }
 
+.filter-box {
+    margin-top: 1rem;
+    border: 1px dashed #ccc;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.filter-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-item {
+    flex: 1 1 45%;
+    min-width: 200px;
+}
+
+
 @media (max-width: 1024px) {
     .item-card {
         width: 100%;

@@ -10,6 +10,8 @@ public interface IBrugereService
     Task<List<Bruger>> HentKoekkencheferForLokation(int lokationId);
 
     Task<List<Lokation>> HentAlleLokationer();
-    Task<List<Bruger>> HentFiltreredeElever(string? navn, string? lokation, string? kursus, string? erhverv, int? deadlineDage);
+    Task<List<string>> HentAlleErhverv();
+
+    Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? brugerLokation);
 
 }
