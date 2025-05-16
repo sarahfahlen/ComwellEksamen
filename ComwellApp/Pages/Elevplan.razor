@@ -98,14 +98,24 @@
                     Tilføj delmål
                 </button>
             }
-            <!-- Opret nyt delmaal -->
-            <ModalDialog @ref="tilfoejDelmaalDialog" Title="Tilføj nyt delmål">
-                <OpretDelmaalComponent
-                    minPlan="@minPlan"
-                    OnGemSuccess="OpdaterFiltreredeMaal"
-                    OnClose="() => tilfoejDelmaalDialog?.Close()"/>
+            <!-- Opret nyt delmaal, eller rediger eksisterende -->
+            <ModalDialog @ref="tilfoejDelmaalDialog" Title="@((delmaalTilRedigering != null) ? "Rediger delmål" : "Tilføj delmål")">
+                @if (tilfoejDelmaalDialog != null)
+                {
+                    <OpretDelmaalComponent
+                        minPlan="@minPlan"
+                        RedigerDelmaal="delmaalTilRedigering"
+                        OnGemSuccess="OpdaterFiltreredeMaal"
+                        OnClose="() =>
+            {
+                tilfoejDelmaalDialog.Close();
+                delmaalTilRedigering = null;
+            }"/>
+                }
             </ModalDialog>
-            
+
+
+
             <!-- Viser elevplanens mål og delmål -->
             <div id="plan">
                 @if (aktivPeriode != null)
@@ -117,8 +127,10 @@
                         </div>
 
                         <DelmaalComponent maal="maal"
+                                          BrugerRolle="@loggedIn?.Rolle"
                                           OnInputDelmaal="AabenKommentar"
-                                          OnToggleStatus="ToggleStatus"/>
+                                          OnToggleStatus="ToggleStatus"
+                                          OnRedigerDelmaal="AabenRedigerDelmaal" />
                     }
                 }
             </div>
@@ -277,6 +289,8 @@
     private Bruger? valgtElev;
 
     private ModalDialog? tilfoejDelmaalDialog;
+    
+    private Delmaal? delmaalTilRedigering = null;
 
 
     // 🟡 Kører hver gang der kommer parametre (fx ved skift af elevId i URL)
@@ -573,5 +587,17 @@
 
         await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
     }
+    
+    private async Task AabenRedigerDelmaal(Delmaal valgtDelmaal)
+    {
+        delmaalTilRedigering = valgtDelmaal;
+
+        // Vent på at komponenten opdager RedigerDelmaal
+        await InvokeAsync(StateHasChanged);
+
+        tilfoejDelmaalDialog?.Open();
+    }
+
+
 
 }

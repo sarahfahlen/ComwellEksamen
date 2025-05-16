@@ -3,6 +3,12 @@
     @foreach (var delmaal in maal.ListDelmaal)
     {
         <div class="delmaal">
+            @if (BrugerRolle == "Køkkenchef" || BrugerRolle == "Admin")
+            {
+                <p>
+                    <button @onclick="() => OnRedigerDelmaal.InvokeAsync(delmaal)">✏️ Rediger</button>
+                </p>
+            }
             <h4 class="delmaal-overskrift">@delmaal.Titel</h4>
             <p>Beskrivelse: @delmaal.Beskrivelse</p>
             <p>Type: @delmaal.DelmaalType</p>
@@ -61,6 +67,13 @@
     
     //Samme som ovenfor, men så vi kan bruge ToggleStatus for hvert delmål
     [Parameter] public EventCallback<Delmaal> OnToggleStatus { get; set; }
+    
+    //Bruges til at håndtere visningen af redigerknap
+    [Parameter] public string? BrugerRolle { get; set; }
+
+    //Bruges til at sende delmålet til parent komponenten, så vi kan redigere i det
+    [Parameter] public EventCallback<Delmaal> OnRedigerDelmaal { get; set; }
+
 
 
 

@@ -43,9 +43,13 @@ public class BrugereServiceServer : IBrugereService
         if (plan == null)
             throw new Exception("Skabelonen kunne ikke konverteres til Elevplan");
 
-        // Gør planen klar: tildel ansvarlig, elevplanId og beregn deadlines dynamisk
+        // Gør planen klar: tildel ansvarlig, elevplanId, sætter startperiode for praktik og beregner deadlines dynamisk
         plan.ElevplanId = nyBruger.BrugerId;
         plan.Ansvarlig = ansvarlig;
+        if (nyBruger.StartDato != null && plan.ListPerioder?.Count > 0)
+        {
+            plan.ListPerioder[0].StartDato = nyBruger.StartDato;
+        }
         BeregnDeadlinesIElevplan(plan);
 
         //  Gennemgår ALLE mål, delmål og opgaver og giver dem unikke ID'er og sætter status til "ikke gennemført"

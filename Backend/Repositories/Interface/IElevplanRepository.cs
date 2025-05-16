@@ -19,6 +19,10 @@ public interface IElevplanRepository
     Task OpdaterStatusAsync(int elevplanId, Delmaal delmaal);
 
     Task TilfoejDelmaal(int elevplanId, int maalId, Delmaal nytDelmaal);
+    
+    Task OpdaterDelmaal(int elevplanId, int periodeIndex, int maalId, int delmaalId, Delmaal opdateretDelmaal);
+
+    
     Task<Elevplan?> HentElevplanMedMaal(int elevplanId, int periodeIndex);
     
 

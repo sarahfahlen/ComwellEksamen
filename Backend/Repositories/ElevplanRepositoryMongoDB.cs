@@ -243,6 +243,35 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
 
         await BrugerCollection.ReplaceOneAsync(b => b.BrugerId == bruger.BrugerId, bruger);
     }
+    
+    public async Task OpdaterDelmaal(int elevplanId, int periodeIndex, int maalId, int delmaalId, Delmaal opdateretDelmaal)
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b.BrugerId, elevplanId);
+        var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
+        var plan = bruger?.MinElevplan;
+
+        if (plan == null)
+            throw new Exception("Elevplan ikke fundet.");
+
+        var periode = plan.ListPerioder.ElementAtOrDefault(periodeIndex);
+        if (periode == null)
+            throw new Exception("Periode ikke fundet.");
+
+        var maal = periode.ListMaal.FirstOrDefault(m => m.MaalId == maalId);
+        if (maal == null)
+            throw new Exception("Mål ikke fundet.");
+
+        var delmaalIndex = maal.ListDelmaal.FindIndex(d => d.DelmaalId == delmaalId);
+        if (delmaalIndex == -1)
+            throw new Exception("Delmål ikke fundet.");
+
+        maal.ListDelmaal[delmaalIndex] = opdateretDelmaal;
+
+        await BrugerCollection.ReplaceOneAsync(filter, bruger);
+    }
+
+
+    
     public async Task<Elevplan?> HentElevplanMedMaal(int elevplanId, int periodeIndex)
     {
         var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.ElevplanId, elevplanId);

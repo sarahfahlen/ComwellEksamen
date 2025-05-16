@@ -20,6 +20,7 @@ public interface IElevplanService
     //Bruges til at hente de filtrede mål på elevplanen
     Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? soegeord, bool? filterStatus);
     Task TilfoejDelmaal(Shared.Elevplan plan, int maalId, Delmaal nytDelmaal);
+    Task OpdaterDelmaal(Shared.Elevplan plan, int periodeIndex, int maalId, Delmaal opdateretDelmaal);
     Task<List<Maal>> HentMaalFraPeriode(int elevplanId, int periodeIndex);
     Task<List<string>> HentDelmaalTyperFraPeriode(int elevplanId, int periodeIndex);
 

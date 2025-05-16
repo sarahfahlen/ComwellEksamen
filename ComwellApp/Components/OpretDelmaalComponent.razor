@@ -7,114 +7,175 @@
     <ValidationSummary/>
 
     <div class="modal-form">
+        <h5 class="mb-3">@((isEditMode ? "Rediger delmål" : "Opret nyt delmål"))</h5>
 
-        <!-- Periode -->
-        <div class="form-floating-group">
-            <select class="form-control floating-input" @onchange="OnPeriodeChanged">
-                <option value="-1" disabled selected hidden>-- Vælg periode --</option>
-                @for (int i = 0; i < minPlan?.ListPerioder.Count; i++)
-                {
-                    <option value="@i">Periode @(i + 1)</option>
-                }
-            </select>
-            <label>Vælg praktikperiode</label>
-        </div>
-
-        @if (valgtPeriodeIndex >= 0)
+        @if (!isEditMode)
         {
+            <!-- Praktikperiodevalg (kun ved opret) -->
             <div class="form-floating-group">
-                <select class="form-control floating-input" @bind="valgtMaalId">
-                    <option value="0" disabled selected hidden>-- Vælg mål --</option>
-                    @foreach (var maal in maalTilValgtPeriode)
+                <select class="form-control floating-input" @onchange="OnPeriodeChanged">
+                    <option value="-1" disabled selected hidden>-- Vælg periode --</option>
+                    @for (int i = 0; i < minPlan?.ListPerioder.Count; i++)
                     {
-                        <option value="@maal.MaalId">@maal.MaalNavn</option>
+                        <option value="@i">Periode @(i + 1)</option>
                     }
                 </select>
-                <label>Vælg mål</label>
+                <label>Vælg praktikperiode</label>
             </div>
 
-            <div class="form-floating-group">
-                <select class="form-control floating-input" @bind="nytDelmaal.DelmaalType">
-                    <option value="" disabled selected hidden>-- Vælg type --</option>
-                    @foreach (var type in unikkeDelmaalTyper)
-                    {
-                        <option value="@type">@type</option>
-                    }
-                </select>
-                <label>Type</label>
-                <ValidationMessage For="@(() => nytDelmaal.DelmaalType)"/>
-            </div>
-
-            <div class="form-floating-group">
-                <InputText class="form-control floating-input" @bind-Value="nytDelmaal.Titel" placeholder=" "/>
-                <label>Titel</label>
-                <ValidationMessage For="@(() => nytDelmaal.Titel)"/>
-            </div>
-
-            <div class="form-floating-group">
-                <InputTextArea class="form-control floating-input" @bind-Value="nytDelmaal.Beskrivelse"
-                               placeholder=" "/>
-                <label>Beskrivelse</label>
-                <ValidationMessage For="@(() => nytDelmaal.Beskrivelse)"/>
-            </div>
-
-            <div class="form-floating-group">
-                <InputText class="form-control floating-input" @bind-Value="nytDelmaal.Ansvarlig" placeholder=" "/>
-                <label>Ansvarlig</label>
-                <ValidationMessage For="@(() => nytDelmaal.Ansvarlig)"/>
-            </div>
-
-            <div class="form-floating-group">
-                <InputDate class="form-control floating-input"
-                           @bind-Value="nytDelmaal.Deadline"
-                           disabled="@(!string.IsNullOrWhiteSpace(nytDelmaal.DeadlineKommentar))"/>
-                <label>Deadline</label>
-            </div>
-
-            <div class="form-floating-group">
-                <InputText class="form-control floating-input"
-                           placeholder=" "
-                           @bind-Value="nytDelmaal.DeadlineKommentar"
-                           disabled="@(nytDelmaal.Deadline.HasValue)"/>
-                <label>Kommentar til deadline</label>
-            </div>
-            <h5 class="mt-3">Opgaver</h5>
-            @foreach (var opgave in nytDelmaal.ListOpgaver)
+            <!-- Målvalg (kun ved opret) -->
+            @if (valgtPeriodeIndex >= 0)
             {
-                <div class="opgave-wrapper">
-                    <div class="form-floating-group">
-                        <InputText class="form-control floating-input" @bind-Value="opgave.OpgaveNavn" placeholder=" " />
-                        <label>Opgave navn</label>
-                    </div>
-
-                    <div class="form-floating-group">
-                        <InputText class="form-control floating-input" @bind-Value="opgave.OpgaveDetaljer" placeholder=" " />
-                        <label>Opgave detaljer</label>
-                    </div>
-
-                    <button type="button" class="fjern-opgave" @onclick="() => FjernOpgave(opgave)">Fjern</button>
+                <div class="form-floating-group">
+                    <select class="form-control floating-input" @bind="valgtMaalId">
+                        <option value="0" disabled selected hidden>-- Vælg mål --</option>
+                        @foreach (var maal in maalTilValgtPeriode)
+                        {
+                            <option value="@maal.MaalId">@maal.MaalNavn</option>
+                        }
+                    </select>
+                    <label>Vælg mål</label>
                 </div>
             }
-            <button type="button" class="tilføj-opgaver" @onclick="TilfoejOpgave">Tilføj ny opgave</button>
-
-            <div class="gemdelmaal-knap-container">
-                <button type="submit" class="Gemdelmaalknap">Opret delmål</button>
+        }
+        else
+        {
+            <!-- Vist som tekst ved redigering -->
+            <div class="form-floating-group">
+                <p><strong>Periode:</strong> Periode @(valgtPeriodeIndex + 1)</p>
+                <p><strong>Mål:</strong> @maalTilValgtPeriode.FirstOrDefault(m => m.MaalId == valgtMaalId)?.MaalNavn</p>
             </div>
         }
+
+        <!-- Øvrige felter (fælles for opret og rediger) -->
+        <div class="form-floating-group">
+            <select class="form-control floating-input" @bind="nytDelmaal.DelmaalType">
+                <option value="" disabled selected hidden>-- Vælg type --</option>
+                @foreach (var type in unikkeDelmaalTyper)
+                {
+                    <option value="@type">@type</option>
+                }
+            </select>
+            <label>Type</label>
+            <ValidationMessage For="@(() => nytDelmaal.DelmaalType)"/>
+        </div>
+
+        <div class="form-floating-group">
+            <InputText class="form-control floating-input" @bind-Value="nytDelmaal.Titel" placeholder=" "/>
+            <label>Titel</label>
+            <ValidationMessage For="@(() => nytDelmaal.Titel)"/>
+        </div>
+
+        <div class="form-floating-group">
+            <InputTextArea class="form-control floating-input" @bind-Value="nytDelmaal.Beskrivelse" placeholder=" " />
+            <label>Beskrivelse</label>
+            <ValidationMessage For="@(() => nytDelmaal.Beskrivelse)"/>
+        </div>
+
+        <div class="form-floating-group">
+            <InputText class="form-control floating-input" @bind-Value="nytDelmaal.Ansvarlig" placeholder=" " />
+            <label>Ansvarlig</label>
+            <ValidationMessage For="@(() => nytDelmaal.Ansvarlig)"/>
+        </div>
+
+        <div class="form-floating-group">
+            <InputDate class="form-control floating-input"
+                       @bind-Value="nytDelmaal.Deadline"
+                       disabled="@(!string.IsNullOrWhiteSpace(nytDelmaal.DeadlineKommentar))"/>
+            <label>Deadline</label>
+        </div>
+
+        <div class="form-floating-group">
+            <InputText class="form-control floating-input"
+                       placeholder=" "
+                       @bind-Value="nytDelmaal.DeadlineKommentar"
+                       disabled="@(nytDelmaal.Deadline.HasValue)"/>
+            <label>Kommentar til deadline</label>
+        </div>
+
+        <h5 class="mt-3">Opgaver</h5>
+        @foreach (var opgave in nytDelmaal.ListOpgaver)
+        {
+            <div class="opgave-wrapper">
+                <div class="form-floating-group">
+                    <InputText class="form-control floating-input" @bind-Value="opgave.OpgaveNavn" placeholder=" " />
+                    <label>Opgave navn</label>
+                </div>
+                <div class="form-floating-group">
+                    <InputText class="form-control floating-input" @bind-Value="opgave.OpgaveDetaljer" placeholder=" " />
+                    <label>Opgave detaljer</label>
+                </div>
+                <button type="button" class="fjern-opgave" @onclick="() => FjernOpgave(opgave)">Fjern</button>
+            </div>
+        }
+        <button type="button" class="tilføj-opgaver" @onclick="TilfoejOpgave">Tilføj ny opgave</button>
+
+        <div class="gemdelmaal-knap-container">
+            <button type="submit" class="Gemdelmaalknap">
+                @(isEditMode ? "Gem ændringer" : "Opret delmål")
+            </button>
+        </div>
     </div>
 </EditForm>
 
+
 @code {
     [Parameter] public Elevplan? minPlan { get; set; }
+    [Parameter] public Delmaal? RedigerDelmaal { get; set; }
     [Parameter] public EventCallback OnGemSuccess { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
 
     private Delmaal nytDelmaal = new();
+    private bool isEditMode => RedigerDelmaal != null;
     private int valgtPeriodeIndex = -1;
     private int valgtMaalId = 0;
 
     private List<Maal> maalTilValgtPeriode = new();
     private List<string> unikkeDelmaalTyper = new();
+    
+    protected override async void OnParametersSet()
+    {
+        Console.WriteLine("🔄 OnParametersSet kaldt med DelmaalId: " + RedigerDelmaal?.DelmaalId);
+
+        if (RedigerDelmaal != null && minPlan != null)
+        {
+            // Find periode og mål, og sæt index/Id
+            for (int i = 0; i < minPlan.ListPerioder.Count; i++)
+            {
+                var periode = minPlan.ListPerioder[i];
+                var maal = periode.ListMaal.FirstOrDefault(m => m.ListDelmaal.Any(d => d.DelmaalId == RedigerDelmaal.DelmaalId));
+                if (maal != null)
+                {
+                    valgtPeriodeIndex = i;
+                    valgtMaalId = maal.MaalId;
+                    break;
+                }
+            }
+
+            // Hent målene og typerne så dropdowns kan vises
+            await HentMaalOgTyper();
+
+            // Kopiér data til nytDelmaal
+            nytDelmaal = new Delmaal
+            {
+                DelmaalId = RedigerDelmaal.DelmaalId,
+                DelmaalType = RedigerDelmaal.DelmaalType,
+                Titel = RedigerDelmaal.Titel,
+                Beskrivelse = RedigerDelmaal.Beskrivelse,
+                Ansvarlig = RedigerDelmaal.Ansvarlig,
+                Deadline = RedigerDelmaal.Deadline,
+                DeadlineKommentar = RedigerDelmaal.DeadlineKommentar,
+                ListOpgaver = RedigerDelmaal.ListOpgaver.Select(o => new Opgaver
+                {
+                    OpgaveNavn = o.OpgaveNavn,
+                    OpgaveDetaljer = o.OpgaveDetaljer,
+                    OpgaveGennemfoert = o.OpgaveGennemfoert
+                }).ToList()
+            };
+        }
+    }
+
+
 
     private async Task OnPeriodeChanged(ChangeEventArgs e)
     {
@@ -149,8 +210,17 @@
 
         try
         {
-            await eService.TilfoejDelmaal(minPlan, valgtMaalId, nytDelmaal);
-            Console.WriteLine("✅ Delmål oprettet!");
+            if (isEditMode)
+            {
+                Console.WriteLine("🔁 Redigerer delmål");
+                await eService.OpdaterDelmaal(minPlan, valgtPeriodeIndex, valgtMaalId, nytDelmaal);
+            }
+            else
+            {
+                await eService.TilfoejDelmaal(minPlan, valgtMaalId, nytDelmaal);
+                Console.WriteLine("✅ Delmål oprettet!");
+            }
+
             await OnGemSuccess.InvokeAsync();
             await OnClose.InvokeAsync();
         }

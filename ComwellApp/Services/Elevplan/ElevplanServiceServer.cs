@@ -190,6 +190,21 @@ public class ElevplanServiceServer : IElevplanService
             throw new Exception("Kunne ikke tilføje delmål.");
         }
     }
+    
+    public async Task OpdaterDelmaal(Elevplan plan, int periodeIndex, int maalId, Delmaal opdateretDelmaal)
+    {
+        var response = await http.PutAsJsonAsync(
+            $"api/elevplan/delmaal/{plan.ElevplanId}/{periodeIndex}/{maalId}/{opdateretDelmaal.DelmaalId}",
+            opdateretDelmaal);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[OpdaterDelmaal] FEJL: {fejl}");
+            throw new Exception("Kunne ikke opdatere delmål.");
+        }
+    }
+
 
     public async Task<List<Maal>> HentMaalFraPeriode(int elevplanId, int periodeIndex)
     {

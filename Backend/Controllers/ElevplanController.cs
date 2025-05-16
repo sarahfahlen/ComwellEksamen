@@ -113,6 +113,7 @@ public class ElevplanController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+   
     [HttpPost("delmaal/{elevplanId:int}/{maalId:int}")]
     public async Task<IActionResult> TilfoejDelmaal(int elevplanId, int maalId, [FromBody] Delmaal nytDelmaal)
     {
@@ -127,6 +128,22 @@ public class ElevplanController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+    
+    [HttpPut("delmaal/{elevplanId:int}/{periodeIndex:int}/{maalId:int}/{delmaalId:int}")]
+    public async Task<IActionResult> OpdaterDelmaal(int elevplanId, int periodeIndex, int maalId, int delmaalId, [FromBody] Delmaal opdateretDelmaal)
+    {
+        try
+        {
+            await elevplanRepo.OpdaterDelmaal(elevplanId, periodeIndex, maalId, delmaalId, opdateretDelmaal);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Fejl ved opdatering af delmål: {ex.Message}");
+        }
+    }
+
+    
     [HttpGet("maal/{elevplanId:int}/{periodeIndex:int}")]
     public async Task<ActionResult<List<Maal>>> HentMaal(int elevplanId, int periodeIndex)
     {
