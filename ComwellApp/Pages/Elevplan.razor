@@ -207,20 +207,20 @@
 
 
                         <label class="mt-2">Delmålstype</label>
-                        <select class="form-control" @bind="ValgtDelmaalType" @bind:event="onchange">
+                        <InputSelect class="form-control" @bind-value="ValgtDelmaalType" @oninput="OnChangeDelmaalType">
                             <option value="">Alle typer</option>
                             @foreach (var t in aktivPeriode?.ListMaal.SelectMany(m => m.ListDelmaal).Select(d => d.DelmaalType).Distinct() ?? new List<string>())
                             {
                                 <option value="@t">@t</option>
                             }
-                        </select>
+                        </InputSelect>
 
                         <label class="mt-2">Status</label>
-                        <select class="form-control" @onchange="OnStatusChanged">
+                        <InputSelect class="form-control" @bind-value="valgtStatus" @oninput="OnChangeStatus">
                             <option value="">Alle</option>
                             <option value="true">Gennemført</option>
                             <option value="false">Ikke gennemført</option>
-                        </select>
+                        </InputSelect>
                     </div>
                 }
             </div>
@@ -550,7 +550,7 @@
         await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
     }
 
-// Når en delmålstype vælges
+    // Når en delmålstype vælges
     private async Task OnChangeDelmaalType(ChangeEventArgs e)
     {
         valgtDelmaalType = e.Value?.ToString() ?? "";
@@ -559,7 +559,7 @@
         await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
     }
 
-// Når status vælges (gennemført/ikke gennemført)
+    // Når status vælges (gennemført/ikke gennemført)
     private async Task OnChangeStatus(ChangeEventArgs e)
     {
         var value = e.Value?.ToString();
