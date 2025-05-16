@@ -172,6 +172,8 @@
                     OpgaveGennemfoert = o.OpgaveGennemfoert
                 }).ToList()
             };
+            await HentMaalOgTyper();
+            StateHasChanged();
         }
     }
 
