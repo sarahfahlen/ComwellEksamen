@@ -1,25 +1,26 @@
-﻿@page "/"                  
+﻿@page "/"
 @page "/hjem"
 
-@inject ILoginService lService         
-@inject NavigationManager navManager   
+@inject ILoginService lService
+@inject NavigationManager navManager
 
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Elevplan
-@using ComwellApp.Services.Login       
-@using Shared                          
+@using ComwellApp.Services.Login
+@using Shared
 
-<PageTitle>Hjem</PageTitle>            
- 
+<PageTitle>Hjem</PageTitle>
+
 <div class="page-wrapper hjem-baggrund">
-    
+
     <!-- Viser navnet på den loggede bruger -->
     <h3 class="overskrift">Velkommen, @loggedIn?.Navn</h3>
 
     <div class="intro-container">
         <p class="intro-text">
             Her kan du få et hurtigt overblik over dine læringsmål, kommende deadlines og vigtig praktisk information.
-            Klik på boksene for at dykke ned i indholdet og finde relevante kontaktoplysninger, hvis du har brug for hjælp.
+            Klik på boksene for at dykke ned i indholdet og finde relevante kontaktoplysninger, hvis du har brug for
+            hjælp.
         </p>
     </div>
 
@@ -62,52 +63,56 @@
 
 
     @if (visModal)
-{
-    <!-- Modal vises kun hvis brugeren har klikket -->
-    <div class="modal-overlay" @onclick="LukModal">
-        <div class="modal-content" @onclick:stopPropagation>
-            <h5>Kontaktoplysninger</h5>
-            <ul>
-                <li><strong>Køkkenchef:</strong> Theis Christensen – 12 34 56 78</li>
-                <li><strong>HR:</strong> Jane Mayes Harkes – 23 45 67 89</li>
-                <li><strong>Hvis du er syg:</strong> Ring til SOV – 98 76 54 32</li>
-                <li><strong>Adresse:</strong> Comwell Vej 12, 8000 Aarhus</li>
-            </ul>
-            <button class="btn btn-secondary mt-3" @onclick="LukModal">Luk</button>
+    {
+        <!-- Modal vises kun hvis brugeren har klikket -->
+        <div class="modal-overlay" @onclick="LukModal">
+            <div class="modal-content" @onclick:stopPropagation>
+                <h5>Kontaktoplysninger</h5>
+                <ul>
+                    <li><strong>Køkkenchef:</strong> Theis Christensen – 12 34 56 78</li>
+                    <li><strong>HR:</strong> Jane Mayes Harkes – 23 45 67 89</li>
+                    <li><strong>Hvis du er syg:</strong> Ring til SOV – 98 76 54 32</li>
+                    <li><strong>Adresse:</strong> Comwell Vej 12, 8000 Aarhus</li>
+                </ul>
+                <button class="btn btn-secondary mt-3" @onclick="LukModal">Luk</button>
+            </div>
         </div>
-    </div>
-}
-@if (visDeadlinesModal)
-{
-    <div class="modal-overlay" @onclick="LukDeadlinesModal">
-        <div class="modal-content" @onclick:stopPropagation>
-            <h5>Alle deadlines – næste 7 dage</h5>
+    }
+    @if (visDeadlinesModal)
+    {
+        <div class="modal-overlay" @onclick="LukDeadlinesModal">
+            <div class="modal-content" @onclick:stopPropagation>
+                <h5>Alle deadlines – næste 7 dage</h5>
 
-            <ul>
-                @foreach (var d in kommendeDeadlines)
-                {
-                    <li style="margin-bottom: 0.75rem;">
-                        <strong>@d.Titel</strong> – @d.Deadline?.ToString("dd.MM.yyyy")
-                        @if (!string.IsNullOrWhiteSpace(d.DeadlineKommentar))
-                        {
-                            <br />
-                            <small><em>@d.DeadlineKommentar</em></small>
-                        }
-                    </li>
-                }
-            </ul>
+                <ul>
+                    @foreach (var d in kommendeDeadlines)
+                    {
+                        <li style="margin-bottom: 0.75rem;">
+                            <strong>@d.Titel</strong> – @d.Deadline?.ToString("dd.MM.yyyy")
+                            @if (!string.IsNullOrWhiteSpace(d.DeadlineKommentar))
+                            {
+                                <br/>
+                                <small><em>@d.DeadlineKommentar</em></small>
+                            }
+                        </li>
+                    }
+                </ul>
 
-            <button class="btn btn-secondary mt-3" @onclick="LukDeadlinesModal">Luk</button>
+                <button class="btn btn-secondary mt-3" @onclick="LukDeadlinesModal">Luk</button>
+            </div>
         </div>
-    </div>
-}
+    }
 </div>
+
 @code {
+
     // Her gemmer vi den bruger der er logget ind
-    private Bruger? loggedIn;     
+    private Bruger? loggedIn;
+
     private bool visDeadlinesModal = false;
+
     // Styrer om modalen (kontaktinfo) vises eller ej
-    private bool visModal = false;    
+    private bool visModal = false;
     private List<Delmaal> kommendeDeadlines = new();
 
     [Inject] private IElevplanService eService { get; set; }
@@ -125,25 +130,10 @@
 
         if (loggedIn.Rolle == "Elev")
         {
-            var elevplan = await bService.HentElevplanForBruger(loggedIn.BrugerId);
-            if (elevplan != null)
-            {
-                var iDag = DateOnly.FromDateTime(DateTime.Today);
-                var om7Dage = iDag.AddDays(7);
-
-                // Gennemgår alle delmål i alle perioder
-                kommendeDeadlines = elevplan.ListPerioder
-                    .SelectMany(p => p.ListMaal)
-                    .SelectMany(m => m.ListDelmaal)
-                        .Where(d => d.Deadline.HasValue &&
-                                    !d.Status && // kun hvis status er false
-                                    d.Deadline.Value >= iDag &&
-                                    d.Deadline.Value <= om7Dage)
-                    .OrderBy(d => d.Deadline)
-                    .ToList();
-            }
+            kommendeDeadlines = await eService.HentKommendeDeadlines(loggedIn.BrugerId);
         }
     }
+
 
     // Når brugeren klikker på "Praktisk info", vis modal
     private void ÅbenModal()
@@ -156,6 +146,7 @@
     {
         visModal = false;
     }
+
     private void ÅbenDeadlinesModal()
     {
         visDeadlinesModal = true;
@@ -165,5 +156,6 @@
     {
         visDeadlinesModal = false;
     }
+
 }
 

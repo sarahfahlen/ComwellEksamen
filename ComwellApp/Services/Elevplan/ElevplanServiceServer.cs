@@ -217,5 +217,19 @@ public class ElevplanServiceServer : IElevplanService
         var response = await http.GetAsync($"api/elevplan/delmaaltyper/{elevplanId}/{periodeIndex}");
         return await response.Content.ReadFromJsonAsync<List<string>>() ?? new();
     }
-    
+
+    public async Task<List<Delmaal>> HentKommendeDeadlines(int brugerId)
+    {
+        var response = await http.GetAsync($"api/elevplan/kommendedeadlines/{brugerId}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[HentKommendeDeadlines] FEJL: {fejl}");
+            return new();
+        }
+
+        return await response.Content.ReadFromJsonAsync<List<Delmaal>>() ?? new();
+    }
+
 }

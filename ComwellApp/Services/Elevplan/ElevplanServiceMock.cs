@@ -12,7 +12,7 @@ public class ElevplanServiceMock : IElevplanService
     }
 
     private List<Shared.Elevplan> alleElevplaner = new();
-    
+
     public Task TilfoejKommentar(Shared.Elevplan minPlan, int delmaalId, Kommentar nyKommentar)
     {
         //Her finder vi alle delmål i den elevplan der sendes med og derefter det specifikke delmål ud fra ID
@@ -20,19 +20,20 @@ public class ElevplanServiceMock : IElevplanService
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
             .FirstOrDefault(d => d.DelmaalId == delmaalId);
-        
+
         if (delmaal != null)
         {
             //Genererer et ID til den nye kommentar via vores service
             nyKommentar.KommentarId = _idGenerator.GenererNytId(delmaal.Kommentarer, k => k.KommentarId);
             nyKommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
-            
+
             //kommentar tilføjes
             delmaal.Kommentarer.Add(nyKommentar);
         }
+
         return Task.CompletedTask;
     }
-    
+
     public Task RedigerKommentar(Shared.Elevplan minPlan, int delmaalId, int kommentarId, string nyTekst)
     {
         //Her finder vi alle delmål i den elevplan der sendes med og derefter det specifikke delmål ud fra ID
@@ -48,11 +49,12 @@ public class ElevplanServiceMock : IElevplanService
         if (kommentar != null)
         {
             kommentar.Tekst = nyTekst;
-            kommentar.Dato = DateOnly.FromDateTime(DateTime.Today); 
+            kommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
         }
+
         return Task.CompletedTask;
     }
-    
+
     public Task<Kommentar?> GetKommentarAsync(int elevplanId, int delmaalId, string brugerRolle)
     {
         throw new NotImplementedException();
@@ -63,7 +65,8 @@ public class ElevplanServiceMock : IElevplanService
         throw new NotImplementedException();
     }
 
-    public List<Maal> HentFiltreredeMaal(Shared.Elevplan plan, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? søgeord, bool? filterStatus)
+    public List<Maal> HentFiltreredeMaal(Shared.Elevplan plan, int periodeIndex, string? valgtMaalNavn,
+        string? valgtDelmaalType, string? søgeord, bool? filterStatus)
     {
         if (plan == null || plan.ListPerioder.Count <= periodeIndex)
             return new List<Maal>();
@@ -328,7 +331,8 @@ public class ElevplanServiceMock : IElevplanService
         };
     }
 
-    public Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType,
+    public Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn,
+        string? valgtDelmaalType,
         string? soegeord, bool? filterStatus)
     {
         throw new NotImplementedException();
@@ -350,6 +354,11 @@ public class ElevplanServiceMock : IElevplanService
     }
 
     public Task<List<string>> HentDelmaalTyperFraPeriode(int elevplanId, int periodeIndex)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<Delmaal>> HentKommendeDeadlines(int brugerId)
     {
         throw new NotImplementedException();
     }

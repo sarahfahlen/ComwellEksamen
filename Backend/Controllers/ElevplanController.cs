@@ -14,8 +14,8 @@ public class ElevplanController : ControllerBase
     public ElevplanController(IElevplanRepository elevplanRepo)
     {
         this.elevplanRepo = elevplanRepo;
-    }  
-    
+    }
+
     //Henter skabelonen fra repository - returnerer NotFound hvis fejl, ellers returnerer den skabelonen
     //ActionResult bruges til enten at returnere Elevplan eller en fejlbesked 
     [HttpGet("skabelon/{navn}")]
@@ -27,13 +27,13 @@ public class ElevplanController : ControllerBase
 
         return Ok(skabelon);
     }
-    
+
     //Henter kommentaren baseret på elevplan, delmål og rolle - ved at kalde på repo
     [HttpGet("kommentar/{elevplanId:int}/{delmaalId:int}/{brugerRolle}")]
     public async Task<ActionResult<Kommentar>> GetKommentar(int elevplanId, int delmaalId, string brugerRolle)
     {
         var kommentar = await elevplanRepo.GetKommentarAsync(elevplanId, delmaalId, brugerRolle);
-        
+
         //fejlhåndtering
         if (kommentar == null)
             return NotFound("Ingen kommentar fundet for det givne delmål og rolle.");
@@ -41,7 +41,7 @@ public class ElevplanController : ControllerBase
         return Ok(kommentar);
     }
 
-    
+
     //Tilføjer en ny kommentar ved at kalde repo funktion
     [HttpPost("kommentar/{elevplanId:int}/{delmaalId:int}")]
     public async Task<IActionResult> TilfoejKommentar(int elevplanId, int delmaalId, [FromBody] Kommentar kommentar)
@@ -57,7 +57,7 @@ public class ElevplanController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-    
+
     //Opdaterer status på det delmål der er sendt med fra vores service, ved at kalde funktion fra repo
     [HttpPut("statusopdatering/{elevplanId:int}")]
     public async Task<IActionResult> OpdaterStatus(int elevplanId, [FromBody] Delmaal delmaal)
@@ -72,8 +72,10 @@ public class ElevplanController : ControllerBase
             return BadRequest($"Fejl: {ex.Message}");
         }
     }
+
     [HttpPut("kommentar/{elevplanId:int}/{delmaalId:int}/{kommentarId:int}")]
-    public async Task<IActionResult> RedigerKommentar(int elevplanId, int delmaalId, int kommentarId, [FromBody] string nyTekst)
+    public async Task<IActionResult> RedigerKommentar(int elevplanId, int delmaalId, int kommentarId,
+        [FromBody] string nyTekst)
     {
         try
         {
@@ -85,16 +87,16 @@ public class ElevplanController : ControllerBase
             return BadRequest($"Fejl ved redigering af kommentar: {ex.Message}");
         }
     }
-    
+
     // Hente filtrerede mål fra en elevplan via query-parametre
     [HttpGet("filtreredemaal")]
     public async Task<ActionResult<List<Maal>>> HentFiltreredeMaal(
-        [FromQuery] int brugerId,               // Brugerens ID – bruges til at finde den rigtige elevplan
-        [FromQuery] int periodeIndex,           // Index for den praktikperiode der ønskes (0, 1, 2, ...)
-        [FromQuery] string? valgtMaalNavn,           // Valgt mål-navn (bruges som filter)
-        [FromQuery] string? valgtDelmaalType,        // Valgt type af delmål (fx "Intro", "Kursus" – bruges som filter)
-        [FromQuery] string? soegeord,           // Søgeord til fritekstsøgning i delmålstitler
-        [FromQuery] bool? filterStatus)               // Statusfilter: true = gennemført, false = ikke gennemført
+        [FromQuery] int brugerId, // Brugerens ID – bruges til at finde den rigtige elevplan
+        [FromQuery] int periodeIndex, // Index for den praktikperiode der ønskes (0, 1, 2, ...)
+        [FromQuery] string? valgtMaalNavn, // Valgt mål-navn (bruges som filter)
+        [FromQuery] string? valgtDelmaalType, // Valgt type af delmål (fx "Intro", "Kursus" – bruges som filter)
+        [FromQuery] string? soegeord, // Søgeord til fritekstsøgning i delmålstitler
+        [FromQuery] bool? filterStatus) // Statusfilter: true = gennemført, false = ikke gennemført
     {
         try
         {
@@ -113,8 +115,8 @@ public class ElevplanController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-   
-    
+
+
     [HttpPost("delmaal/{elevplanId:int}/{maalId:int}")]
     public async Task<IActionResult> TilfoejDelmaal(int elevplanId, int maalId, [FromBody] Delmaal nytDelmaal)
     {
@@ -129,9 +131,10 @@ public class ElevplanController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-    
+
     [HttpPut("delmaal/{elevplanId:int}/{periodeIndex:int}/{maalId:int}/{delmaalId:int}")]
-    public async Task<IActionResult> OpdaterDelmaal(int elevplanId, int periodeIndex, int maalId, int delmaalId, [FromBody] Delmaal opdateretDelmaal)
+    public async Task<IActionResult> OpdaterDelmaal(int elevplanId, int periodeIndex, int maalId, int delmaalId,
+        [FromBody] Delmaal opdateretDelmaal)
     {
         try
         {
@@ -144,7 +147,7 @@ public class ElevplanController : ControllerBase
         }
     }
 
-    
+
     [HttpGet("maal/{elevplanId:int}/{periodeIndex:int}")]
     public async Task<ActionResult<List<Maal>>> HentMaal(int elevplanId, int periodeIndex)
     {
@@ -174,4 +177,34 @@ public class ElevplanController : ControllerBase
         return typer ?? new List<string>();
     }
 
+    [HttpGet("kommendedeadlines/{brugerId:int}")]
+    public async Task<ActionResult<List<Delmaal>>> HentKommendeDeadlines(int brugerId)
+    {
+        try
+        {
+            var iDag = DateOnly.FromDateTime(DateTime.Today);
+            var om7Dage = iDag.AddDays(7);
+
+            var elevplan = await elevplanRepo.HentElevplanMedMaal(brugerId, -1); // -1 = alle perioder
+            if (elevplan == null)
+                return NotFound("Elevplan ikke fundet.");
+
+            var delmaal = elevplan.ListPerioder
+                .SelectMany(p => p.ListMaal)
+                .SelectMany(m => m.ListDelmaal)
+                .Where(d => d.Deadline.HasValue &&
+                            !d.Status &&
+                            d.Deadline.Value >= iDag &&
+                            d.Deadline.Value <= om7Dage)
+                .OrderBy(d => d.Deadline)
+                .ToList();
+
+            return Ok(delmaal);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[HentKommendeDeadlines] FEJL: {ex.Message}");
+            return BadRequest("Kunne ikke hente kommende deadlines.");
+        }
+    }
 }
