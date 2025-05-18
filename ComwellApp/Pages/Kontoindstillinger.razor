@@ -127,10 +127,7 @@
             </div>
 
             <!-- Viser en succesbesked hvis noget er blevet gemt -->
-            @if (!string.IsNullOrEmpty(besked))
-            {
-                <p class="success-message">@besked</p>
-            }
+            <SuccessMessage Message="@successMessage" />
         </EditForm>
     }
 </div>

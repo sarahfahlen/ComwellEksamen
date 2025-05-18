@@ -1,0 +1,24 @@
+.alert-success {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    z-index: 9999;
+    width: auto;
+    text-align: center;
+    font-weight: 600;
+    background-color: #b9d9b5; /* Blød grøn der passer til beige tema */
+    border: 1px solid #98c89a;
+    color: black;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: none;
+}
+
+@keyframes fadeout {
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+        visibility: hidden;
+    }
+}

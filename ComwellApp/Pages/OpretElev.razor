@@ -4,6 +4,7 @@
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
 @using Shared
+@using ComwellApp.Components
 <!--Service der håndterer bruger-relateret kommunikation-->
 @inject IBrugereService bService 
 @inject NavigationManager Navigation
@@ -102,15 +103,24 @@
         <p class="note-tekst">Ved oprettelse af ny elev oprettes der automatisk en ny elevplan</p>
     </div>
 </EditForm>
+@if (true)
+{
+    <SuccessMessage Message="🔥 This should show no matter what" />
+}
 
 @code {
-    private int? valgtKoekkenId; // Den valgte lokation
+    private int? valgtKoekkenId; // Den valgte lokation 
     private int? valgtKoekkenchefId; // Den valgte ansvarlige
 
     private List<Bruger> koekenchefer = new(); // Alle ansvarlige køkkenchefer
     private List<Lokation> alleKoekkener = new(); // Alle lokationer brugeren kan vælge imellem
 
     private IBrowserFile? BilledeFil; // Billedet brugeren uploader
+    private string successMessage; //brugt til success besked (bekræftelseskomponent
+    private bool showSuccess = false;
+    private bool shouldNavigate = false;
+    private bool hasRedirected = false;
+
 
     // Elevens model der bindes til formularen
     private Bruger nyElev = new()
@@ -201,14 +211,33 @@
             // Send alt til backend – og backend opretter også elevplan
             await bService.TilfoejElev(nyElev, ansvarlig, skabelonNavn);
 
-            Console.WriteLine("Elev oprettet – omdirigering...");
-            Navigation.NavigateTo("/dashboard"); // Tilbage til oversigt
+            successMessage = "Eleven blev oprettet med succes!";
+            showSuccess = true;
+            shouldNavigate = true;
+
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[HandleSubmit] Der opstod en fejl: {ex.Message}");
         }
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (shouldNavigate && !hasRedirected)
+        {
+            hasRedirected = true;
+
+            // Wait to let the UI render the success message before navigating
+            await Task.Delay(1); // Wait for a frame to complete rendering
+            StateHasChanged();   // Trigger real render
+
+            await Task.Delay(3000); // THEN wait 3 seconds
+            Navigation.NavigateTo("/dashboard");
+        }
+    }
+
+
 
     // Når bruger vælger en lokation, henter vi ansvarlige personer (køkkenchefer)
     private async Task OnLokationValgt(int? id)

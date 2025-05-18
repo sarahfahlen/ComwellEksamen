@@ -4,10 +4,22 @@ html, body {
     overflow: hidden;
 }
 
-@media (max-width: 768px){
-    .hjem-baggrund{
-        position: relative;
-        height: calc(102.1vh - 3.8rem);
+@media (max-width: 768px) {
+    .dashboard-box-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .dashboard-box {
+        width: 90%;
+        max-width: 400px;
+        min-height: auto;
+    }
+
+    .deadlinestekst {
+        white-space: normal; /* allow wrapping */
+        text-align: center;
     }
 }
 
@@ -55,7 +67,10 @@ html, body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     padding: 1.5rem;
     width: 300px;
-    min-height: 150px;
+    height: 200px; /* 🔥 use fixed height instead of min-height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     transition: 0.2s ease;
     flex: 1;
 }
@@ -70,13 +85,14 @@ html, body {
 .dashboard-box-container {
     display: flex;
     justify-content: center;
-    align-items: flex-end;
+    align-items: stretch; /* ← this is key */
     flex-wrap: wrap;
     gap: 1rem;
     margin-top: auto;
     margin-bottom: 2rem;
     padding: 0 2rem;
 }
+
 .dashboard-box ul,
 .dashboard-box li{
     font-size: 0.95rem; /* gør tekst lidt mindre */
@@ -85,6 +101,9 @@ html, body {
 }
 .dashboard-box ul{
     flex-grow: 1;
+}
+.dashboard-box {
+    overflow: hidden;
 }
 .deadlinestekst{
     margin-top: auto;
@@ -202,4 +221,14 @@ html, body {
         opacity: 1;
         transform: scale(1);
     }
+    
+}
+.deadlinestekst {
+    font-size: 0.95rem;         /* Same as rest of box text */
+    font-style: italic;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;        /* 🔥 Prevents multiline (box won't grow) */
+    margin-top: auto;
 }
