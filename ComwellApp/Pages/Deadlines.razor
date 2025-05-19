@@ -7,8 +7,8 @@
 @using Shared
 
 <h3 class="overskrift">Oversigt over deadlines</h3>
-<!-- Tilbageknap som fører brugeren tilbage til elevplan -->
-<button class="tilbage-knap" @onclick="Tilbage">← Tilbage</button>
+<button class="tilbage-knap" @onclick="Tilbage">← Tilbage til elevplan</button>
+
 @if (loggedIn == null)
 {
     <p style="margin-top: 3rem">Indlæser bruger...</p>
@@ -23,15 +23,38 @@ else if (!alleDeadlines.Any())
 }
 else
 {
-    <div class="deadlines-container">
+    <div class="elevkort-grid">
         @foreach (var gruppe in alleDeadlines.GroupBy(d => d.Navn))
         {
-            <div class="elev-boks">
-                <h4>@gruppe.Key</h4>
-                <p><strong>Lokation:</strong> @gruppe.First().Lokation</p>
-                <p><strong>Erhverv:</strong> @gruppe.First().Erhverv</p>
+            var elevId = gruppe.Key.Replace(" ", "_");
 
-                <div class="elev-delmaal">
+            <div class="elevkort-card">
+                <div class="elevkort-header" @onclick="() => ToggleElev(elevId)">
+                    <div>
+                        <h4>@gruppe.Key</h4>
+                        <div class="deadline-overblik">
+                            @if (loggedIn.Rolle is "Admin" or "HR")
+                            {
+                                var overskredetAntal = gruppe.Count(d => d.ErOverskredet);
+                                <span class="badge overskredet">@overskredetAntal overskredne</span>
+                            }
+                            else if (loggedIn.Rolle == "Køkkenchef")
+                            {
+                                var overskredetAntal = gruppe.Count(d => d.ErOverskredet);
+                                var kommendeAntal = gruppe.Count(d => !d.ErOverskredet);
+                                <span class="badge overskredet">@overskredetAntal overskredne</span>
+                                <span class="badge kommende">@kommendeAntal kommende</span>
+                            }
+                        </div>
+                        <p><strong>Lokation:</strong> @gruppe.First().Lokation</p>
+                        <p><strong>Erhverv:</strong> @gruppe.First().Erhverv</p>
+                    </div>
+                    <button class="toggle-knap" title="Klik for at vise/skjule deadlines">
+                        @((åbneElever.Contains(elevId)) ? "Skjul" : "Vis")
+                    </button>
+                </div>
+
+                <div class="elev-delmaal @(åbneElever.Contains(elevId) ? "vis" : "")">
                     @foreach (var d in gruppe)
                     {
                         <div class="deadline-kort">
@@ -43,14 +66,12 @@ else
                                     var dageSiden = d.Deadline.HasValue
                                         ? DateOnly.FromDateTime(DateTime.Today).DayNumber - d.Deadline.Value.DayNumber
                                         : 0;
-
                                     <span>Overskredet – @dageSiden @(dageSiden == 1 ? "dag" : "dage") siden</span>
                                 }
                                 else
                                 {
                                     <span>Kommende</span>
                                 }
-                                
                             </div>
                             @if (!string.IsNullOrWhiteSpace(d.DeadlineKommentar))
                             {
@@ -67,6 +88,7 @@ else
 @code {
     private Bruger? loggedIn;
     private List<DelmaalVisning> alleDeadlines = new();
+    private HashSet<string> åbneElever = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,11 +140,19 @@ else
         alleDeadlines = alleDeadlines.OrderBy(d => d.Deadline).ToList();
     }
 
+    private void ToggleElev(string elevId)
+    {
+        if (åbneElever.Contains(elevId))
+            åbneElever.Remove(elevId);
+        else
+            åbneElever.Add(elevId);
+    }
+
     private async Task Tilbage()
     {
         await JS.InvokeVoidAsync("history.back");
     }
-    
+
     public class DelmaalVisning
     {
         public string Navn { get; set; } = "";

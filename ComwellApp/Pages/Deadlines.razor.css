@@ -1,68 +1,17 @@
-.deadlines-container {
+/* === Layout for overskrift === */
+.overskrift {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0rem 1rem 3rem;
     display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    margin: 2rem;
+    align-items: center;
+    gap: 0.5rem;
 }
-
-.elev-boks {
-    background-color: #faf8f4;
-    padding: 1.5rem;
-    border: 1px solid #ddd0ba;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    margin-top: 1rem;
-}
-
-.elev-boks h4 {
-    margin-bottom: 0.5rem;
-    font-size: 1.3rem;
-    color: #333;
-}
-
-.elev-delmaal {
-    margin-top: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.deadline-kort {
-    background-color: #fffefc;
-    border: 1px solid #e3dbc8;
-    border-radius: 8px;
-    padding: 1rem;
-}
-
-.deadline-kort .titel {
-    font-weight: 600;
-    font-size: 1.05rem;
-    margin-bottom: 0.2rem;
-}
-
-.deadline-kort .status {
-    font-weight: bold;
-    margin-top: 0.4rem;
-}
-
-.status.overskredet {
-    color: #d8000c;
-}
-
-.status.kommende {
-    color: #2e7d32;
-}
-
-.kommentar {
-    margin-top: 0.5rem;
-    font-style: italic;
-    color: #555;
-}
-
+/* === Tilbageknap === */
 .tilbage-knap {
     position: absolute;
     top: 8.5rem;
-    left: 2rem;
+    left: 3rem;
     background-color: transparent;
     border: none;
     font-size: 1rem;
@@ -71,7 +20,165 @@
     cursor: pointer;
     transition: color 0.2s ease;
 }
-
 .tilbage-knap:hover {
-    color: #D2B894;
+    color: #d2b894;
+}
+
+/* === Flex layout for elevkort === */
+.elevkort-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin: 2rem 1rem;
+    align-items: flex-start;
+}
+
+/* === Kort === */
+.elevkort-card {
+    flex: 1 1 calc(50% - 1.5rem);
+    max-width: calc(50% - 1.5rem);
+    background-color: #faf8f4;
+    border: 1px solid #ddd0ba;
+    border-radius: 14px;
+    padding: 1.5rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, flex-basis 0.4s ease;
+}
+.elevkort-card:hover {
+    transform: translateY(-2px);
+}
+.elevkort-card:has(.elev-delmaal.vis) {
+    flex-basis: 100%;
+    max-width: 100%;
+}
+
+/* === Header === */
+.elevkort-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    cursor: pointer;
+}
+.elevkort-header h4 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* === Toggle knap === */
+.toggle-knap {
+    border: 2px solid #d2b894;
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    background: transparent;
+    font-weight: 500;
+    transition: 0.3s ease;
+    cursor: pointer;
+}
+.toggle-knap:hover {
+    background-color: #d2b894;
+    color: white;
+}
+
+/* === Accordion (Delmål) === */
+.elev-delmaal {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+.elev-delmaal.vis {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-auto-rows: 1fr; /* sikrer ens højde på hele rækken */
+    gap: 1rem;
+    max-height: 1000px;
+    opacity: 1;
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+}
+
+
+.deadline-kort {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%; /* Tager 100% af grid-rækken */
+    background-color: #fffefc;
+    border: 1px solid #e3dbc8;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.deadline-kort:hover {
+    transform: scale(1.02);
+}
+.titel {
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+.dato {
+    margin-top: 0.2rem;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.status {
+    font-weight: bold;
+    margin-top: 0.4rem;
+}
+.status.overskredet {
+    color: #d8000c;
+}
+.status.kommende {
+    color: #2e7d32;
+}
+.kommentar {
+    margin-top: 0.5rem;
+    font-style: italic;
+    color: #555;
+}
+/* === Deadline overblik badges === */
+.deadline-overblik {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 999px;
+    background-color: #eee5d8;
+    color: #1c2b38;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+}
+
+.badge.overskredet {
+    background-color: #fdecea;
+    color: #d8000c;
+}
+
+.badge.kommende {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+/* === Responsive tilpasning === */
+@media (max-width: 1024px) {
+    .elevkort-card {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+    .elev-delmaal.vis {
+        grid-template-columns: 1fr;
+    }
 }
