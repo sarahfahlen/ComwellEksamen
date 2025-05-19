@@ -62,6 +62,17 @@
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
+.periodeknap.valgt {
+    background-color: #fff;
+    color: #c6a979;
+}
+
+.periodeknap.valgt:hover {
+    background-color: #fff;
+    color: #c6a979;
+    transform: scale(1.05);
+}
+
 .periodeknap:hover {
     background-color: #c6a979;
     transform: scale(1.05);

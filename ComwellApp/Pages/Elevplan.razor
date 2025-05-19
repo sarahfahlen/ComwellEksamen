@@ -36,10 +36,14 @@
                         <div class="periode-knapper">
                             @for (int i = 0; i < minPlan.ListPerioder.Count; i++)
                             {
-                                <button class="periodeknap" @onclick="() => valgtPeriodeIndex = i">
-                                    @(i + 1)
+                                var index = i;
+
+                                <button class="periodeknap @(valgtPeriodeIndex == index ? "valgt" : "")"
+                                        @onclick="async () => await SkiftPeriode(index)">
+                                    @(index + 1)
                                 </button>
                             }
+
                         </div>
                     </div>
                 }
@@ -118,8 +122,13 @@
 
             <!-- Viser elevplanens mål og delmål -->
             <div id="plan">
-                @if (aktivPeriode != null)
+                @if (filtreredeMaal.Any())
                 {
+                    @if (valgtPeriodeIndex < minPlan.ListPerioder.Count)
+                    {
+                        <h4 class="periode-overskrift">@minPlan.ListPerioder[valgtPeriodeIndex].PraktikNavn</h4>
+                    }
+
                     @foreach (var maal in filtreredeMaal)
                     {
                         <div class="maal-kort">
@@ -133,6 +142,11 @@
                                           OnRedigerDelmaal="AabenRedigerDelmaal" />
                     }
                 }
+                else
+                {
+                    <p><em>Ingen mål matcher dine filtre for denne periode.</em></p>
+                }
+
             </div>
             
             <!-- Modal dialog til at vise og redigere kommentarer -->
@@ -254,7 +268,11 @@
     private int valgtPeriodeIndex = 0;
 
     // Den praktikperiode vi har valgt – bruges til at hente mål og delmål der hører til perioden
-    private Praktikperiode? aktivPeriode => minPlan?.ListPerioder[valgtPeriodeIndex];
+    private Praktikperiode? aktivPeriode =>
+        (minPlan?.ListPerioder != null && valgtPeriodeIndex >= 0 && valgtPeriodeIndex < minPlan.ListPerioder.Count)
+            ? minPlan.ListPerioder[valgtPeriodeIndex]
+            : null;
+
 
     // Refererer til modal-dialogboksen der åbnes, når man klikker "Se kommentar"
     private ModalDialog? kommentarDialog;
@@ -280,8 +298,7 @@
     private bool? valgtStatus = null;
     private bool visFilter = false;
     
-
-// Det valgte mål ID fra dropdown
+    // Det valgte mål ID fra dropdown
     private int valgtMaalIdTilDelmaal;
 
     // Hvis vi besøger siden med f.eks. elevId i URL’en, så læser vi det her
@@ -346,6 +363,12 @@
             Console.WriteLine($"Ingen elevplan fundet for brugerId {valgtElev.BrugerId}");
             return;
         }
+        
+        if (valgtPeriodeIndex >= minPlan.ListPerioder.Count)
+        {
+            valgtPeriodeIndex = 0;
+        }
+
 
         await OpdaterFiltreredeMaal();
     }
@@ -507,6 +530,13 @@
         }
     }
     
+    //Håndterer valg af periode og sætter index der bruges til at hente de filtrerede mål
+    private async Task SkiftPeriode(int index)
+    {
+        valgtPeriodeIndex = index;
+        await OpdaterFiltreredeMaal();
+    }
+    
     private async Task OpdaterFiltreredeMaal()
     {
         if (valgtElev == null)
@@ -519,7 +549,6 @@
             valgtDelmaalType,
             soegeord,
             valgtStatus);
-
         StateHasChanged(); // Opdater UI
     }
 
