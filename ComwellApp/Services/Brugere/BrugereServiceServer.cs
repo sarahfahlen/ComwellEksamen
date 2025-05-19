@@ -120,6 +120,12 @@ public class BrugereServiceServer : IBrugereService
         var result = await http.GetFromJsonAsync<List<Lokation>>("api/brugere/lokationer");
         return result ?? new List<Lokation>();
     }
+    
+    public async Task<List<string>> HentAlleErhverv()
+    {
+        var erhverv = await http.GetFromJsonAsync<List<string>>("api/brugere/erhverv");
+        return erhverv ?? new List<string>();
+    }
 
     // Hent elevplan ud fra brugerId
     public async Task<Shared.Elevplan?> HentElevplanForBruger(int brugerId)
@@ -148,13 +154,6 @@ public class BrugereServiceServer : IBrugereService
 
         return await http.GetFromJsonAsync<List<Bruger>>(url) ?? new();
     }
-
-    public async Task<List<string>> HentAlleErhverv()
-    {
-        var erhverv = await http.GetFromJsonAsync<List<string>>("api/brugere/erhverv");
-        return erhverv ?? new List<string>();
-    }
-
     
     //Funktion til dynamisk at beregne deadline for et delmål, baseret på DageTilDeadline
     private void BeregnDeadlinesIElevplan(Shared.Elevplan plan)

@@ -151,12 +151,86 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-.filter-boxknap {
+.filter-boxcontainer {
     display: flex; 
     gap: 0.5rem; 
     align-items: center;
     position: absolute;
-    margin-left: 36rem;
+    margin-left: 32rem;
+}
+
+.soeg-input {
+    margin-top: 1rem;
+    height: 3rem;
+    width: 16rem;
+    padding: 0.6rem 1rem;
+    border: 0.5px solid #baa45d;
+    border-radius: 8px;
+    background-color: #f3ede5;
+    font-size: 0.95rem;
+    font-weight: 100;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.soeg-input::placeholder {
+    color: #8c8c8c;
+    font-weight: 500;
+}
+
+.soeg-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #D2B894;
+}
+
+.anvend-filterknap, 
+.soege-knap {
+    height: 2.65rem;
+    background-color: transparent;
+    border: 2px solid #d2b894;
+    color: #1C2B38;
+    border-radius: 8px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.soege-knap:hover {
+    background-color: #f5f0e9;
+    color: #1C2B38;
+    cursor: pointer;
+    transform: translateY(-2px);
+}
+
+.anvend-filterknap {
+    height: 2rem
+}
+
+.anvend-filterknap:hover {
+    background-color: #f5f0e9;
+    color: #1C2B38;
+    cursor: pointer;
+    transform: translateY(-2px);
+}
+
+.filter-knap {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    background-color: #D2B894;
+    cursor: pointer;
+    color: #fff;
+}
+
+.filter-knap:hover {
+    background-color: #c6a979;
+    transform: translateY(-2px);
 }
 
 @media (max-width: 1024px) {

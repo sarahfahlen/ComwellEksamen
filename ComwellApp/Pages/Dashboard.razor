@@ -16,8 +16,8 @@
     <h1 class="overskrift">Elevoversigt</h1>
 
     <!-- Søgefelt + søgeknap -->
-    <div class="filter-boxknap">
-        <input type="text" id="soeg" class="soeg-input" placeholder="Skriv navn..." @bind-value="soegeord" @bind-value:event="oninput" @onkeypress="HandleKeyPress" />
+    <div class="filter-boxcontainer">
+        <input type="text" id="soeg" class="soeg-input" placeholder="Skriv elevnavn..." @bind-value="soegeord" @bind-value:event="oninput" @onkeypress="HandleKeyPress" />
 
         <button class="soege-knap" @onclick="SoegningKnap">Søg</button>
 
@@ -80,7 +80,7 @@
             </div>
         </div>
         <div>
-            <button class="soege-knap mt-3" @onclick="OpdaterFiltreredeElever">Anvend filter</button>
+            <button class="anvend-filterknap" @onclick="OpdaterFiltreredeElever">Anvend filter</button>
         </div>
     </div>
 }

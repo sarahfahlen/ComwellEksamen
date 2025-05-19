@@ -504,7 +504,6 @@
         {
             delmaal.StatusLog = $"Ændret af {loggedIn.Navn} d. {DateTime.Now:dd/MM-yyyy}";
         }
-
         try
         {
             await eService.OpdaterStatus(minPlan, delmaal);
@@ -513,6 +512,8 @@
         {
             Console.WriteLine($"[ToggleStatus] FEJL: {ex.Message}");
         }
+
+        StateHasChanged();
     }
     
     private async Task soegningknap()
