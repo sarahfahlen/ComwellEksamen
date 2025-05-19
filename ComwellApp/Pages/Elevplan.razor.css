@@ -5,6 +5,7 @@
 
 .main-indhold {
     flex: 3;
+    margin-top: -23px;
 }
 
 .sidepanel {
