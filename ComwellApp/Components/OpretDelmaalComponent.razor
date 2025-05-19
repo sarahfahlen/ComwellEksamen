@@ -136,6 +136,17 @@
     protected override async void OnParametersSet()
     {
         Console.WriteLine("🔄 OnParametersSet kaldt med DelmaalId: " + RedigerDelmaal?.DelmaalId);
+        
+        if (RedigerDelmaal == null)
+        {
+            valgtPeriodeIndex = -1;
+            valgtMaalId = 0;
+            nytDelmaal = new Delmaal(); 
+            maalTilValgtPeriode = new();
+            unikkeDelmaalTyper = new();
+            await HentMaalOgTyper(); 
+            return; 
+        }
 
         if (RedigerDelmaal != null && minPlan != null)
         {
