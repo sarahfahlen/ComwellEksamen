@@ -123,22 +123,22 @@
                 {
                     <EditForm Model="aktivtDelmaalTilOpgaver" OnValidSubmit="GemOpgaver">
 
-                    <ul>
-                        @for (int i = 0; i < aktivtDelmaalTilOpgaver.ListOpgaver.Count; i++)
-                        {
-                            var opgave = aktivtDelmaalTilOpgaver.ListOpgaver[i];
+                        <div class="opgave-wrapper">
+                            @for (int i = 0; i < aktivtDelmaalTilOpgaver.ListOpgaver.Count; i++)
+                            {
+                                var opgave = aktivtDelmaalTilOpgaver.ListOpgaver[i];
+                                <div class="opgave-kort">
+                                    <div class="opgave-titel-linje">
+                                        <input type="checkbox" class="opgave-checkbox" @bind="opgave.OpgaveGennemfoert" />
+                                        <p class="opgave-navn"><strong>@opgave.OpgaveNavn</strong></p>
+                                    </div>
+                                    <p class="opgave-detaljer">@opgave.OpgaveDetaljer</p>
+                                </div>
+                            }
 
-                            <li>
-                                <strong>@opgave.OpgaveNavn:</strong> @opgave.OpgaveDetaljer
-                                <label style="margin-left: 1rem;">
-                                    <input type="checkbox" @bind="opgave.OpgaveGennemfoert" />
-                                    Gennemført
-                                </label>
-                            </li>
-                        }
-                    </ul>
+                            <button type="submit" class="Gemkommentarknap">Gem</button>
+                        </div>
 
-                        <button type="submit" class="Gemkommentarknap">Gem</button>
                     </EditForm>
                 }
 

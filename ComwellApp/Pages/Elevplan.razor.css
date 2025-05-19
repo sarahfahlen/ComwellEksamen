@@ -282,3 +282,43 @@
     transform: translateY(-1px); /* Løfter knappen en smule */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
+
+.opgave-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.opgave-kort {
+    background-color: #f9f6f2;
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+}
+
+.opgave-titel-linje {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.opgave-checkbox {
+    transform: scale(1.2);
+    cursor: pointer;
+    margin: 0;
+    accent-color: #c6a979; 
+}
+
+.opgave-navn {
+    margin: 0;
+    font-weight: 600;
+}
+
+.opgave-detaljer {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+
+
