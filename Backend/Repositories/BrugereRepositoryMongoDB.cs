@@ -121,9 +121,6 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         if (!string.IsNullOrWhiteSpace(lokation))
             filter &= filterBuilder.Eq(b => b.Afdeling.LokationNavn, lokation);
 
-        if (!string.IsNullOrWhiteSpace(kursus))
-            filter &= filterBuilder.Eq(b => b.Kursus, kursus);
-
         if (!string.IsNullOrWhiteSpace(erhverv))
             filter &= filterBuilder.Eq(b => b.Erhverv, erhverv);
 
@@ -140,6 +137,15 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
                     .Any(d => d.Deadline != null && d.Deadline < DateOnly.FromDateTime(DateTime.Today)));
         }
         
+        if (!string.IsNullOrWhiteSpace(kursus))
+        {
+            filter &= filterBuilder.Where(b =>
+                b.MinElevplan.ListPerioder
+                    .SelectMany(p => p.ListMaal)
+                    .SelectMany(m => m.ListDelmaal)
+                    .Any(d => d.DelmaalType == "Kursus" && d.Titel == kursus));
+        }
+        
         return await BrugerCollection.Find(filter).ToListAsync();
     }
 
@@ -151,6 +157,21 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         return brugere
             .Where(b => !string.IsNullOrWhiteSpace(b.Erhverv))
             .Select(b => b.Erhverv!)
+            .Distinct()
+            .ToList();
+    }
+    
+    public async Task<List<string>> HentKurser()
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b.Rolle, "Elev");
+        var brugere = await BrugerCollection.Find(filter).ToListAsync();
+
+        return brugere
+            .SelectMany(b => b.MinElevplan?.ListPerioder ?? new List<Praktikperiode>())
+            .SelectMany(p => p.ListMaal)
+            .SelectMany(m => m.ListDelmaal)
+            .Where(d => d.DelmaalType == "Kursus")
+            .Select(d => d.Titel ?? "")
             .Distinct()
             .ToList();
     }

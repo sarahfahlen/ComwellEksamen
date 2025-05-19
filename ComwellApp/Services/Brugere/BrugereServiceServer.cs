@@ -127,6 +127,12 @@ public class BrugereServiceServer : IBrugereService
         return erhverv ?? new List<string>();
     }
 
+    public async Task<List<string>> HentAlleKurser()
+    {
+        var result = await http.GetFromJsonAsync<List<string>>("api/brugere/kurser");
+        return result ?? new List<string>();
+    }
+    
     // Hent elevplan ud fra brugerId
     public async Task<Shared.Elevplan?> HentElevplanForBruger(int brugerId)
     {

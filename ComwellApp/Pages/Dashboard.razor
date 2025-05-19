@@ -55,10 +55,13 @@
             </div>
             <div class="filter-item">
                 <label>Kursus</label>
-                <InputSelect class="form-control" @bind-Value="valgtKursus" @oninput="">
-                    <option value="">Alle Kurser</option>
+                <InputSelect class="form-control" @bind-Value="ValgtKursus" @oninput="OnChangeKursus">
+                    <option value="">Alle kurser</option>
+                    @foreach (var k in kurser)
+                    {
+                        <option value="@k">@k</option>
+                    }
                 </InputSelect>
-                
             </div>
         </div>
 
@@ -75,8 +78,7 @@
             </div>
             <div class="filter-item">
                 <label>Deadline</label>
-                <InputSelect class="form-control"
-                             @bind-Value="ValgtDeadlineValg" @oninput="OnChangeDeadline" TValue="string">
+                <InputSelect class="form-control" @bind-Value="ValgtDeadlineValg" @oninput="OnChangeDeadline" TValue="string">
                     <option value="">Alle</option>
                     <option value="overskredet">Overskredet</option>
                 </InputSelect>
@@ -166,6 +168,7 @@
     private string valgtErhverv = "";
     private string valgtDeadlineValg = ""; // "overskredet" eller ""
     private int? valgtDeadline = null;
+    private List<string> kurser = new();
     private bool visFilter = false;
     private List<Lokation> lokationer = new();
     private List<string> erhvervMuligheder = new();
@@ -187,6 +190,7 @@
         
         lokationer = await bService.HentAlleLokationer();
         erhvervMuligheder = await bService.HentAlleErhverv();
+        kurser = await bService.HentAlleKurser();
         FiltrerElever(); // sortér elever baseret på rolle/lokation
     }
 
@@ -360,6 +364,27 @@
             valgtDeadline = 0;
 
         Console.WriteLine($"Deadline valgt: {valgtDeadlineValg} → {valgtDeadline}");
+
+        await OpdaterFiltreredeElever();
+    }
+    
+    // Gemmer det valgte kursus fra dropdown
+    private string ValgtKursus
+    {
+        get => valgtKursus;
+        set
+        {
+            valgtKursus = value;
+
+            // Hver gang bruger vælger et nyt mål, opdateres listen af mål og delmål
+            _ = OpdaterFiltreredeElever();
+        }
+    }
+    
+    private async Task OnChangeKursus(ChangeEventArgs e)
+    {
+        valgtKursus = e.Value?.ToString() ?? "";
+        Console.WriteLine($"Kursus valgt: {valgtKursus}");
 
         await OpdaterFiltreredeElever();
     }

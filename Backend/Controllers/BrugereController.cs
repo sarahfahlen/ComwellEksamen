@@ -184,8 +184,6 @@ public class BrugereController : ControllerBase
             "Elever.xlsx");
     }
 
-
-
     [HttpGet("erhverv")]
     public async Task<ActionResult<List<string>>> HentErhverv()
     {
@@ -197,6 +195,20 @@ public class BrugereController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, $"Fejl ved hentning af erhverv: {ex.Message}");
+        }
+    }
+    
+    [HttpGet("kurser")]
+    public async Task<ActionResult<List<string>>> HentKurser()
+    {
+        try
+        {
+            var kurser = await _repo.HentKurser();
+            return Ok(kurser);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Fejl ved hentning af kurser: {ex.Message}");
         }
     }
 

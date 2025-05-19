@@ -98,6 +98,11 @@ public class BrugereServiceMock : IBrugereService
         throw new NotImplementedException();
     }
 
+    public Task<List<string>> HentAlleKurser()
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle,
         string? brugerLokation)
     {
