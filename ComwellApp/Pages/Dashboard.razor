@@ -1,9 +1,8 @@
 @page "/dashboard" 
-
-
 @inject NavigationManager navManager
 @inject ILoginService lService
 @inject IBrugereService bService
+@inject IJSRuntime JS
 
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
@@ -22,6 +21,9 @@
         <button class="soege-knap" @onclick="SoegningKnap">Søg</button>
 
         <button class="filter-knap" @onclick="() => visFilter = !visFilter">Filtrer</button>
+
+        <button class="btn btn-outline-secondary" @onclick="EksporterElever">Eksport</button>
+
     </div>
 
     @if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "Køkkenchef"))
@@ -268,4 +270,24 @@
 
         StateHasChanged();
     }
+    
+    private async Task EksporterElever()
+    {
+        if (loggedIn == null)
+            return;
+
+        var excelData = await bService.EksporterFiltreredeElever(
+            soegeord,
+            valgtLokation,
+            valgtKursus,
+            valgtErhverv,
+            valgtDeadline,
+            loggedIn.Rolle,
+            loggedIn.Afdeling?.LokationNavn
+        );
+
+        using var streamRef = new DotNetStreamReference(new MemoryStream(excelData));
+        await JS.InvokeVoidAsync("downloadFileFromStream", "Elever.xlsx", streamRef);
+    }
+
 }

@@ -9,6 +9,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1"/>
         <PackageReference Include="MongoDB.Driver" Version="3.4.0" />
+        <PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="29.2.4" />
     </ItemGroup>
 
     <ItemGroup>

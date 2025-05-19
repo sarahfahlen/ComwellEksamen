@@ -1,4 +1,5 @@
 using Backend.Repositories.Interface;
+using backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
 
@@ -153,6 +154,36 @@ public class BrugereController : ControllerBase
         var elever = await _repo.HentFiltreredeElever(soegeord, lokation, kursus, erhverv, deadline, rolle, brugerLokation);
         return Ok(elever);
     }
+    
+    [HttpGet("eksporter-elever")]
+    public async Task<IActionResult> EksporterEleverTilExcel(
+        [FromQuery] string? soegeord,
+        [FromQuery] string? lokation,
+        [FromQuery] string? kursus,
+        [FromQuery] string? erhverv,
+        [FromQuery] int? deadline,
+        [FromQuery] string? rolle,
+        [FromQuery] string? brugerLokation,
+        [FromServices] ExcelEksportService excelService)
+    {
+        //Henter listen af elever baseret på filtrering, ud fra vores repo metode
+        var elever = await _repo.HentFiltreredeElever(
+            soegeord ?? "", 
+            lokation ?? "", 
+            kursus ?? "", 
+            erhverv ?? "", 
+            deadline, 
+            rolle ?? "Elev", 
+            brugerLokation);
+
+        var excelBytes = excelService.GenererExcelMedNavne(elever);
+
+        return File(
+            excelBytes,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "Elever.xlsx");
+    }
+
 
 
     [HttpGet("erhverv")]

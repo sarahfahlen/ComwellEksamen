@@ -13,5 +13,15 @@ public interface IBrugereService
     Task<List<string>> HentAlleErhverv();
 
     Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? brugerLokation);
+    
+    Task<byte[]> EksporterFiltreredeElever(
+        string soegeord,
+        string lokation,
+        string kursus,
+        string erhverv,
+        int? deadline,
+        string rolle,
+        string? brugerLokation);
+
 
 }
