@@ -130,13 +130,14 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         if (!string.IsNullOrWhiteSpace(soegeord))
             filter &= filterBuilder.Regex(b => b.Navn, new MongoDB.Bson.BsonRegularExpression(soegeord, "i"));
         
-        if (deadline.HasValue)
+        if (deadline.HasValue && deadline.Value == 0)
         {
+            // Overskredet = delmål hvor deadline-dato er før dags dato
             filter &= filterBuilder.Where(b =>
                 b.MinElevplan.ListPerioder
                     .SelectMany(p => p.ListMaal)
                     .SelectMany(m => m.ListDelmaal)
-                    .Any(d => d.DageTilDeadline.HasValue && d.DageTilDeadline.Value <= deadline.Value));
+                    .Any(d => d.Deadline != null && d.Deadline < DateOnly.FromDateTime(DateTime.Today)));
         }
         
         return await BrugerCollection.Find(filter).ToListAsync();

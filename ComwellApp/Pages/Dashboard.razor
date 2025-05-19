@@ -1,4 +1,6 @@
 @page "/dashboard" 
+
+
 @inject NavigationManager navManager
 @inject ILoginService lService
 @inject IBrugereService bService
@@ -22,8 +24,7 @@
 
         <button class="filter-knap" @onclick="() => visFilter = !visFilter">Filtrer</button>
 
-        <button class="btn btn-outline-secondary" @onclick="EksporterElever">Eksport</button>
-
+        <button class="btn exportknap" @onclick="EksporterElever"></button>
     </div>
 
     @if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "Køkkenchef"))
@@ -44,7 +45,7 @@
         <div class="filter-row">
             <div class="filter-item">
                 <label>Lokation</label>
-                <InputSelect class="form-control" @bind-Value="valgtLokation">
+                <InputSelect class="form-control" @bind-Value="ValgtLokation" @oninput="OnChangeLokation">
                     <option value="">Alle lokationer</option>
                     @foreach (var l in lokationer)
                     {
@@ -54,14 +55,14 @@
             </div>
             <div class="filter-item">
                 <label>Kursus</label>
-                <InputSelect class="form-control" @bind-Value="valgtKursus" />
+                <InputSelect class="form-control" @bind-Value="valgtKursus"/>
             </div>
         </div>
 
         <div class="filter-row">
             <div class="filter-item">
                 <label>Erhverv</label>
-                <InputSelect class="form-control" @bind-Value="valgtErhverv">
+                <InputSelect class="form-control" @bind-Value="ValgtErhverv" @oninput="OnChangeErhverv">
                     <option value="">Alle erhverv</option>
                     @foreach (var erhverv in erhvervMuligheder)
                     {
@@ -70,19 +71,19 @@
                 </InputSelect>
             </div>
             <div class="filter-item">
-                <label>Deadline (antal dage til)</label>
-                <InputSelect class="form-control" @bind-Value="valgtDeadline">
+                <label>Deadline</label>
+                <InputSelect class="form-control"
+                             @bind-Value="ValgtDeadlineValg" @oninput="OnChangeDeadline" TValue="string">
                     <option value="">Alle</option>
                     <option value="overskredet">Overskredet</option>
-                    @for (int i = 1; i <= 7; i++)
-                    {
-                        <option value="@i">@i dag(e)</option>
-                    }
                 </InputSelect>
+
+
             </div>
+
         </div>
         <div>
-            <button class="anvend-filterknap" @onclick="OpdaterFiltreredeElever">Anvend filter</button>
+            <button class="nulstil-filterknap" @onclick="NulstilFilter">Nulstil filter</button>
         </div>
     </div>
 }
@@ -160,11 +161,11 @@
     private string valgtLokation = "";
     private string valgtKursus = "";
     private string valgtErhverv = "";
-    private int? valgtDeadlineDage = null;
+    private string valgtDeadlineValg = ""; // "overskredet" eller ""
+    private int? valgtDeadline = null;
     private bool visFilter = false;
     private List<Lokation> lokationer = new();
     private List<string> erhvervMuligheder = new();
-    private int? valgtDeadline = null;
 
     // Når siden loades (komponent initialiseres), henter vi data
     protected override async Task OnInitializedAsync()
@@ -269,6 +270,95 @@
         );
 
         StateHasChanged();
+    }
+
+    private async Task NulstilFilter()
+    {
+        // Nulstil alle filterfelter
+        soegeord = "";
+        valgtLokation = "";
+        valgtKursus = "";
+        valgtErhverv = "";
+        valgtDeadlineValg = "";
+        valgtDeadline = null;
+
+        // Opdater visningen med alle elever
+        await OpdaterFiltreredeElever();
+    }
+    
+    // Gemmer det valgte lokation fra dropdown
+    private string ValgtLokation
+    {
+        get => valgtLokation;
+        set
+        {
+            valgtLokation = value;
+
+            // Hver gang bruger vælger et nyt mål, opdateres listen af mål og delmål
+            _ = OpdaterFiltreredeElever();
+        }
+    }
+    
+    // Når et lokation vælges i dropdown
+    private async Task OnChangeLokation(ChangeEventArgs e)
+    {
+        valgtLokation = e.Value?.ToString() ?? "";
+        Console.WriteLine($"Mål valgt: {valgtLokation}");
+
+        await OpdaterFiltreredeElever(); // Kalder backend for at hente nye mål
+    }
+    
+    // Gemmer det valgte erhverv fra dropdown
+    private string ValgtErhverv
+    {
+        get => valgtErhverv;
+        set
+        {
+            valgtErhverv = value;
+
+            // Hver gang bruger vælger et nyt mål, opdateres listen af mål og delmål
+            _ = OpdaterFiltreredeElever();
+        }
+    }
+    
+    // Når et erhverv vælges i dropdown
+    private async Task OnChangeErhverv(ChangeEventArgs e)
+    {
+        valgtErhverv = e.Value?.ToString() ?? "";
+        Console.WriteLine($"Mål valgt: {valgtErhverv}");
+
+        await OpdaterFiltreredeElever(); // Kalder backend for at hente nye mål
+    }
+    
+    // Property der håndterer ændringer i dropdown
+    private string ValgtDeadlineValg
+    {
+        get => valgtDeadlineValg;
+        set
+        {
+            valgtDeadlineValg = value;
+
+            if (string.IsNullOrWhiteSpace(value))
+                valgtDeadline = null;
+            else if (value == "overskredet")
+                valgtDeadline = 0;
+
+            _ = OpdaterFiltreredeElever();
+        }
+    }
+    
+    private async Task OnChangeDeadline(ChangeEventArgs e)
+    {
+        valgtDeadlineValg = e.Value?.ToString() ?? "";
+
+        if (string.IsNullOrWhiteSpace(valgtDeadlineValg))
+            valgtDeadline = null;
+        else if (valgtDeadlineValg == "overskredet")
+            valgtDeadline = 0;
+
+        Console.WriteLine($"Deadline valgt: {valgtDeadlineValg} → {valgtDeadline}");
+
+        await OpdaterFiltreredeElever();
     }
     
     private async Task EksporterElever()
