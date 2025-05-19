@@ -71,7 +71,7 @@
 
 .opret-knap {
     background-color: #d2b894; /* Beige farve */
-    color: #1C2B38; /* Mørk tekst for kontrast */
+    color: white; 
     border: none;
     border-radius: 8px;
     padding: 0.6rem 1.4rem;
@@ -198,7 +198,7 @@
 
 .Deadlines {
     background-color: #d2b894; /* Beige farve */
-    color: #1C2B38; /* Mørk tekst for kontrast */
+    color: white; 
     border: none;
     border-radius: 8px;
     padding: 0.6rem 1.4rem;
