@@ -11,6 +11,7 @@
     border: 1px solid #ddd0ba;
     border-radius: 10px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    margin-top: 1rem;
 }
 
 .elev-boks h4 {
@@ -56,4 +57,21 @@
     margin-top: 0.5rem;
     font-style: italic;
     color: #555;
+}
+
+.tilbage-knap {
+    position: absolute;
+    top: 8.5rem;
+    left: 2rem;
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+    color: #1C2B38;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.tilbage-knap:hover {
+    color: #D2B894;
 }

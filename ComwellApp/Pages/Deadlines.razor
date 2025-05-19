@@ -1,5 +1,5 @@
 @page "/deadlines"
-
+@inject IJSRuntime JS
 @inject ILoginService lService
 @inject IBrugereService bService
 @using ComwellApp.Services.Brugere
@@ -7,18 +7,19 @@
 @using Shared
 
 <h3 class="overskrift">Oversigt over deadlines</h3>
-
+<!-- Tilbageknap som fører brugeren tilbage til elevplan -->
+<button class="tilbage-knap" @onclick="Tilbage">← Tilbage</button>
 @if (loggedIn == null)
 {
-    <p>Indlæser bruger...</p>
+    <p style="margin-top: 3rem">Indlæser bruger...</p>
 }
 else if (loggedIn.Rolle == "Elev")
 {
-    <p>Du har ikke adgang til denne side.</p>
+    <p style="margin-top: 3rem">Du har ikke adgang til denne side.</p>
 }
 else if (!alleDeadlines.Any())
 {
-    <p>Ingen relevante deadlines fundet.</p>
+    <p style="margin-top: 3rem">Ingen relevante deadlines fundet.</p>
 }
 else
 {
@@ -117,6 +118,11 @@ else
         alleDeadlines = alleDeadlines.OrderBy(d => d.Deadline).ToList();
     }
 
+    private async Task Tilbage()
+    {
+        await JS.InvokeVoidAsync("history.back");
+    }
+    
     public class DelmaalVisning
     {
         public string Navn { get; set; } = "";

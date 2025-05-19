@@ -10,23 +10,24 @@
 @using Shared
 
 <PageTitle>Dashboard</PageTitle> <!-- Vises i browserens faneblad -->
-@if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "Køkkenchef"))
-{
-    <button class="btn btn-primary Deadlines" @onclick="DeadlinesKnap">Deadlines</button>
-}
 
 <!-- Header med overskrift, søg, filtrer og opret-knap -->
 <div class="overskrift-knap-wrapper">
     <h1 class="overskrift">Elevoversigt</h1>
 
     <!-- Søgefelt + søgeknap -->
-    <div style="display: flex; gap: 0.5rem; align-items: center;">
+    <div class="filter-boxknap">
         <input type="text" id="soeg" class="soeg-input" placeholder="Skriv navn..." @bind-value="soegeord" @bind-value:event="oninput" @onkeypress="HandleKeyPress" />
 
         <button class="soege-knap" @onclick="SoegningKnap">Søg</button>
 
         <button class="filter-knap" @onclick="() => visFilter = !visFilter">Filtrer</button>
     </div>
+
+    @if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "Køkkenchef"))
+    {
+        <button class="btn btn-primary Deadlines" @onclick="DeadlinesKnap">Deadlines</button>
+    }
     
     <!-- Viser kun knappen "Opret elev", hvis den loggede bruger har en rolle der må -->
     @if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR"))
