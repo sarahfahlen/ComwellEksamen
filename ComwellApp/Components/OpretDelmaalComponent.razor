@@ -148,13 +148,16 @@
             return; 
         }
 
-        if (RedigerDelmaal != null && minPlan != null)
+        if (RedigerDelmaal != null && minPlan?.ListPerioder != null)
         {
-            // Find periode og mål, og sæt index/Id
             for (int i = 0; i < minPlan.ListPerioder.Count; i++)
             {
                 var periode = minPlan.ListPerioder[i];
-                var maal = periode.ListMaal.FirstOrDefault(m => m.ListDelmaal.Any(d => d.DelmaalId == RedigerDelmaal.DelmaalId));
+                if (periode?.ListMaal == null) continue;
+
+                var maal = periode.ListMaal
+                    .FirstOrDefault(m => m.ListDelmaal != null && m.ListDelmaal.Any(d => d.DelmaalId == RedigerDelmaal.DelmaalId));
+
                 if (maal != null)
                 {
                     valgtPeriodeIndex = i;
@@ -163,29 +166,30 @@
                 }
             }
 
-            // Hent målene og typerne så dropdowns kan vises
             await HentMaalOgTyper();
 
-            // Kopiér data til nytDelmaal
+            // Brug defensiv tilgang hele vejen
             nytDelmaal = new Delmaal
             {
-                DelmaalId = RedigerDelmaal.DelmaalId,
-                DelmaalType = RedigerDelmaal.DelmaalType,
-                Titel = RedigerDelmaal.Titel,
-                Beskrivelse = RedigerDelmaal.Beskrivelse,
-                Ansvarlig = RedigerDelmaal.Ansvarlig,
-                Deadline = RedigerDelmaal.Deadline,
-                DeadlineKommentar = RedigerDelmaal.DeadlineKommentar,
-                ListOpgaver = RedigerDelmaal.ListOpgaver.Select(o => new Opgaver
-                {
-                    OpgaveNavn = o.OpgaveNavn,
-                    OpgaveDetaljer = o.OpgaveDetaljer,
-                    OpgaveGennemfoert = o.OpgaveGennemfoert
-                }).ToList()
+                DelmaalId = RedigerDelmaal?.DelmaalId ?? 0,
+                DelmaalType = RedigerDelmaal?.DelmaalType ?? "",
+                Titel = RedigerDelmaal?.Titel ?? "",
+                Beskrivelse = RedigerDelmaal?.Beskrivelse ?? "",
+                Ansvarlig = RedigerDelmaal?.Ansvarlig ?? "",
+                Deadline = RedigerDelmaal?.Deadline,
+                DeadlineKommentar = RedigerDelmaal?.DeadlineKommentar ?? "",
+                ListOpgaver = RedigerDelmaal?.ListOpgaver != null
+                    ? RedigerDelmaal.ListOpgaver.Select(o => new Opgaver
+                    {
+                        OpgaveNavn = o.OpgaveNavn ?? "",
+                        OpgaveDetaljer = o.OpgaveDetaljer ?? "",
+                        OpgaveGennemfoert = o.OpgaveGennemfoert
+                    }).ToList()
+                    : new List<Opgaver>()
             };
-            await HentMaalOgTyper();
             StateHasChanged();
         }
+
     }
 
 
