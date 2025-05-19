@@ -98,12 +98,12 @@
             </div>
             @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "Admin")
             {
-                <button class="btn btn-primary tilfoej-delmaal-knap" @onclick="() => tilfoejDelmaalDialog?.Open()">
+                <button class="btn btn-primary tilfoej-delmaal-knap" @onclick="AabenTilfoejDelmaal">
                     Tilføj delmål
                 </button>
             }
             <!-- Opret nyt delmaal, eller rediger eksisterende -->
-            <ModalDialog @ref="tilfoejDelmaalDialog" Title="@((delmaalTilRedigering != null) ? "Rediger delmål" : "Tilføj delmål")">
+            <ModalDialog @ref="tilfoejDelmaalDialog">
                 @if (tilfoejDelmaalDialog != null)
                 {
                     <OpretDelmaalComponent
@@ -124,11 +124,6 @@
             <div id="plan">
                 @if (filtreredeMaal.Any())
                 {
-                    @if (valgtPeriodeIndex < minPlan.ListPerioder.Count)
-                    {
-                        <h4 class="periode-overskrift">@minPlan.ListPerioder[valgtPeriodeIndex].PraktikNavn</h4>
-                    }
-
                     @foreach (var maal in filtreredeMaal)
                     {
                         <div class="maal-kort">
@@ -620,7 +615,14 @@
 
         await OpdaterFiltreredeMaal();
     }
-    
+    //bruges til at åbne tilføj modal dialog
+    private void AabenTilfoejDelmaal()
+    {
+        delmaalTilRedigering = null;
+        tilfoejDelmaalDialog?.Open();
+    }
+
+    //bruges til at åbne modal dialog med redigering
     private async Task AabenRedigerDelmaal(Delmaal valgtDelmaal)
     {
         delmaalTilRedigering = valgtDelmaal;
