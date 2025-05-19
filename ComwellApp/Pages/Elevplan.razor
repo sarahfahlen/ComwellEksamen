@@ -245,7 +245,7 @@
 
                 @if (visFilter)
                 {
-                    <div style="margin-top: 1rem;">
+                    <div class="filter-boks-anim" style="margin-top: 1rem;">
                         <label>Mål</label>
                         <InputSelect class="form-control" @bind-value="ValgtMaalNavn" @oninput="OnChangeMaal">
                             <option value="">Alle mål</option>
@@ -254,7 +254,6 @@
                                 <option value="@m.MaalNavn">@m.MaalNavn</option>
                             }
                         </InputSelect>
-
 
                         <label class="mt-2">Delmålstype</label>
                         <InputSelect class="form-control" @bind-value="ValgtDelmaalType" @oninput="OnChangeDelmaalType">
@@ -273,6 +272,7 @@
                         </InputSelect>
                     </div>
                 }
+
             </div>
         </div>
     }
