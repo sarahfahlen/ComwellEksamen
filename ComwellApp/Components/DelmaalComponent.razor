@@ -13,6 +13,12 @@
                               ? delmaal.Deadline?.ToString("dd/MM-yyyy")
                               : delmaal.DeadlineKommentar)
             </p>
+            @if (delmaal.ListOpgaver != null && delmaal.ListOpgaver.Any())
+            {
+                <p> Opgaver:
+                    <button class="kommentar-knap" @onclick="() => OnVisOpgaver.InvokeAsync(delmaal)">Åbn opgaver</button>
+                </p>
+            }
             <p> Kommentar:
                 <button class="kommentar-knap" @onclick="() => OnInputDelmaal.InvokeAsync(delmaal.DelmaalId)">
                     Se kommentar
@@ -79,6 +85,9 @@
     
     //Samme som ovenfor, men så vi kan bruge ToggleStatus for hvert delmål
     [Parameter] public EventCallback<Delmaal> OnToggleStatus { get; set; }
+    
+    //Bruges til vis opgaver knappen
+    [Parameter] public EventCallback<Delmaal> OnVisOpgaver { get; set; }
     
     //Bruges til at håndtere visningen af redigerknap
     [Parameter] public string? BrugerRolle { get; set; }

@@ -111,12 +111,39 @@
                         RedigerDelmaal="delmaalTilRedigering"
                         OnGemSuccess="OpdaterFiltreredeMaal"
                         OnClose="() =>
-            {
-                tilfoejDelmaalDialog.Close();
-                delmaalTilRedigering = null;
-            }"/>
+                        {
+                            tilfoejDelmaalDialog.Close();
+                            delmaalTilRedigering = null;
+                        }"/>
                 }
             </ModalDialog>
+
+            <ModalDialog @ref="opgaverDialog" Title="Opgaver for delmål">
+                @if (aktivtDelmaalTilOpgaver?.ListOpgaver != null)
+                {
+                    <EditForm Model="aktivtDelmaalTilOpgaver" OnValidSubmit="GemOpgaver">
+
+                    <ul>
+                        @for (int i = 0; i < aktivtDelmaalTilOpgaver.ListOpgaver.Count; i++)
+                        {
+                            var opgave = aktivtDelmaalTilOpgaver.ListOpgaver[i];
+
+                            <li>
+                                <strong>@opgave.OpgaveNavn:</strong> @opgave.OpgaveDetaljer
+                                <label style="margin-left: 1rem;">
+                                    <input type="checkbox" @bind="opgave.OpgaveGennemfoert" />
+                                    Gennemført
+                                </label>
+                            </li>
+                        }
+                    </ul>
+
+                        <button type="submit" class="Gemkommentarknap">Gem</button>
+                    </EditForm>
+                }
+
+            </ModalDialog>
+
 
 
 
@@ -134,7 +161,8 @@
                                           BrugerRolle="@loggedIn?.Rolle"
                                           OnInputDelmaal="AabenKommentar"
                                           OnToggleStatus="ToggleStatus"
-                                          OnRedigerDelmaal="AabenRedigerDelmaal" />
+                                          OnRedigerDelmaal="AabenRedigerDelmaal"
+                                          OnVisOpgaver="AabenOpgaver" />
                     }
                 }
                 else
@@ -302,9 +330,13 @@
     // Den elev vi arbejder med (kan være én selv eller en anden)
     private Bruger? valgtElev;
 
+    //Variable til vores opret/rediger delmål
     private ModalDialog? tilfoejDelmaalDialog;
-    
     private Delmaal? delmaalTilRedigering = null;
+    
+    //Variable til vores vis opgaver funktionalitet
+    private ModalDialog? opgaverDialog;
+    private Delmaal? aktivtDelmaalTilOpgaver;
 
 
     // 🟡 Kører hver gang der kommer parametre (fx ved skift af elevId i URL)
@@ -631,6 +663,27 @@
         await InvokeAsync(StateHasChanged);
 
         tilfoejDelmaalDialog?.Open();
+    }
+    
+    //bruges til at åbne opgavevisningen
+    private void AabenOpgaver(Delmaal delmaal)
+    {
+        aktivtDelmaalTilOpgaver = delmaal;
+        opgaverDialog?.Open();
+    }
+    
+    private async Task GemOpgaver()
+    {
+        if (minPlan == null || aktivtDelmaalTilOpgaver == null || aktivPeriode == null)
+            return;
+
+        var maal = aktivPeriode.ListMaal
+            .FirstOrDefault(m => m.ListDelmaal.Any(d => d.DelmaalId == aktivtDelmaalTilOpgaver.DelmaalId));
+
+        if (maal == null) return;
+
+        await eService.OpdaterDelmaal(minPlan, valgtPeriodeIndex, maal.MaalId, aktivtDelmaalTilOpgaver);
+        opgaverDialog?.Close();
     }
     
 }
