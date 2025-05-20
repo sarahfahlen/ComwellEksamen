@@ -45,7 +45,7 @@
 { 
     <div class="filter-box">
         <div class="filter-row">
-            <div class="filter-item">
+            <div class="filter-item" style="flex: 1;">
                 <label>Lokation</label>
                 <InputSelect class="form-control" @bind-Value="ValgtLokation" @oninput="OnChangeLokation">
                     <option value="">Alle lokationer</option>
@@ -55,7 +55,7 @@
                     }
                 </InputSelect>
             </div>
-            <div class="filter-item">
+            <div class="filter-item" style="flex: 1;">
                 <label>Kursus</label>
                 <InputSelect class="form-control" @bind-Value="ValgtKursus" @oninput="OnChangeKursus">
                     <option value="">Alle kurser</option>
@@ -68,7 +68,7 @@
         </div>
 
         <div class="filter-row">
-            <div class="filter-item">
+            <div class="filter-item" style="flex: 2.05;">
                 <label>Erhverv</label>
                 <InputSelect class="form-control" @bind-Value="ValgtErhverv" @oninput="OnChangeErhverv">
                     <option value="">Alle erhverv</option>
@@ -78,16 +78,24 @@
                     }
                 </InputSelect>
             </div>
-            <div class="filter-item">
+
+            <div class="filter-item" style="flex: 1;">
                 <label>Deadline</label>
                 <InputSelect class="form-control" @bind-Value="ValgtDeadlineValg" @oninput="OnChangeDeadline" TValue="string">
                     <option value="">Alle</option>
                     <option value="overskredet">Overskredet</option>
                 </InputSelect>
-
-
             </div>
 
+            <div class="filter-item" style="flex: 1;">
+                <label>Status</label>
+                <InputSelect class="form-control" @bind-Value="ValgtStatus" @oninput="OnChangeStatus"
+                             disabled="@string.IsNullOrWhiteSpace(valgtKursus)">
+                    <option value="">Alle</option>
+                    <option value="gennemført">Gennemført</option>
+                    <option value="ikke">Ikke gennemført</option>
+                </InputSelect>
+            </div>
         </div>
         <div>
             <button class="nulstil-filterknap" @onclick="NulstilFilter">Nulstil filter</button>
@@ -171,6 +179,7 @@
     private string valgtDeadlineValg = ""; // "overskredet" eller ""
     private int? valgtDeadline = null;
     private List<string> kurser = new();
+    private string valgtStatus = "";
     private bool visFilter = false;
     private List<Lokation> lokationer = new();
     private List<string> erhvervMuligheder = new();
@@ -275,6 +284,7 @@
             valgtErhverv,
             valgtDeadline,
             loggedIn.Rolle,
+            valgtStatus,
             loggedIn.Afdeling?.LokationNavn
         );
 
@@ -290,6 +300,7 @@
         valgtErhverv = "";
         valgtDeadlineValg = "";
         valgtDeadline = null;
+        valgtStatus = "";
 
         // Opdater visningen med alle elever
         await OpdaterFiltreredeElever();
@@ -386,8 +397,31 @@
     private async Task OnChangeKursus(ChangeEventArgs e)
     {
         valgtKursus = e.Value?.ToString() ?? "";
+
+        // Nulstil statusvalg hvis kursus fjernes
+        if (string.IsNullOrWhiteSpace(valgtKursus))
+        {
+            valgtStatus = "";
+        }
+
         Console.WriteLine($"Kursus valgt: {valgtKursus}");
 
+        await OpdaterFiltreredeElever();
+    }
+    
+    private string ValgtStatus
+    {
+        get => valgtStatus;
+        set
+        {
+            valgtStatus = value;
+            _ = OpdaterFiltreredeElever();
+        }
+    }
+    
+    private async Task OnChangeStatus(ChangeEventArgs e)
+    {
+        valgtStatus = e.Value?.ToString() ?? "";
         await OpdaterFiltreredeElever();
     }
     
@@ -403,6 +437,7 @@
             valgtErhverv,
             valgtDeadline,
             loggedIn.Rolle,
+            valgtStatus,
             loggedIn.Afdeling?.LokationNavn
         );
 

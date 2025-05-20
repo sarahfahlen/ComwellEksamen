@@ -148,7 +148,7 @@ public class BrugereServiceServer : IBrugereService
         return await response.Content.ReadFromJsonAsync<Shared.Elevplan>();
     }
     
-    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? brugerLokation)
+    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, string? brugerLokation)
     {
         var url = $"api/brugere/filtreredeelever?soegeord={Uri.EscapeDataString(soegeord)}" +
                   $"&lokation={Uri.EscapeDataString(lokation)}" +
@@ -156,11 +156,12 @@ public class BrugereServiceServer : IBrugereService
                   $"&erhverv={Uri.EscapeDataString(erhverv)}" +
                   $"&deadline={(deadline.HasValue ? deadline.Value.ToString() : "")}" +
                   $"&rolle={Uri.EscapeDataString(rolle)}" +
+                  $"&status={Uri.EscapeDataString(status ?? "")}" +
                   $"&brugerLokation={Uri.EscapeDataString(brugerLokation ?? "")}";
 
         return await http.GetFromJsonAsync<List<Bruger>>(url) ?? new();
     }
-    
+
     public async Task<byte[]> EksporterFiltreredeElever(
         string soegeord,
         string lokation,
@@ -168,6 +169,7 @@ public class BrugereServiceServer : IBrugereService
         string erhverv,
         int? deadline,
         string rolle,
+        string? status,
         string? brugerLokation)
     {
         var url = $"api/brugere/eksporter-elever?" +
@@ -177,10 +179,12 @@ public class BrugereServiceServer : IBrugereService
                   $"&erhverv={Uri.EscapeDataString(erhverv ?? "")}" +
                   $"&deadline={(deadline.HasValue ? deadline.Value.ToString() : "")}" +
                   $"&rolle={Uri.EscapeDataString(rolle)}" +
+                  $"&status={Uri.EscapeDataString(status ?? "")}" + // <-- Tilføj dette
                   $"&brugerLokation={Uri.EscapeDataString(brugerLokation ?? "")}";
 
         return await http.GetByteArrayAsync(url);
     }
+
     
     //Funktion til dynamisk at beregne deadline for et delmål, baseret på DageTilDeadline
     private void BeregnDeadlinesIElevplan(Shared.Elevplan plan)
