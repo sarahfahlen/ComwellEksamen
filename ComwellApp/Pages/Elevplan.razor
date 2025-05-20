@@ -129,7 +129,10 @@
                                 var opgave = aktivtDelmaalTilOpgaver.ListOpgaver[i];
                                 <div class="opgave-kort">
                                     <div class="opgave-titel-linje">
-                                        <input type="checkbox" class="opgave-checkbox" @bind="opgave.OpgaveGennemfoert" />
+                                        <input type="checkbox"
+                                               class="opgave-checkbox"
+                                               @bind="opgave.OpgaveGennemfoert"
+                                               disabled="@(loggedIn?.Rolle != "FaglærtKok" && loggedIn?.Rolle != "Køkkenchef" && loggedIn?.Rolle != "Admin")" />
                                         <p class="opgave-navn"><strong>@opgave.OpgaveNavn</strong></p>
                                     </div>
                                     <p class="opgave-detaljer">@opgave.OpgaveDetaljer</p>
