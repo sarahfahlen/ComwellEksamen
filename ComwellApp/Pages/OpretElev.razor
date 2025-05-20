@@ -77,14 +77,6 @@
 
             <!-- Ansvarlig køkkenchef og erhverv -->
             <div class="form-row">
-                <select id="ansvarlig" class="form-control" @bind="valgtKoekkenchefId">
-                    <option value="">Vælg ansvarlig køkkenchef</option>
-                    @foreach (var k in koekenchefer)
-                    {
-                        <option value="@k.BrugerId">@k.Navn</option>
-                    }
-                </select>
-
                 <div class="form-floating-group halv-bredde">
                     <select class="form-control" @bind="nyElev.Erhverv">
                         <option disabled selected value="">Vælg uddannelse</option>
@@ -110,7 +102,6 @@
 
 @code {
     private int? valgtKoekkenId; // Den valgte lokation 
-    private int? valgtKoekkenchefId; // Den valgte ansvarlige
 
     private List<Bruger> koekenchefer = new(); // Alle ansvarlige køkkenchefer
     private List<Lokation> alleKoekkener = new(); // Alle lokationer brugeren kan vælge imellem
@@ -192,12 +183,12 @@
             nyElev.Rolle = "Elev";
             nyElev.Afdeling = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
 
-            // Find ansvarlig person (køkkenchef)
-            var ansvarlig = koekenchefer.FirstOrDefault(k => k.BrugerId == valgtKoekkenchefId);
+            // Find ansvarlig person (køkkenchef) ud fra lokationens køkkenchef
+            var ansvarlig = koekenchefer.FirstOrDefault();
 
             if (ansvarlig == null)
             {
-                Console.WriteLine("Der er ikke valgt en ansvarlig køkkenchef.");
+                Console.WriteLine("Ingen ansvarlig køkkenchef fundet for denne lokation.");
                 return;
             }
 
@@ -244,9 +235,9 @@
     {
         if (id == null) return;
 
-        valgtKoekkenchefId = null;
         koekenchefer = await bService.HentKoekkencheferForLokation(id.Value);
 
-        StateHasChanged(); // Opdater UI’et med de nye køkkenchefer
+        // Ingen grund til at sætte valgtKoekkenchefId længere
+        StateHasChanged();
     }
 }

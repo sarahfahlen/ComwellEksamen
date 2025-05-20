@@ -131,11 +131,16 @@
                                     <div class="opgave-titel-linje">
                                         <input type="checkbox"
                                                class="opgave-checkbox"
-                                               @bind="opgave.OpgaveGennemfoert"
+                                               checked="@opgave.OpgaveGennemfoert"
+                                               @onchange="() => ToggleOpgaveStatus(opgave)"
                                                disabled="@(loggedIn?.Rolle != "FaglærtKok" && loggedIn?.Rolle != "Køkkenchef" && loggedIn?.Rolle != "Admin")" />
                                         <p class="opgave-navn"><strong>@opgave.OpgaveNavn</strong></p>
                                     </div>
                                     <p class="opgave-detaljer">@opgave.OpgaveDetaljer</p>
+                                    @if (!string.IsNullOrWhiteSpace(opgave.StatusLogOpgave))
+                                    {
+                                        <p class="opgavelog">@opgave.StatusLogOpgave</p>
+                                    }
                                 </div>
                             }
 
@@ -208,7 +213,7 @@
                     @if (!string.IsNullOrWhiteSpace(kokKommentarNavn) && kokKommentarDato != null)
                     {
                         <p class="kommentar-info">
-                            <strong>@kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
+                            <strong>Senest ændret af: @kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
                         </p>
                     }
 
@@ -398,8 +403,6 @@
         {
             valgtPeriodeIndex = 0;
         }
-
-
         await OpdaterFiltreredeMaal();
     }
 
@@ -547,6 +550,16 @@
 
         StateHasChanged();
     }
+    
+    private void ToggleOpgaveStatus(Opgaver opgave)
+    {
+        if (loggedIn == null) return;
+
+        opgave.OpgaveGennemfoert = !opgave.OpgaveGennemfoert;
+
+        opgave.StatusLogOpgave = $"Gennemført af {loggedIn.Navn} d. {DateTime.Now:dd/MM-yyyy}";
+    }
+
     
     private async Task soegningknap()
     {

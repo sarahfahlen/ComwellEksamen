@@ -233,7 +233,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         if (string.IsNullOrWhiteSpace(nytDelmaal.DeadlineKommentar) && !nytDelmaal.Deadline.HasValue)
             throw new Exception("Enten en deadline-dato eller en kommentar skal være udfyldt.");
 
-// Sæt DageTilDeadline hvis der er en deadline
+        // Sæt DageTilDeadline hvis der er en deadline
         if (nytDelmaal.Deadline.HasValue)
         {
             var iDag = DateOnly.FromDateTime(DateTime.Today);

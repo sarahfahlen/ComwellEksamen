@@ -14,4 +14,5 @@ public class Kommentar
     public string OprettetAfRolle { get; set; }
     public DateOnly Dato { get; set; }
     public string Tekst { get; set; }
+    
 }
