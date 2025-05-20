@@ -27,7 +27,8 @@
         <button class="btn exportknap" @onclick="EksporterElever"></button>
     </div>
 
-    @if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "Køkkenchef"))
+    <div class = "navKnapper">
+    @if (loggedIn?.Rolle == "Admin" || loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "HR")
     {
         <button class="btn btn-primary Deadlines" @onclick="DeadlinesKnap">Deadlines</button>
     }
@@ -37,6 +38,7 @@
     {
         <button class="btn btn-primary opret-knap" @onclick="OnClickOpret">Opret elev</button>
     }
+    </div>
 </div>
 
 @if (visFilter)
