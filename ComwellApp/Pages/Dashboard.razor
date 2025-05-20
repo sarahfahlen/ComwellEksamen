@@ -149,10 +149,11 @@
                     </div>
                 </div>
 
-                <!-- Knappen til at gå til elevens elevplan -->
+                <!-- Knappen til at gå til elevers elevplan -->
                 @if (
-                    // Vises hvis man er sig selv (elev/kok) eller har en overordnet rolle
-                    (loggedIn.BrugerId == elev.BrugerId && (loggedIn.Rolle == "Elev")) ||
+                    // Alle elever fra samme lokation må se hinandens elevplaner
+                    (loggedIn.Rolle == "Elev" && elev.Afdeling?.LokationNavn == loggedIn.Afdeling?.LokationNavn) ||
+                    (loggedIn.BrugerId == elev.BrugerId && loggedIn.Rolle == "Elev") ||
                     (loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "FaglærtKok")
                 )
                 {

@@ -134,9 +134,9 @@ public class BrugereServiceServer : IBrugereService
     }
     
     // Hent elevplan ud fra brugerId
-    public async Task<Shared.Elevplan?> HentElevplanForBruger(int brugerId)
+    public async Task<Shared.Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId)
     {
-        var response = await http.GetAsync($"api/brugere/{brugerId}/elevplan");
+        var response = await http.GetAsync($"api/brugere/{brugerId}/elevplan?forespoergerId={forespoergerId}");
 
         if (!response.IsSuccessStatusCode)
         {
@@ -145,7 +145,7 @@ public class BrugereServiceServer : IBrugereService
             return null;
         }
 
-        return await response.Content.ReadFromJsonAsync<Shared.Elevplan>();
+        return await response.Content.ReadFromJsonAsync<Shared.Elevplan?>();
     }
     
     public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, string? brugerLokation)

@@ -100,10 +100,28 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
     }
     
     // Henter elevplan ud fra brugerens brugerId
-    public async Task<Elevplan?> HentElevplanForBruger(int brugerId)
+    public async Task<Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId)
     {
-        var bruger = await BrugerCollection.Find(b => b.BrugerId == brugerId).FirstOrDefaultAsync();
-        return bruger?.MinElevplan;
+        // Finder eleven ud fra brugerId (den elev, hvis plan vi ønsker at hente)
+        var elev = await BrugerCollection.Find(b => b.BrugerId == brugerId).FirstOrDefaultAsync();
+
+        // Finder den bruger, der anmoder om adgang (kan være elev, kok, HR, etc.)
+        var forespoerger = await BrugerCollection.Find(b => b.BrugerId == forespoergerId).FirstOrDefaultAsync();
+
+        // Hvis enten elev eller forespørger ikke findes, returneres null
+        if (elev == null || forespoerger == null)
+            return null;
+
+        // Hvis forespørgeren er elev og prøver at tilgå en anden elevs plan
+        if (forespoerger.Rolle == "Elev" && forespoerger.BrugerId != elev.BrugerId)
+        {
+            // ... og de ikke er fra samme lokation, så næg adgang
+            if (forespoerger.Afdeling?.LokationNavn != elev.Afdeling?.LokationNavn)
+                return null;
+        }
+
+        // Hvis adgang er tilladt, returner elevens elevplan
+        return elev.MinElevplan;
     }
     
     public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, string? brugerLokation)

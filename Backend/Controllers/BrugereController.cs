@@ -132,14 +132,15 @@ public class BrugereController : ControllerBase
     
     // Henter brugerens elevplan ud fra brugerId
     [HttpGet("{brugerId}/elevplan")]
-    public async Task<ActionResult<Elevplan>> HentElevplanForBruger(int brugerId)
+    public async Task<ActionResult<Elevplan>> HentElevplanForBruger(int brugerId, [FromQuery] int forespoergerId)
     {
-        var plan = await _repo.HentElevplanForBruger(brugerId);
+        var plan = await _repo.HentElevplanForBruger(brugerId, forespoergerId);
         if (plan == null)
-            return NotFound($"Ingen elevplan fundet for brugerId {brugerId}");
+            return Forbid("Du har ikke adgang til denne elevplan");
 
         return Ok(plan);
     }
+
     
     [HttpGet("filtreredeelever")]
     public async Task<ActionResult<List<Bruger>>> HentFiltreredeElever(

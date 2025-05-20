@@ -100,7 +100,7 @@ else
 
         foreach (var elev in alleBrugere)
         {
-            var plan = await bService.HentElevplanForBruger(elev.BrugerId);
+            var plan = await bService.HentElevplanForBruger(elev.BrugerId, loggedIn.BrugerId);
             if (plan == null) continue;
 
             bool erKoekkenchefForElev = plan.Ansvarlig?.BrugerId == loggedIn.BrugerId;

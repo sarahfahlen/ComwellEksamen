@@ -6,7 +6,7 @@ public interface IBrugereService
 {
     public Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig, string skabelonType);
     Task<List<Bruger>> HentAlle();
-    Task<Shared.Elevplan?> HentElevplanForBruger(int brugerId);
+    Task<Shared.Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId);
     Task<List<Bruger>> HentKoekkencheferForLokation(int lokationId);
 
     Task<List<Lokation>> HentAlleLokationer();

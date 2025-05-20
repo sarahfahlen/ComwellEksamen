@@ -14,6 +14,13 @@
 
 <PageTitle>Elevplan</PageTitle>
 
+@if (loggedIn?.Rolle == "Elev" && loggedIn.BrugerId != valgtElev?.BrugerId)
+{
+    <div class="alert alert-info">
+        Du ser <strong>@valgtElev?.Navn</strong>s elevplan (kun læsevisning).
+    </div>
+}
+
 <!-- Hele layoutet for elevplansvisning -->
 <div class="elevplan-layout">
 
@@ -96,7 +103,7 @@
                     <p style="margin-bottom: -3rem;">@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
                 }
             </div>
-            @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "Admin")
+            @if (!isReadOnlyElevView && (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "Admin"))
             {
                 <button class="btn btn-primary tilfoej-delmaal-knap" @onclick="AabenTilfoejDelmaal">
                     Tilføj delmål
@@ -162,22 +169,34 @@
                             <h5>@maal.MaalNavn</h5>
                         </div>
 
-                        <DelmaalComponent maal="maal"
-                                          BrugerRolle="@loggedIn?.Rolle"
-                                          OnInputDelmaal="AabenKommentar"
-                                          OnToggleStatus="ToggleStatus"
-                                          OnRedigerDelmaal="AabenRedigerDelmaal"
-                                          OnVisOpgaver="AabenOpgaver" />
+                        @if (!isReadOnlyElevView)
+                        {
+                            // Hvis brugeren IKKE er en elev, der kigger på en andens elevplan, vises DelmaalComponent med fuld funktionalitet:
+                            <DelmaalComponent maal="maal"
+                                              BrugerRolle="@loggedIn?.Rolle"
+                                              OnInputDelmaal="AabenKommentar"
+                                              OnToggleStatus="ToggleStatus"
+                                              OnRedigerDelmaal="AabenRedigerDelmaal"
+                                              OnVisOpgaver="AabenOpgaver" />
+                        }
+                        else
+                        {
+                            // Hvis brugeren ER en elev, der ser en andens elevplan, vises komponenten i en "readonly"-tilstand.
+                            <DelmaalComponent maal="maal"
+                                              BrugerRolle="ReadonlyElev"
+                                              OnVisOpgaver="AabenOpgaver" />
+                        }
                     }
                 }
                 else
                 {
                     <p><em>Ingen mål matcher dine filtre for denne periode.</em></p>
                 }
-
             </div>
             
             <!-- Modal dialog til at vise og redigere kommentarer -->
+            @if (!isReadOnlyElevView)
+            {
             <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
                 <div class="modal-form">
                     <!-- Elevens kommentar -->
@@ -232,6 +251,7 @@
                     <button class="Gemkommentarknap" @onclick="GemKommentar">Gem kommentar</button>
                 </div>
             </ModalDialog>
+            }
         </div>
 
         <!-- Sidepanel med søgning og filtrering -->
@@ -301,6 +321,8 @@
             ? minPlan.ListPerioder[valgtPeriodeIndex]
             : null;
 
+    // Returnerer true hvis den loggede bruger er en elev, og de ser på en anden elevs elevplan (dvs. elevId er sat og forskellig fra ens egen).
+    private bool isReadOnlyElevView => loggedIn?.Rolle == "Elev" && elevId != null && elevId != loggedIn.BrugerId;
 
     // Refererer til modal-dialogboksen der åbnes, når man klikker "Se kommentar"
     private ModalDialog? kommentarDialog;
@@ -357,12 +379,22 @@
             return;
         }
 
-        // Hvis en elev forsøger at tilgå en anden elevs plan via URL – så næg adgang
+        // Hvis den loggede bruger er en elev, og forsøger at tilgå en anden elevs plan (dvs. elevId != ens egen)
         if (loggedIn.Rolle == "Elev" && elevId.HasValue && elevId.Value != loggedIn.BrugerId)
         {
-            navManager.NavigateTo("/dashboard");
-            return;
+            // Hent alle brugere, og find den elev der svarer til elevId fra URL’en
+            valgtElev = await bService.HentAlle()
+                .ContinueWith(t => t.Result.FirstOrDefault(e => e.BrugerId == elevId.Value));
+
+            // Hvis eleven ikke findes, eller ikke er på samme lokation som den loggede elev – nægt adgang
+            if (valgtElev == null || valgtElev.Afdeling?.LokationNavn != loggedIn.Afdeling?.LokationNavn)
+            {
+                // Send brugeren tilbage til dashboard – de har ikke adgang til at se elevplanen
+                navManager.NavigateTo("/dashboard");
+                return;
+            }
         }
+
 
         // Hvis HR/Admin/Køkkenchef ser en specifik elevplan
         if (elevId.HasValue && elevId != loggedIn.BrugerId)
@@ -387,7 +419,7 @@
             minPlan = loggedIn.MinElevplan;
         }
         //Henter elevplan for den pågældene elev
-        minPlan = await bService.HentElevplanForBruger(valgtElev.BrugerId);
+        minPlan = await bService.HentElevplanForBruger(valgtElev.BrugerId, loggedIn.BrugerId);
 
         // Tjek om der blev fundet en elevplan
         if (minPlan == null)
@@ -439,9 +471,12 @@
     // Kaldes når man klikker "Se kommentar" – viser kommentarer for det valgte delmål
     private async Task AabenKommentar(int delmaalId)
     {
+        if (isReadOnlyElevView)
+            return;
+
         aktivtDelmaalId = delmaalId;
 
-        // Nulstiller tidligere kommentarer fra modal, så der ikke vises gamle
+        // Nulstiller tidligere kommentarer fra modal
         elevKommentar = kokKommentar = "";
         elevKommentarNavn = kokKommentarNavn = null;
         elevKommentarDato = kokKommentarDato = null;
@@ -456,10 +491,8 @@
                 elevKommentarNavn = _elevKommentar.OprettetAfNavn;
                 elevKommentarDato = _elevKommentar.Dato;
             }
-
             // Henter køkkenchefens/kokkens kommentar på samme måde
             var _kokKommentar = await eService.GetKommentarAsync(minPlan.ElevplanId, delmaalId, "FaglærtKok");
-            ;
             if (_kokKommentar != null)
             {
                 kokKommentar = _kokKommentar.Tekst;
@@ -467,7 +500,8 @@
                 kokKommentarDato = _kokKommentar.Dato;
             }
         }
-        kommentarDialog?.Open(); //  Åbner modal
+
+        kommentarDialog?.Open(); // åbner modal
     }
 
     // Gemmer kommentar (enten elevens eller køkkenchefens/kokkens)

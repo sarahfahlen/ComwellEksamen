@@ -78,6 +78,11 @@ public class BrugereServiceMock : IBrugereService
         return Task.FromResult(_brugere);
     }
 
+    public Task<Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<Elevplan?> HentElevplanForBruger(int brugerId)
     {
         throw new NotImplementedException();
