@@ -68,10 +68,10 @@
             <div class="modal-content" @onclick:stopPropagation>
                 <h5>Kontaktoplysninger</h5>
                 <ul>
-                    <li><strong>Køkkenchef:</strong> Theis Christensen – 12 34 56 78</li>
-                    <li><strong>HR:</strong> Jane Mayes Harkes – 23 45 67 89</li>
-                    <li><strong>Hvis du er syg:</strong> Ring til SOV – 98 76 54 32</li>
-                    <li><strong>Adresse:</strong> Comwell Vej 12, 8000 Aarhus</li>
+                    <li><strong>Køkkenchef:</strong> @(koekkenchef?.Navn ?? "Ukendt") – @(koekkenchef?.BrugerTelefon ?? "Ingen tlf.")</li>
+                    <li><strong>HR:</strong> @(hrPerson?.Navn ?? "Ukendt") – @(hrPerson?.BrugerTelefon ?? "Ingen tlf.")</li>
+                    <li><strong>Hvis du er syg:</strong> Ring til @(koekkenchef?.BrugerTelefon ?? "Ingen tlf.")</li>
+                    <li><strong>Adresse:</strong> @(brugerLokation?.Adresse ?? "Adresse ikke fundet")</li>
                 </ul>
                 <button class="btn btn-secondary mt-3" @onclick="LukModal">Luk</button>
             </div>
@@ -109,6 +109,10 @@
     private Bruger? loggedIn;
 
     private bool visDeadlinesModal = false;
+    private Lokation? brugerLokation;
+    private Bruger? koekkenchef;
+    private Bruger? hrPerson;
+
 
     // Styrer om modalen (kontaktinfo) vises eller ej
     private bool visModal = false;
@@ -131,6 +135,19 @@
         {
             kommendeDeadlines = await eService.HentKommendeDeadlines(loggedIn.BrugerId);
         }
+        
+        if (loggedIn.Afdeling != null)
+        {
+            var lokationer = await bService.HentAlleLokationer();
+            brugerLokation = lokationer.FirstOrDefault(l => l.LokationId == loggedIn.Afdeling.LokationId);
+        
+            var kokke = await bService.HentKoekkencheferForLokation(loggedIn.Afdeling.LokationId);
+            koekkenchef = kokke.FirstOrDefault();
+            
+            var alleBrugere = await bService.HentAlle();
+            hrPerson = alleBrugere.FirstOrDefault(b => b.Rolle == "Kok");
+        }
+
     }
 
 
