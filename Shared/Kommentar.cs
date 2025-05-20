@@ -9,7 +9,9 @@ public class Kommentar
     [BsonIgnoreIfDefault]
     public ObjectId _id { get; set; }
     public int KommentarId { get; set; }
-    public Bruger OprettetAf { get; set; }
+    public string OprettetAfNavn { get; set; }
+    
+    public string OprettetAfRolle { get; set; }
     public DateOnly Dato { get; set; }
     public string Tekst { get; set; }
 }

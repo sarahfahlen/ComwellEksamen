@@ -87,9 +87,9 @@ public class ElevplanServiceServer : IElevplanService
 
         //Tvinger rollen til at være faglærtkok, selvom det er køkkenchef der opretter
         //Dette er for at sikre at de to har samme kommentarfelt
-        if (nyKommentar.OprettetAf?.Rolle == "Køkkenchef")
+        if (nyKommentar.OprettetAfRolle == "Køkkenchef")
         {
-            nyKommentar.OprettetAf.Rolle = "FaglærtKok";
+            nyKommentar.OprettetAfRolle = "FaglærtKok";
         }
 
         //Opretter Id til den nye kommentar, og sætter dagens dato på

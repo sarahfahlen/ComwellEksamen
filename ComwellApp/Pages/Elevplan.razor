@@ -450,7 +450,7 @@
             if (_elevKommentar != null)
             {
                 elevKommentar = _elevKommentar.Tekst;
-                elevKommentarNavn = _elevKommentar.OprettetAf?.Navn;
+                elevKommentarNavn = _elevKommentar.OprettetAfNavn;
                 elevKommentarDato = _elevKommentar.Dato;
             }
 
@@ -460,7 +460,7 @@
             if (_kokKommentar != null)
             {
                 kokKommentar = _kokKommentar.Tekst;
-                kokKommentarNavn = _kokKommentar.OprettetAf?.Navn;
+                kokKommentarNavn = _kokKommentar.OprettetAfNavn;
                 kokKommentarDato = _kokKommentar.Dato;
             }
         }
@@ -486,7 +486,8 @@
             {
                 var kommentar = new Kommentar
                 {
-                    OprettetAf = loggedIn,
+                    OprettetAfNavn = loggedIn?.Navn,
+                    OprettetAfRolle = loggedIn?.Rolle,
                     Tekst = elevKommentar
                 };
                 // Kalder TilfoejKommentar i IElevplanService
@@ -506,7 +507,8 @@
             {
                 var kommentar = new Kommentar
                 {
-                    OprettetAf = loggedIn,
+                    OprettetAfNavn = loggedIn.Navn,
+                    OprettetAfRolle = loggedIn.Rolle,
                     Tekst = kokKommentar
                 };
                 await eService.TilfoejKommentar(minPlan, aktivtDelmaalId, kommentar);

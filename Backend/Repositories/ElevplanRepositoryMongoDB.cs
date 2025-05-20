@@ -99,11 +99,11 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         if (brugerRolle == "FaglærtKok" || brugerRolle == "Køkkenchef")
         {
             return delmaal.Kommentarer?
-                .FirstOrDefault(k => k.OprettetAf?.Rolle == "FaglærtKok" || k.OprettetAf?.Rolle == "Køkkenchef");
+                .FirstOrDefault(k => k.OprettetAfRolle == "FaglærtKok" || k.OprettetAfRolle == "Køkkenchef");
         }
 
         return delmaal.Kommentarer?
-            .FirstOrDefault(k => k.OprettetAf?.Rolle == brugerRolle);
+            .FirstOrDefault(k => k.OprettetAfRolle == brugerRolle);
 
     }
     
