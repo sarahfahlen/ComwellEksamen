@@ -234,9 +234,9 @@ input[disabled], select[disabled] {
     align-items: center;
     gap: 0.5rem;
     margin: 1rem auto 0 auto; /* Topmargin og automatisk centreret vandret */
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     max-width: 900px; /* Så det ikke bliver for bredt */
-    width: 100%;
+    width: 20%;
 }
 
 .soeg-input {
