@@ -594,6 +594,15 @@
             _ = OpdaterFiltreredeMaal();
         }
     }
+    
+    // Når et mål vælges i dropdown
+    private async Task OnChangeMaal(ChangeEventArgs e)
+    {
+        valgtMaalNavn = e.Value?.ToString() ?? "";
+        Console.WriteLine($"Mål valgt: {valgtMaalNavn}");
+
+        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
+    }
 
     // Gemmer den valgte delmålstype fra dropdown
     private string ValgtDelmaalType
@@ -607,16 +616,7 @@
             _ = OpdaterFiltreredeMaal();
         }
     }
-
-    // Når et mål vælges i dropdown
-    private async Task OnChangeMaal(ChangeEventArgs e)
-    {
-        valgtMaalNavn = e.Value?.ToString() ?? "";
-        Console.WriteLine($"Mål valgt: {valgtMaalNavn}");
-
-        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
-    }
-
+    
     // Når en delmålstype vælges
     private async Task OnChangeDelmaalType(ChangeEventArgs e)
     {
@@ -625,7 +625,6 @@
 
         await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
     }
-
    
     // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
     private async Task OnChangeStatus(ChangeEventArgs e)
@@ -649,6 +648,7 @@
 
         await OpdaterFiltreredeMaal();
     }
+    
     //bruges til at åbne tilføj modal dialog
     private void AabenTilfoejDelmaal()
     {

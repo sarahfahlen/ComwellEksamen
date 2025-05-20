@@ -31,6 +31,7 @@
     gap: 1.5rem;
     margin: 2rem 1rem;
     align-items: flex-start;
+    animation: slideInTop 0.8s ease;
 }
 
 /* === Kort === */
@@ -60,6 +61,7 @@
     flex-wrap: wrap;
     gap: 1rem;
     cursor: pointer;
+    margin-bottom: -1rem;
 }
 .elevkort-header h4 {
     margin: 0;
@@ -170,6 +172,11 @@
 .badge.kommende {
     background-color: #e8f5e9;
     color: #2e7d32;
+}
+
+@keyframes slideInTop {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* === Responsive tilpasning === */
