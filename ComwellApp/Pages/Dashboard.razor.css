@@ -229,11 +229,14 @@ input[disabled], select[disabled] {
 }
 
 .filter-boxcontainer {
-    display: flex; 
-    gap: 0.5rem; 
+    display: flex;
+    justify-content: center; /* Centrér indholdet */
     align-items: center;
-    position: absolute;
-    margin-left: 32rem;
+    gap: 0.5rem;
+    margin: 1rem auto 0 auto; /* Topmargin og automatisk centreret vandret */
+    flex-wrap: wrap;
+    max-width: 900px; /* Så det ikke bliver for bredt */
+    width: 100%;
 }
 
 .soeg-input {
@@ -281,15 +284,26 @@ input[disabled], select[disabled] {
         justify-self: end;
     }
 }
-@media (max-width: 600px) {
-    .overskrift-knap-wrapper {
+@media (max-width: 768px) {
+    .filter-boxcontainer {
+        position: relative;
+        margin-left: 0;
         flex-direction: column;
         align-items: flex-start;
-        gap: 1rem;
+        width: 100%;
+        gap: 0.8rem;
+        margin-top: 1rem;
     }
 
-    .opret-knap {
-        align-self: flex-end;
+    .soeg-input {
+        width: 100%;
+        margin-bottom: -1px;
+    }
+
+    .soege-knap,
+    .filter-knap {
+        width: 100%;
     }
 }
+
 
