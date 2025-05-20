@@ -2,20 +2,31 @@
 @using ComwellApp.Services
 @using ComwellApp.Services.Login
 @using Shared
+@using ComwellApp.Components
 @inject NavigationManager navManager
 @inject ILoginService loginService
 <PageTitle>Log ind</PageTitle>
 
 <div class="login-page-background">
     <div class="login-container">
+        <ModalDialog @ref="glemtKodeDialog" Title="Har du glemt din adgangskode?">
+            <div class="glemtkode-content">
+                <p>Kontakt en af følgende for hjælp til login:</p>
+                <ul>
+                    <li><strong>Køkkenchef:</strong> 12 34 56 78</li>
+                    <li><strong>HR:</strong> 23 45 67 89</li>
+                </ul>
+                <button class="tilbage-knap" @onclick="() => glemtKodeDialog?.Close()">Tilbage</button>
+            </div>
+        </ModalDialog>
 
         <h3>Log ind</h3>
-        
+
         <EditForm Model="loginData" OnValidSubmit="OnClickLogin">
-            <DataAnnotationsValidator />
+            <DataAnnotationsValidator/>
 
             <div class="form-floating-group">
-                <InputText id="email" class="form-control floating-input" @bind-Value="loginData.Email" placeholder=" " />
+                <InputText id="email" class="form-control floating-input" @bind-Value="loginData.Email" placeholder=" "/>
                 <label for="email">Email</label>
             </div>
 
@@ -24,7 +35,7 @@
                            type="@adgangskodeInputType"
                            class="form-control floating-input"
                            @bind-Value="loginData.Adgangskode"
-                           placeholder=" " />
+                           placeholder=" "/>
                 <label for="adgangskode">Adgangskode</label>
                 <button type="button" class="toggle-adgangskode" @onclick="ToggleAdgangskodeVisibility">
                     @(adgangskodeInputType == "password" ? "Vis" : "Skjul")
@@ -34,6 +45,10 @@
             <div class="form-group mt-2">
                 <button type="submit" class="btn btn-primary">Log ind</button>
             </div>
+            <div class="form-group mt-1">
+                <button type="button" class="glemtkode-button" @onclick="() => glemtKodeDialog?.Open()">Glemt kode?</button>
+            </div>
+
 
         </EditForm>
 
@@ -55,6 +70,8 @@
     }
     
     LoginModel loginData = new();
+    
+    private ModalDialog? glemtKodeDialog;
 
     string errorText = "";
     [Parameter] public string target { get; set; }

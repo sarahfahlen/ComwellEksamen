@@ -108,6 +108,40 @@ label {
     transform: translateY(0);
 }
 
+.glemtkode-button {
+    background: none;
+    border: none;
+    color: black;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.95rem;
+    text-align: right;
+    margin-top: 1rem;
+}
+
+.form-group.mt-1 {
+    text-align: right;
+}
+
+.tilbage-knap {
+    background-color: #D2B894; /* Beige knap */
+    border: 1px solid #D2B894;
+    color: white;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+    margin-top: 0.5rem;
+}
+
+.tilbage-knap:hover {
+    background-color: #b18c50; /* Mørk ved hover */
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
 /* Fejlbesked */
 .error-message {
     background-color: #FFF4F4;
