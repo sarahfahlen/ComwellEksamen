@@ -46,6 +46,12 @@
     transform: translateY(-2px);
 }
 
+input[disabled], select[disabled] {
+    background-color: #f0f0f0;
+    color: #888;
+    cursor: not-allowed;
+}
+
 .nulstil-filterknap {
     height: 2rem
 }

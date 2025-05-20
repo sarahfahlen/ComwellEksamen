@@ -106,7 +106,7 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         return bruger?.MinElevplan;
     }
     
-    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? brugerLokation)
+    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, string? brugerLokation)
     {
         var filterBuilder = Builders<Bruger>.Filter;
         var filter = filterBuilder.Eq(b => b.Rolle, "Elev"); // Vis kun elever
@@ -127,23 +127,51 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         if (!string.IsNullOrWhiteSpace(soegeord))
             filter &= filterBuilder.Regex(b => b.Navn, new MongoDB.Bson.BsonRegularExpression(soegeord, "i"));
         
+        // Hvis vi filtrerer på overskredet deadline, vis kun elever hvor mindst ét delmål har deadline overskredet (før dags dato) OG som ikke er gennemført (Status == false)
         if (deadline.HasValue && deadline.Value == 0)
         {
-            // Overskredet = delmål hvor deadline-dato er før dags dato
             filter &= filterBuilder.Where(b =>
                 b.MinElevplan.ListPerioder
                     .SelectMany(p => p.ListMaal)
                     .SelectMany(m => m.ListDelmaal)
-                    .Any(d => d.Deadline != null && d.Deadline < DateOnly.FromDateTime(DateTime.Today)));
+                    .Any(d =>
+                        d.Deadline != null &&
+                        d.Deadline < DateOnly.FromDateTime(DateTime.Today) &&
+                        d.Status == false));
         }
         
-        if (!string.IsNullOrWhiteSpace(kursus))
+        if (!string.IsNullOrWhiteSpace(status) && !string.IsNullOrWhiteSpace(kursus))
         {
+            // Hvis både status og kursus er valgt, så filtrér på:
+            // - delmål hvor titlen matcher kurset
+            // - og hvor status matcher "gennemført" (true) eller "ikke gennemført" (false)
+            bool ønsketStatus = status == "gennemført";
+
             filter &= filterBuilder.Where(b =>
                 b.MinElevplan.ListPerioder
                     .SelectMany(p => p.ListMaal)
                     .SelectMany(m => m.ListDelmaal)
-                    .Any(d => d.DelmaalType == "Kursus" && d.Titel == kursus));
+                    .Any(d => d.Titel == kursus && d.Status == ønsketStatus));
+        }
+        else if (!string.IsNullOrWhiteSpace(kursus))
+        {
+            // Hvis kun kursus er valgt, så filtrér på om et delmål har denne titel
+            filter &= filterBuilder.Where(b =>
+                b.MinElevplan.ListPerioder
+                    .SelectMany(p => p.ListMaal)
+                    .SelectMany(m => m.ListDelmaal)
+                    .Any(d => d.Titel == kursus));
+        }
+        else if (!string.IsNullOrWhiteSpace(status))
+        {
+            // Hvis kun status er valgt, så filtrér på om nogen delmål matcher status
+            bool ønsketStatus = status == "gennemført";
+
+            filter &= filterBuilder.Where(b =>
+                b.MinElevplan.ListPerioder
+                    .SelectMany(p => p.ListMaal)
+                    .SelectMany(m => m.ListDelmaal)
+                    .Any(d => d.Status == ønsketStatus));
         }
         
         return await BrugerCollection.Find(filter).ToListAsync();

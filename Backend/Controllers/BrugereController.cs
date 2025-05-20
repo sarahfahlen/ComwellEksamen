@@ -149,9 +149,10 @@ public class BrugereController : ControllerBase
         [FromQuery] string? erhverv,
         [FromQuery] int? deadline,
         [FromQuery] string? rolle,
+        [FromQuery] string? status,
         [FromQuery] string? brugerLokation)
     {
-        var elever = await _repo.HentFiltreredeElever(soegeord, lokation, kursus, erhverv, deadline, rolle, brugerLokation);
+        var elever = await _repo.HentFiltreredeElever(soegeord, lokation, kursus, erhverv, deadline, rolle, status, brugerLokation);
         return Ok(elever);
     }
     
@@ -163,6 +164,7 @@ public class BrugereController : ControllerBase
         [FromQuery] string? erhverv,
         [FromQuery] int? deadline,
         [FromQuery] string? rolle,
+        [FromQuery] string? status,
         [FromQuery] string? brugerLokation,
         [FromServices] ExcelEksportService excelService)
     {
@@ -174,6 +176,7 @@ public class BrugereController : ControllerBase
             erhverv ?? "", 
             deadline, 
             rolle ?? "Elev", 
+            status ?? "",
             brugerLokation);
 
         var excelBytes = excelService.GenererExcelMedNavne(elever);
