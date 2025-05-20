@@ -77,7 +77,7 @@
 @if (isAlertMenuOpen)
 {
     <div class="alert-overlay-menu dropdown-panel">
-        <strong>Kommende deadlines indenfor 7 dage</strong>
+        <strong>@(deadlines.Any() ? "Kommende deadlines indenfor 7 dage" : "Ingen kommende deadlines de næste 7 dage")</strong>
         <ul class="deadline-list">
             @foreach (var d in deadlines)
             {
