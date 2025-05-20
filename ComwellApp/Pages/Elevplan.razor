@@ -93,7 +93,7 @@
                              style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
                     </div>
 
-                    <p>@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
+                    <p style="margin-bottom: -3rem;">@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
                 }
             </div>
             @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "Admin")
@@ -143,13 +143,10 @@
                                     }
                                 </div>
                             }
-
                             <button type="submit" class="Gemkommentarknap">Gem</button>
                         </div>
-
                     </EditForm>
                 }
-
             </ModalDialog>
 
 
@@ -273,7 +270,7 @@
                         </InputSelect>
 
                         <label class="mt-2">Status</label>
-                        <InputSelect class="form-control" @bind-value="valgtStatus" @oninput="OnChangeStatus">
+                        <InputSelect class="form-control" @bind-value="ValgtStatus" @oninput="OnChangeStatus">
                             <option value="">Alle</option>
                             <option value="true">Gennemført</option>
                             <option value="false">Ikke gennemført</option>
@@ -610,6 +607,15 @@
             _ = OpdaterFiltreredeMaal();
         }
     }
+    
+    // Når et mål vælges i dropdown
+    private async Task OnChangeMaal(ChangeEventArgs e)
+    {
+        valgtMaalNavn = e.Value?.ToString() ?? "";
+        Console.WriteLine($"Mål valgt: {valgtMaalNavn}");
+
+        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
+    }
 
     // Gemmer den valgte delmålstype fra dropdown
     private string ValgtDelmaalType
@@ -623,16 +629,7 @@
             _ = OpdaterFiltreredeMaal();
         }
     }
-
-    // Når et mål vælges i dropdown
-    private async Task OnChangeMaal(ChangeEventArgs e)
-    {
-        valgtMaalNavn = e.Value?.ToString() ?? "";
-        Console.WriteLine($"Mål valgt: {valgtMaalNavn}");
-
-        await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
-    }
-
+    
     // Når en delmålstype vælges
     private async Task OnChangeDelmaalType(ChangeEventArgs e)
     {
@@ -640,6 +637,27 @@
         Console.WriteLine($"Delmålstype valgt: {valgtDelmaalType}");
 
         await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
+    }
+    
+    private string ValgtStatus
+    {
+        get
+        {
+            if (valgtStatus == true) return "true";
+            if (valgtStatus == false) return "false";
+            return ""; // "Alle"
+        }
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                valgtStatus = null;
+            else if (value == "true")
+                valgtStatus = true;
+            else if (value == "false")
+                valgtStatus = false;
+
+            _ = OpdaterFiltreredeMaal();
+        }
     }
 
    
@@ -665,6 +683,7 @@
 
         await OpdaterFiltreredeMaal();
     }
+    
     //bruges til at åbne tilføj modal dialog
     private void AabenTilfoejDelmaal()
     {

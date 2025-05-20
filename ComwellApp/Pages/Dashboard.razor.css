@@ -112,6 +112,7 @@ input[disabled], select[disabled] {
     flex-direction: column;
     transition: transform 0.2s ease;
     min-height: 180px;
+    animation: slideInTop 0.8s ease;
 }
 
 .item-card:hover {
@@ -257,6 +258,11 @@ input[disabled], select[disabled] {
 .soeg-input:focus {
     outline: none;
     box-shadow: 0 0 0 2px #D2B894;
+}
+
+@keyframes slideInTop {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 1024px) {

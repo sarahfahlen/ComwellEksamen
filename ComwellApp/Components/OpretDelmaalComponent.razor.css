@@ -57,7 +57,7 @@ label {
 
 .Gemdelmaalknap {
     background-color: #d2b894; /* Beige farve */
-    color: #f3ede5; /* Mørk tekst for kontrast */
+    color: white; /* Mørk tekst for kontrast */
     border: none;
     border-radius: 8px;
     padding: 0.6rem 1.4rem;
