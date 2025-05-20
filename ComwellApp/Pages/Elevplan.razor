@@ -268,7 +268,7 @@
                         </InputSelect>
 
                         <label class="mt-2">Status</label>
-                        <InputSelect class="form-control" @bind-value="valgtStatus" @oninput="OnChangeStatus">
+                        <InputSelect class="form-control" @bind-value="ValgtStatus" @oninput="OnChangeStatus">
                             <option value="">Alle</option>
                             <option value="true">Gennemført</option>
                             <option value="false">Ikke gennemført</option>
@@ -628,6 +628,28 @@
 
         await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
     }
+    
+    private string ValgtStatus
+    {
+        get
+        {
+            if (valgtStatus == true) return "true";
+            if (valgtStatus == false) return "false";
+            return ""; // "Alle"
+        }
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                valgtStatus = null;
+            else if (value == "true")
+                valgtStatus = true;
+            else if (value == "false")
+                valgtStatus = false;
+
+            _ = OpdaterFiltreredeMaal();
+        }
+    }
+
    
     // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
     private async Task OnChangeStatus(ChangeEventArgs e)
