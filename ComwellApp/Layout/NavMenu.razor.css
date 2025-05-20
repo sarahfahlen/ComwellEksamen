@@ -243,15 +243,19 @@ a.nav-link.active {
 
 .alert-overlay-menu {
     position: fixed;
-    top: 5rem; /* Lige under navbaren */
-    right: 14rem; /* Juster efter hvor brugerikonet sidder */
+    top: 5rem;
+    right: 1rem;
+    left: auto;
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
     padding: 1rem;
-    width: 240px;
+    display: table;              /* Tilpas bredde til tekst */
+    white-space: nowrap;         /* Undgå linjeskift */
+    max-width: calc(100vw - 2rem);  /* Forhindre at boksen går ud over højre side */
+    overflow-wrap: break-word;   /* Gør det muligt at bryde tekst hvis nødvendigt */
     animation: slideDown 0.25s ease-out;
-    z-index: 950; /* under navmenuens 1000 */
+    z-index: 950;
 }
 
 .deadline-list {

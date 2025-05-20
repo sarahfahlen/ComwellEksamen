@@ -16,7 +16,10 @@
     border: 1px dashed #d2b894;
     border-radius: 10px;
     padding: 1rem;
-    height: 90rem;
+    height: fit-content;
+    max-height: 100vh; /* valgfrit – begrænser højden til skærmhøjde */
+    overflow-y: auto;  /* tilføjer scroll, hvis det bliver for højt */
+    transition: max-height 0.4s ease;
     animation: slideInRight 0.8s ease;
 }
 
@@ -233,7 +236,7 @@
     justify-content: center;
     border-radius: 14px;
     padding: 1.5rem;
-    margin: 2rem 0 1rem 0;
+    margin: 5rem 0 1rem 0;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     animation: fadeIn 0.6s ease;
 }

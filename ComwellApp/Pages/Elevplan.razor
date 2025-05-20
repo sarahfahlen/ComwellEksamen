@@ -93,7 +93,7 @@
                              style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
                     </div>
 
-                    <p>@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
+                    <p style="margin-bottom: -3rem;">@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
                 }
             </div>
             @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "Admin")
@@ -138,13 +138,10 @@
                                     <p class="opgave-detaljer">@opgave.OpgaveDetaljer</p>
                                 </div>
                             }
-
                             <button type="submit" class="Gemkommentarknap">Gem</button>
                         </div>
-
                     </EditForm>
                 }
-
             </ModalDialog>
 
 
