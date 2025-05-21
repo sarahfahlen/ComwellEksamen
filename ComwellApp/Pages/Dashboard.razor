@@ -22,11 +22,16 @@
 
         <button class="soege-knap" @onclick="SoegningKnap">Søg</button>
 
-        <button class="filter-knap" @onclick="() => visFilter = !visFilter">Filtrer</button>
-        @if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR"))
-        {
-            <button class="btn exportknap" @onclick="EksporterElever"></button>
-        }
+        <div class="filter-eksport-wrapper">
+            <button class="filter-knap" @onclick="() => visFilter = !visFilter">
+                @(visFilter ? "Luk filter" : "Filtrer")
+            </button>
+
+            @if (loggedIn is not null && (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR"))
+            {
+                <button class="btn exportknap" @onclick="EksporterElever"></button>
+            }
+        </div>
     </div>
 
     <div class = "navKnapper">
@@ -455,4 +460,7 @@
 
         return $"http://localhost:5237{sti}"; // backend
     }
+
+
+
 }

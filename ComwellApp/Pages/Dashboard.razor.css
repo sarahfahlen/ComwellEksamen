@@ -28,7 +28,7 @@
 }
 
 .filter-knap {
-    width: 100%;
+    width: 8rem !important;
     padding: 0.6rem 1rem;
     border: none;
     border-radius: 8px;
@@ -236,7 +236,7 @@ input[disabled], select[disabled] {
     margin: 1rem auto 0 auto; /* Topmargin og automatisk centreret vandret */
     flex-wrap: nowrap;
     max-width: 900px; /* Så det ikke bliver for bredt */
-    width: 20%;
+    width: 40%;
 }
 
 .soeg-input {
@@ -263,6 +263,15 @@ input[disabled], select[disabled] {
     box-shadow: 0 0 0 2px #D2B894;
 }
 
+.filter-eksport-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    white-space: nowrap; /* Forhindrer line break */
+}
+
+
 @keyframes slideInTop {
     from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -283,8 +292,7 @@ input[disabled], select[disabled] {
     .item-right {
         justify-self: end;
     }
-}
-@media (max-width: 768px) {
+
     .filter-boxcontainer {
         position: relative;
         margin-left: 0;
@@ -300,10 +308,36 @@ input[disabled], select[disabled] {
         margin-bottom: -1px;
     }
 
-    .soege-knap,
+    .soege-knap {
+        width: 100% !important;
+    }
+
     .filter-knap {
+        flex: 1;
+        min-width: 6rem;
+    }
+
+    .filter-eksport-wrapper {
         width: 100%;
+        justify-content: flex-start; /* behold rækkevisning, men venstrejusteret */
+        flex-wrap: wrap;
+    }
+
+    .exportknap {
+        flex-shrink: 0;
+        width: 2.5rem;
+        height: 2.5rem;
     }
 }
+@media (max-width: 768px) {
+    
+}
+
+@media (max-width: 1300px) and (min-width: 1025px) {
+    .filter-eksport-wrapper {
+        flex-wrap: nowrap;
+    }
+}
+
 
 

@@ -114,7 +114,9 @@
                         </div>
 
                         <div class="sidepanel-værktøj">
-                            <button class="filter-knap" @onclick="() => visFilter = !visFilter">Filtrer</button>
+                            <button class="filter-knap" @onclick="() => visFilter = !visFilter">
+                                @(visFilter ? "Luk filter" : "Filtrer")
+                            </button>
 
                             @if (visFilter)
                             {
@@ -346,7 +348,9 @@
 
             <div class="sidepanel-værktøj">
                 <label for="filter">Filtrer efter mål</label>
-                <button class="filter-knap" @onclick="() => visFilter = !visFilter">Filtrer</button>
+                <button class="filter-knap" @onclick="() => visFilter = !visFilter">
+                    @(visFilter ? "Luk filter" : "Filtrer")
+                </button>
 
                 @if (visFilter)
                 {
