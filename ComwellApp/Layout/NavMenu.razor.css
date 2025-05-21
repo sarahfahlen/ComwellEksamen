@@ -28,8 +28,68 @@
 }
 
 @media (max-width: 768px) {
+    .overlay-menu,
+    .user-overlay-menu,
+    .alert-overlay-menu {
+        top: 6.8rem;
+        left: 50%;
+        transform: translate(-50%, 0);
+        right: auto;
+        width: 90%;
+        max-width: 360px;
+        animation: slideDownCentered 0.25s ease-out !important;
+    }
+
+    .alert-overlay-menu {
+        white-space: pre-wrap !important;
+        max-width: calc(100vw - 2rem) !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .deadline-list li {
+        font-size: 0.9rem;
+    }
+
+    .deadline-list {
+        margin-top: 0rem !important;
+    }
+
+    .dropdown-panel {
+        width: 80% !important;
+    }
+
     .logo-img {
-        max-height: 2.5rem;
+        margin: 0 auto;
+    }
+
+    .top-nav {
+        flex-direction: column;
+        height: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .navbar-brand {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .nav-right {
+        justify-content: center;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+
+@keyframes slideDownCentered {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -10px); /* både X og Y fra starten */
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
     }
 }
 
@@ -134,7 +194,6 @@
 /* Overlay-menu: åben i højre hjørne */
 .overlay-menu {
     position: fixed;
-    top: 5rem;
     right: 0rem;
     background-color: white;
     border-radius: 10px;
@@ -148,8 +207,7 @@
 /* User overlay-menu: lige under brugerikon */
 .user-overlay-menu {
     position: fixed;
-    top: 5rem; /* Lige under navbaren */
-    right: 7rem; /* Juster efter hvor brugerikonet sidder */
+    right: 2rem; /* Juster efter hvor brugerikonet sidder */
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
@@ -243,20 +301,19 @@ a.nav-link.active {
 
 .alert-overlay-menu {
     position: fixed;
-    top: 5rem;
     right: 1rem;
-    left: auto;
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
     padding: 1rem;
-    display: table;              /* Tilpas bredde til tekst */
-    white-space: nowrap;         /* Undgå linjeskift */
-    max-width: calc(100vw - 2rem);  /* Forhindre at boksen går ud over højre side */
-    overflow-wrap: break-word;   /* Gør det muligt at bryde tekst hvis nødvendigt */
+    display: table;
+    white-space: nowrap;
+    max-width: calc(100vw - 2rem);
+    overflow-wrap: break-word;
     animation: slideDown 0.25s ease-out;
     z-index: 950;
 }
+
 
 .deadline-list {
     list-style: none;

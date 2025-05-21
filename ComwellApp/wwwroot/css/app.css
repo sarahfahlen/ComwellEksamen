@@ -187,3 +187,9 @@ input[type="file"] {
     font-size: 1rem;
     box-sizing: border-box;
 }
+
+@media (max-width: 768px) {
+    main {
+        padding-top: 1.9rem; /* Matcher navmenuens højde */
+    }
+}
