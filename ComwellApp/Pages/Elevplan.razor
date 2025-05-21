@@ -250,7 +250,8 @@
             @if (!isReadOnlyElevView)
             {
                 <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
-                    <div class="modal-form">
+                    <div class="modal-form kommentar-modal-wrapper rolle-@loggedIn?.Rolle?.ToLower()">
+
                         <!-- Elevens kommentar -->
                         <label><strong>Elevens kommentar</strong></label>
 
@@ -261,33 +262,55 @@
                             </p>
                         }
 
+                        <!-- Elevens kommentar -->
                         @if (loggedIn?.Rolle == "Elev")
                         {
-                            <div class="kommentar-med-billede">
-                                <InputTextArea class="form-control kommentarbox" style="height:14rem;"
-                                               @bind-Value="elevKommentar"/>
-                                @if (!string.IsNullOrEmpty(elevKommentarBillede))
-                                {
-                                    <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede"/>
-                                }
+                            <div class="kommentar-wrapper kommentar-elev">
+                                <div class="kommentar-linje">
+                                    <div class="kommentar-felt">
+                                        <InputTextArea class="form-control kommentarbox" @bind-Value="elevKommentar" />
+                                        <InputFile OnChange="OnBilledeValgtElev" accept="image/*" />
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(elevKommentarBillede))
+                                    {
+                                        <div class="kommentar-billede-container right-align">
+                                            <img src="@GetProfilbilledeSti(elevKommentarBillede)"
+                                                 class="kommentar-billede"
+                                                 @onclick="@(() => ÅbnStortBillede(elevKommentarBillede))"
+                                                 style="cursor: zoom-in;" />
+
+                                        </div>
+                                    }
+                                </div>
                             </div>
-                            <InputFile OnChange="OnBilledeValgtElev" accept="image/*"/>
                         }
+
                         else
                         {
-                            @if (!string.IsNullOrWhiteSpace(elevKommentar))
-                            {
-                                <p>@elevKommentar</p>
-                            }
-                            else
-                            {
-                                <p><em>Ingen elevkommentar endnu.</em></p>
-                            }
+                            <div class="kommentar-linje">
+                                <div class="kommentar-felt">
+                                    @if (!string.IsNullOrWhiteSpace(elevKommentar))
+                                    {
+                                        <p>@elevKommentar</p>
+                                    }
+                                    else
+                                    {
+                                        <p><em>Ingen elevkommentar endnu.</em></p>
+                                    }
+                                </div>
 
-                            @if (!string.IsNullOrEmpty(elevKommentarBillede))
-                            {
-                                <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede"/>
-                            }
+                                @if (!string.IsNullOrEmpty(elevKommentarBillede))
+                                {
+                                    <div class="kommentar-billede-container right-align">
+                                        <img src="@GetProfilbilledeSti(elevKommentarBillede)"
+                                             class="kommentar-billede"
+                                             @onclick="@(() => ÅbnStortBillede(elevKommentarBillede))"
+                                             style="cursor: zoom-in;" />
+                                    </div>
+                                }
+                            </div>
+
                         }
 
                         <!-- Kokkens kommentar -->
@@ -300,38 +323,66 @@
                                     af: @kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
                             </p>
                         }
-
+                        <!-- Kokkens kommentar -->
                         @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "FaglærtKok")
                         {
-                            <div class="kommentar-med-billede">
-                                <InputTextArea class="form-control kommentarbox" style="height:14rem;"
-                                               @bind-Value="kokKommentar"/>
-                                @if (!string.IsNullOrEmpty(kokKommentarBillede))
-                                {
-                                    <img src="@GetProfilbilledeSti(kokKommentarBillede)" class="kommentar-billede"/>
-                                }
+                            <div class="kommentar-wrapper kommentar-kok">
+                                <div class="kommentar-linje">
+                                    <div class="kommentar-felt">
+                                        <InputTextArea class="form-control kommentarbox" @bind-Value="kokKommentar" />
+                                        <InputFile OnChange="OnBilledeValgtKok" accept="image/*" />
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(kokKommentarBillede))
+                                    {
+                                        <div class="kommentar-billede-container right-align">
+                                            <img src="@GetProfilbilledeSti(kokKommentarBillede)"
+                                                 class="kommentar-billede"
+                                                 @onclick="@(() => ÅbnStortBillede(kokKommentarBillede))"
+                                                 style="cursor: zoom-in;" />
+
+                                        </div>
+                                    }
+                                </div>
                             </div>
-                            <InputFile OnChange="OnBilledeValgtKok" accept="image/*"/>
                         }
                         else
                         {
-                            @if (!string.IsNullOrWhiteSpace(kokKommentar))
-                            {
-                                <p>@kokKommentar</p>
-                            }
-                            else
-                            {
-                                <p><em>Ingen kokkekommentar endnu.</em></p>
-                            }
+                            <div class="kommentar-linje">
+                                <div class="kommentar-felt">
+                                    @if (!string.IsNullOrWhiteSpace(kokKommentar))
+                                    {
+                                        <p>@kokKommentar</p>
+                                    }
+                                    else
+                                    {
+                                        <p><em>Ingen kokkekommentar endnu.</em></p>
+                                    }
+                                </div>
 
-                            @if (!string.IsNullOrEmpty(kokKommentarBillede))
-                            {
-                                <img src="@GetProfilbilledeSti(kokKommentarBillede)" class="kommentar-billede"/>
-                            }
+                                @if (!string.IsNullOrEmpty(kokKommentarBillede))
+                                {
+                                    <div class="kommentar-billede-container right-align">
+                                        <img src="@GetProfilbilledeSti(kokKommentarBillede)"
+                                             class="kommentar-billede"
+                                             @onclick="@(() => ÅbnStortBillede(kokKommentarBillede))"
+                                             style="cursor: zoom-in;" />
+
+                                    </div>
+                                }
+                            </div>
+
                         }
 
                         <button class="Gemkommentarknap" @onclick="GemKommentar">Gem kommentar</button>
                     </div>
+                    @if (!string.IsNullOrEmpty(stortBilledeUrl))
+                    {
+                        <div class="lightbox-overlay" @onclick="LukLightbox">
+                            <img src="@stortBilledeUrl" class="lightbox-img" />
+                        </div>
+                    }
+
                 </ModalDialog>
             }
         </div>
@@ -451,6 +502,7 @@
     //Variable til vores vis opgaver funktionalitet
     private ModalDialog? opgaverDialog;
     private Delmaal? aktivtDelmaalTilOpgaver;
+    private string? stortBilledeUrl;
 
 
     // 🟡 Kører hver gang der kommer parametre (fx ved skift af elevId i URL)
@@ -904,6 +956,14 @@
         return "";
     }
 
+    private void ÅbnStortBillede(string? sti)
+    {
+        stortBilledeUrl = GetProfilbilledeSti(sti);
+    }
 
+    private void LukLightbox()
+    {
+        stortBilledeUrl = null;
+    }
 
 }

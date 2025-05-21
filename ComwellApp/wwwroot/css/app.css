@@ -189,11 +189,21 @@ code {
     transform: translateX(6px);
 }
 
+/* === Filupload === */
 input[type="file"] {
-    height: 2.3rem;
-    padding: 0.3rem 0.75rem;
-    font-size: 1rem;
-    box-sizing: border-box;
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+    color: #4f4f4f;
+    background-color: #fffaf1;
+    border-radius: 6px;
+    border: 1px dashed #d2b894;
+    padding: 0.4rem;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+input[type="file"]:hover {
+    border-color: #c6a979;
 }
 
 @media (max-width: 768px) {

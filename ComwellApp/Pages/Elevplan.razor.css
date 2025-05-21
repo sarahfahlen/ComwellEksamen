@@ -250,49 +250,11 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     animation: fadeIn 0.6s ease;
 }
-
-.kommentar-info {
-    font-size: 0.9rem;
-    font-style: italic;
-    color: #555;
-    margin-top: 0.4rem;
-    margin-bottom: 0.3rem;
-}
-
 .kommentar-med-billede {
     display: flex;
     gap: 1rem;
     align-items: flex-start;
 }
-
-.kommentar-billede {
-    max-width: 150px;
-    max-height: 150px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    object-fit: cover;
-}
-
-
-.Gemkommentarknap {
-    background-color: transparent;
-    border: 2px solid #d2b894;
-    color: #1C2B38;
-    border-radius: 8px;
-    padding: 0.35rem 0.8rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    align-self: flex-end;
-    width: fit-content;
-}
-
-.Gemkommentarknap:hover {
-    background-color: #d2b894;
-    color: white;
-    cursor: pointer;
-}
-
 /* === Responsive === */
 @media (max-width: 768px) {
     .mobil-soeg-filter {
@@ -419,3 +381,172 @@
 .filter-boks-anim {
     animation: fadeSlideIn 0.4s ease;
 }
+/* === Kommentar Modal Wrapper === */
+.kommentar-modal-wrapper {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.2rem;
+    animation: fadeSlideIn 0.5s ease-out;
+    backdrop-filter: blur(3px);
+}
+
+/* Fade og slide-in */
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === Linje med tekst og billede === */
+.kommentar-linje {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+/* === Kommentarfelt === */
+.kommentar-felt {
+    flex: 1;
+    background: rgba(255, 253, 249, 0.75);
+    border: 1px solid #e1d6c6;
+    border-radius: 12px;
+    padding: 1rem;
+    font-size: 0.95rem;
+    color: #333;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+.kommentar-felt:hover {
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
+}
+
+/* === Tekstboks === */
+.kommentarbox {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.7rem;
+    font-size: 1rem;
+    font-family: inherit;
+    border-radius: 10px;
+    border: 1px solid #d8c7ab;
+    background-color: rgba(255, 252, 245, 0.9);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.kommentarbox:focus {
+    outline: none;
+    border-color: #d2b894;
+    box-shadow: 0 0 0 3px rgba(210, 184, 148, 0.3);
+}
+
+/* === Info tekst === */
+.kommentar-info {
+    font-size: 0.85rem;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 0.2rem;
+    margin-top: -0.4rem;
+}
+
+/* === Billedeholder === */
+.kommentar-billede-container {
+    flex-shrink: 0;
+    width: 150px;
+    height: auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.kommentar-billede-container:hover {
+    transform: scale(1.04);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+}
+
+.kommentar-billede {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+/* === Filupload === */
+input[type="file"] {
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+    color: #4f4f4f;
+    background-color: #fffaf1;
+    border-radius: 6px;
+    border: 1px dashed #d2b894;
+    padding: 0.4rem;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+input[type="file"]:hover {
+    border-color: #c6a979;
+}
+
+/* === Gem-knap === */
+.Gemkommentarknap {
+    background-color: #fff;
+    border: 2px solid #d2b894;
+    color: #1C2B38;
+    border-radius: 10px;
+    padding: 0.5rem 1.1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+}
+
+.Gemkommentarknap:hover {
+    background-color: #d2b894;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 10, 10, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+    cursor: zoom-out;
+}
+
+.lightbox-img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    animation: zoomIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.95); opacity: 0.8; }
+    to { transform: scale(1); opacity: 1; }
+}
+
