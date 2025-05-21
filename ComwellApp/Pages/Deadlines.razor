@@ -6,8 +6,10 @@
 @using ComwellApp.Services.Login
 @using Shared
 
+<div class="overskrift-tilbage">
 <h3 class="overskrift">Oversigt over deadlines</h3>
 <button class="tilbage-knap" @onclick="Tilbage">← Tilbage til elevplan</button>
+</div>
 
 @if (loggedIn == null)
 {

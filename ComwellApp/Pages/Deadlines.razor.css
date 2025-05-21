@@ -1,17 +1,25 @@
+.overskrift-tilbage {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+
 /* === Layout for overskrift === */
 .overskrift {
     font-size: 2rem;
     font-weight: 800;
-    margin: 0rem 1rem 3rem;
+    margin: 0rem 1rem 0rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 /* === Tilbageknap === */
 .tilbage-knap {
-    position: absolute;
-    top: 8.5rem;
-    left: 3rem;
+    margin-top: 0.5rem;
+    margin-left: 0.8rem;
     background-color: transparent;
     border: none;
     font-size: 1rem;
@@ -20,6 +28,7 @@
     cursor: pointer;
     transition: color 0.2s ease;
 }
+
 .tilbage-knap:hover {
     color: #d2b894;
 }
@@ -187,5 +196,12 @@
     }
     .elev-delmaal.vis {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .overskrift-tilbage {
+        display: flex;
+        flex-wrap: wrap;
     }
 }
