@@ -249,6 +249,21 @@
     margin-bottom: 0.3rem;
 }
 
+.kommentar-med-billede {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.kommentar-billede {
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    object-fit: cover;
+}
+
+
 .Gemkommentarknap {
     background-color: transparent;
     border: 2px solid #d2b894;
@@ -360,6 +375,7 @@
 .filter-boks-anim {
     animation: fadeSlideIn 0.4s ease;
 }
+
 
 
 

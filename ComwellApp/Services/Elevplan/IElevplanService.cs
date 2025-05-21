@@ -9,7 +9,8 @@ public interface IElevplanService
     public Task TilfoejKommentar(Shared.Elevplan minPlan, int delmaalId, Kommentar nyKommentar);
 
     //Bruges til at redigere eksisterende kommentarer på et delmål
-    public Task RedigerKommentar(Shared.Elevplan minPlan, int delmaalId, int kommentarId, string nyTekst);
+    Task RedigerKommentar(Shared.Elevplan minPlan, int delmaalId, Kommentar redigeretKommentar);
+
 
     //Bruges til at hente kommentar der passer til delmål og den rolle man er logget ind som
     public Task<Kommentar?> GetKommentarAsync(int elevplanId, int delmaalId, string brugerRolle);

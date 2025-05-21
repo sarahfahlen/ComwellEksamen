@@ -198,8 +198,7 @@
             @if (!isReadOnlyElevView)
             {
             <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
-                <div class="modal-form">
-                    <!-- Elevens kommentar -->
+                <div class="modal-form"><!-- Elevens kommentar -->
                     <label><strong>Elevens kommentar</strong></label>
 
                     @if (!string.IsNullOrWhiteSpace(elevKommentarNavn) && elevKommentarDato != null)
@@ -209,18 +208,33 @@
                         </p>
                     }
 
-                    @if (loggedIn?.Rolle == "Elev") // Kun elev må redigere sin egen kommentar
+                    @if (loggedIn?.Rolle == "Elev")
                     {
-                        <InputTextArea class="form-control kommentarbox" style="height:14rem;"
-                                       @bind-Value="elevKommentar"/>
-                    }
-                    else if (!string.IsNullOrWhiteSpace(elevKommentar))
-                    {
-                        <p>@elevKommentar</p>
+                        <div class="kommentar-med-billede">
+                            <InputTextArea class="form-control kommentarbox" style="height:14rem;"
+                                           @bind-Value="elevKommentar" />
+                            @if (!string.IsNullOrEmpty(elevKommentarBillede))
+                            {
+                                <img src="data:image/jpeg;base64,@elevKommentarBillede" class="kommentar-billede" />
+                            }
+                        </div>
+                        <InputFile OnChange="OnBilledeValgtElev" accept="image/*" />
                     }
                     else
                     {
-                        <p><em>Ingen elevkommentar endnu.</em></p>
+                        @if (!string.IsNullOrWhiteSpace(elevKommentar))
+                        {
+                            <p>@elevKommentar</p>
+                        }
+                        else
+                        {
+                            <p><em>Ingen elevkommentar endnu.</em></p>
+                        }
+
+                        @if (!string.IsNullOrEmpty(elevKommentarBillede))
+                        { 
+                            <img src="data:image/jpeg;base64,@elevKommentarBillede" class="kommentar-billede" />
+                        }
                     }
 
                     <!-- Kokkens kommentar -->
@@ -233,24 +247,36 @@
                         </p>
                     }
 
-                    <!-- Sørger for at både køkkenchef og kok kan redigere kommentar -->
-                    @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "FaglærtKok")
-                    {
-                        <InputTextArea class="form-control kommentarbox" style="height:14rem;"
-                                       @bind-Value="kokKommentar"/>
+                    @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "FaglærtKok") 
+                    { 
+                        <div class="kommentar-med-billede">
+                            <InputTextArea class="form-control kommentarbox" style="height:14rem;"
+                                           @bind-Value="kokKommentar" />
+                            @if (!string.IsNullOrEmpty(kokKommentarBillede))
+                            {
+                                <img src="data:image/jpeg;base64,@kokKommentarBillede" class="kommentar-billede" />
+                            }
+                        </div>
+                        <InputFile OnChange="OnBilledeValgtKok" accept="image/*" /> 
                     }
-                    else if (!string.IsNullOrWhiteSpace(kokKommentar))
-                    {
-                        <p>@kokKommentar</p>
-                    }
-                    else
-                    {
-                        <p><em>Ingen kokkekommentar endnu.</em></p>
-                    }
+                    else {
+                        @if (!string.IsNullOrWhiteSpace(kokKommentar))
+                        {
+                            <p>@kokKommentar</p>
+                        }
+                        else
+                        {
+                            <p><em>Ingen kokkekommentar endnu.</em></p>
+                        }
+
+                        @if (!string.IsNullOrEmpty(kokKommentarBillede))
+                        {
+                            <img src="data:image/jpeg;base64,@kokKommentarBillede" class="kommentar-billede" />
+                        } }
 
                     <button class="Gemkommentarknap" @onclick="GemKommentar">Gem kommentar</button>
                 </div>
-            </ModalDialog>
+                </ModalDialog>
             }
         </div>
 
@@ -331,11 +357,14 @@
     private string elevKommentar = "";
     private string kokKommentar = "";
 
-    // Navn og dato for hvem der har skrevet kommentarerne (vises i toppen af modal)
+    // Navn og dato for hvem der har skrevet kommentarerne, samt billeder (vises i toppen af modal)
     private string? elevKommentarNavn;
     private DateOnly? elevKommentarDato;
     private string? kokKommentarNavn;
     private DateOnly? kokKommentarDato;
+    private string? elevKommentarBillede;
+    private string? kokKommentarBillede;
+
 
     // Bruges til at huske hvilket delmål vi redigerer kommentar til
     private int aktivtDelmaalId = 0;
@@ -490,6 +519,7 @@
                 elevKommentar = _elevKommentar.Tekst;
                 elevKommentarNavn = _elevKommentar.OprettetAfNavn;
                 elevKommentarDato = _elevKommentar.Dato;
+                elevKommentarBillede = _elevKommentar.KommentarBillede;
             }
             // Henter køkkenchefens/kokkens kommentar på samme måde
             var _kokKommentar = await eService.GetKommentarAsync(minPlan.ElevplanId, delmaalId, "FaglærtKok");
@@ -498,6 +528,7 @@
                 kokKommentar = _kokKommentar.Tekst;
                 kokKommentarNavn = _kokKommentar.OprettetAfNavn;
                 kokKommentarDato = _kokKommentar.Dato;
+                kokKommentarBillede = _kokKommentar.KommentarBillede;
             }
         }
 
@@ -516,8 +547,10 @@
 
             if (eksisterende != null)
             {
-                // Kalder RedigerKommentar i IElevplanService
-                await eService.RedigerKommentar(minPlan, aktivtDelmaalId, eksisterende.KommentarId, elevKommentar);
+                //Opdaterer kommentaren, og kalder redigerkommentar med den nye "eksisterende"
+                eksisterende.Tekst = elevKommentar;
+                eksisterende.KommentarBillede = elevKommentarBillede;
+                await eService.RedigerKommentar(minPlan, aktivtDelmaalId, eksisterende);
             }
             else if (!string.IsNullOrWhiteSpace(elevKommentar))
             {
@@ -525,7 +558,8 @@
                 {
                     OprettetAfNavn = loggedIn?.Navn,
                     OprettetAfRolle = loggedIn?.Rolle,
-                    Tekst = elevKommentar
+                    Tekst = elevKommentar,
+                    KommentarBillede = elevKommentarBillede
                 };
                 // Kalder TilfoejKommentar i IElevplanService
                 await eService.TilfoejKommentar(minPlan, aktivtDelmaalId, kommentar);
@@ -538,7 +572,9 @@
 
             if (eksisterende != null)
             {
-                await eService.RedigerKommentar(minPlan, aktivtDelmaalId, eksisterende.KommentarId, kokKommentar);
+                eksisterende.Tekst = kokKommentar;
+                eksisterende.KommentarBillede = kokKommentarBillede;
+                await eService.RedigerKommentar(minPlan, aktivtDelmaalId, eksisterende);
             }
             else if (!string.IsNullOrWhiteSpace(kokKommentar))
             {
@@ -546,7 +582,8 @@
                 {
                     OprettetAfNavn = loggedIn.Navn,
                     OprettetAfRolle = loggedIn.Rolle,
-                    Tekst = kokKommentar
+                    Tekst = kokKommentar,
+                    KommentarBillede = kokKommentarBillede     
                 };
                 await eService.TilfoejKommentar(minPlan, aktivtDelmaalId, kommentar);
             }
@@ -554,6 +591,24 @@
 
         kommentarDialog?.Close(); // Lukker modalen efter gem
         // TODO: Giv bruger feedback på om det lykkedes eller fejlede
+    }
+    
+    private async Task OnBilledeValgtElev(InputFileChangeEventArgs e)
+    {
+        var billede = e.File;
+        using var stream = billede.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024); // maks 5 MB
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        elevKommentarBillede = Convert.ToBase64String(ms.ToArray());
+    }
+
+    private async Task OnBilledeValgtKok(InputFileChangeEventArgs e)
+    {
+        var billede = e.File;
+        using var stream = billede.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        kokKommentarBillede = Convert.ToBase64String(ms.ToArray());
     }
 
     //Funktion der bruges til at ændre status på et delmaal

@@ -33,26 +33,10 @@ public class ElevplanServiceMock : IElevplanService
 
         return Task.CompletedTask;
     }
-
-    public Task RedigerKommentar(Shared.Elevplan minPlan, int delmaalId, int kommentarId, string nyTekst)
+    
+    public Task RedigerKommentar(Shared.Elevplan minPlan, int delmaalId, Kommentar redigeretKommentar)
     {
-        //Her finder vi alle delmål i den elevplan der sendes med og derefter det specifikke delmål ud fra ID
-        var delmaal = minPlan.ListPerioder
-            .SelectMany(p => p.ListMaal)
-            .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.DelmaalId == delmaalId);
-
-        //Her finder vi den kommentar vi vil redigere/opdatere, ud fra ID 
-        var kommentar = delmaal?.Kommentarer.FirstOrDefault(k => k.KommentarId == kommentarId);
-
-        //Her laver vi opdateringen, baseret på den nye tekst, og sætter datoen til i dag
-        if (kommentar != null)
-        {
-            kommentar.Tekst = nyTekst;
-            kommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
-        }
-
-        return Task.CompletedTask;
+        throw new NotImplementedException();
     }
 
     public Task<Kommentar?> GetKommentarAsync(int elevplanId, int delmaalId, string brugerRolle)

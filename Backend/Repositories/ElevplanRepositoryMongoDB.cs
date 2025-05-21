@@ -107,9 +107,8 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
 
     }
     
-    public async Task RedigerKommentarAsync(int elevplanId, int delmaalId, int kommentarId, string nyTekst)
+    public async Task RedigerKommentarAsync(int elevplanId, int delmaalId, int kommentarId, Kommentar redigeretKommentar)
     {
-        //Finder først den rigtige elevplan, og delmål, præcis som ovenover
         var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.ElevplanId, elevplanId);
         var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
 
@@ -123,20 +122,21 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
 
         if (delmaal == null)
             throw new Exception($"Delmål med ID {delmaalId} ikke fundet.");
-        
-        //finder den eksisterende kommentar
+
         var kommentar = delmaal.Kommentarer.FirstOrDefault(k => k.KommentarId == kommentarId);
 
         if (kommentar == null)
             throw new Exception($"Kommentar med ID {kommentarId} ikke fundet.");
-        
-        //indsætter den nye tekst og opdaterer datoen
-        kommentar.Tekst = nyTekst;
-        kommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
 
-        //opdaterer hele brugerens dokument, med den nye kommentar 
+        // Opdaterer hele kommentaren
+        kommentar.Tekst = redigeretKommentar.Tekst;
+        kommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
+        kommentar.KommentarBillede = redigeretKommentar.KommentarBillede;
+
+        // Opdater databasen
         await BrugerCollection.ReplaceOneAsync(b => b.BrugerId == bruger.BrugerId, bruger);
     }
+
     
     public async Task OpdaterStatusAsync(int elevplanId, Delmaal delmaal)
     {

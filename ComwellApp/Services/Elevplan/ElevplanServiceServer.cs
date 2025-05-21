@@ -110,14 +110,12 @@ public class ElevplanServiceServer : IElevplanService
         }
     }
     
-    public async Task RedigerKommentar(Elevplan minPlan, int delmaalId, int kommentarId, string nyTekst)
+    public async Task RedigerKommentar(Elevplan minPlan, int delmaalId, Kommentar redigeretKommentar)
     {
-        //Kalder vores controller for at sende den nye kommentar
         var response = await http.PutAsJsonAsync(
-            $"api/elevplan/kommentar/{minPlan.ElevplanId}/{delmaalId}/{kommentarId}",
-            nyTekst);
+            $"api/elevplan/kommentar/{minPlan.ElevplanId}/{delmaalId}/{redigeretKommentar.KommentarId}",
+            redigeretKommentar);
 
-        //fejlhåndtering
         if (!response.IsSuccessStatusCode)
         {
             var fejl = await response.Content.ReadAsStringAsync();
@@ -125,6 +123,7 @@ public class ElevplanServiceServer : IElevplanService
             throw new Exception("Kunne ikke redigere kommentar.");
         }
     }
+
 
     public async Task<Kommentar?> GetKommentarAsync(int elevplanId, int delmaalId, string brugerRolle)
     {

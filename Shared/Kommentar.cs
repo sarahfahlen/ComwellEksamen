@@ -15,4 +15,6 @@ public class Kommentar
     public DateOnly Dato { get; set; }
     public string Tekst { get; set; }
     
+    public string? KommentarBillede { get; set; }
+    
 }

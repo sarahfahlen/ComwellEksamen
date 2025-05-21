@@ -75,11 +75,11 @@ public class ElevplanController : ControllerBase
 
     [HttpPut("kommentar/{elevplanId:int}/{delmaalId:int}/{kommentarId:int}")]
     public async Task<IActionResult> RedigerKommentar(int elevplanId, int delmaalId, int kommentarId,
-        [FromBody] string nyTekst)
+        [FromBody] Kommentar redigeretKommentar)
     {
         try
         {
-            await elevplanRepo.RedigerKommentarAsync(elevplanId, delmaalId, kommentarId, nyTekst);
+            await elevplanRepo.RedigerKommentarAsync(elevplanId, delmaalId, kommentarId, redigeretKommentar);
             return Ok();
         }
         catch (Exception ex)
@@ -87,6 +87,7 @@ public class ElevplanController : ControllerBase
             return BadRequest($"Fejl ved redigering af kommentar: {ex.Message}");
         }
     }
+
 
     // Hente filtrerede mål fra en elevplan via query-parametre
     [HttpGet("filtreredemaal")]
