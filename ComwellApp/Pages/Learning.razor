@@ -1,54 +1,95 @@
 @page "/learning"
 @using ComwellApp.Services.Learning
-@using Shared;
+@using Shared
 
 @inject ILearningService lService
 
-@inject NavigationManager navManager
-
-<h3>Læringsmoduler</h3>
-@foreach (var fag in alleFag)
-{
-    <h2>@fag?.FagomraadeNavn</h2>
-    <p>@fag?.FagomraadeBeskrivelse</p>
-
-    @if (fag != null)
-    {
-        @foreach (var underemne in fag.ListUnderemne)
+<h1>Læringsmoduler</h1>
+<div class="laering-wrapper">
+    <div class="laering-sidepanel">
+        @if (alleFag != null)
         {
-            <h3>@underemne.UnderemneNavn</h3>
-            <p>@underemne.UnderemneBeskrivelse</p>
-
-            @foreach (var element in underemne.ListElement)
+            @foreach (var fag in alleFag)
             {
-                <h4>Element: @element.ElementNavn (@element.ElementType)</h4>
+                var aaben = dropdownAaben.GetValueOrDefault(fag.FagomraadeNavn, false);
 
-                @if (element is Quiz quiz)
-                {
-                    @foreach (var spoergsmaal in quiz.ListSpoergsmaal)
+                <div class="laering-dropdown-wrapper">
+                    <button class="laering-dropdown-knap" @onclick="() => ToggleDropdown(fag.FagomraadeNavn)">
+                        <h5 class="fagområde-navn">@fag.FagomraadeNavn</h5>
+                    </button>
+
+                    @if (aaben)
                     {
-                        <p><strong>@spoergsmaal.Tekst</strong></p>
-
-                        @for (int i = 0; i < spoergsmaal.Svar.Count; i++)
-                        {
-                            <div style="margin-left: 1rem;">
-                                <label>
-                                    <input type="radio" name="@spoergsmaal.Tekst"/> @spoergsmaal.Svar[i].Tekst
-                                </label>
-                            </div>
-                        }
+                        <div class="laering-dropdown-boks">
+                            @foreach (var underemne in fag.ListUnderemne)
+                            {
+                                <button class="laering-underemne-knap" @onclick="() => valgtUnderemne = underemne">
+                                    @underemne.UnderemneNavn
+                                </button>
+                            }
+                        </div>
                     }
-                }
+                </div>
+
             }
         }
-    }
-}
+    </div>
+
+    <div class="laering-indhold">
+        @if (valgtUnderemne != null)
+        {
+            <h4 class="laering-underemne-overskrift">@valgtUnderemne.UnderemneNavn</h4>
+            <p>@valgtUnderemne.UnderemneBeskrivelse</p>
+
+            <div class="laering-element-container">
+                @foreach (var element in valgtUnderemne.ListElement)
+                {
+                    <div class="laering-elementkort">
+                        <h5>@element.ElementNavn (@element.ElementType)</h5>
+
+                        @if (element is Quiz quiz)
+                        {
+                            @foreach (var spg in quiz.ListSpoergsmaal)
+                            {
+                                <p><strong>@spg.Tekst</strong></p>
+                                @foreach (var svar in spg.Svar)
+                                {
+                                    <div>
+                                        <label>
+                                            <input type="radio" name="@spg.Tekst" />
+                                            @svar.Tekst
+                                        </label>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p>Vælg et underemne for at se indhold.</p>
+        }
+    </div>
+</div>
 
 @code {
     private List<Fagomraade>? alleFag;
+    private Dictionary<string, bool> dropdownAaben = new();
+    private Underemne? valgtUnderemne;
 
     protected override async Task OnInitializedAsync()
     {
         alleFag = await lService.HentMockLearning();
+        foreach (var fag in alleFag)
+        {
+            dropdownAaben[fag.FagomraadeNavn] = false;
+        }
+    }
+
+    private void ToggleDropdown(string fagNavn)
+    {
+        dropdownAaben[fagNavn] = !dropdownAaben.GetValueOrDefault(fagNavn, false);
     }
 }
