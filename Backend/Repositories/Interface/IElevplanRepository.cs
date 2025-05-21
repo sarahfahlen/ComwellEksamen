@@ -26,7 +26,7 @@ public interface IElevplanRepository
 
     Task<Elevplan?> HentElevplanMedMaal(int elevplanId, int periodeIndex);
 
-
+    Task OpdaterIgangAsync(int elevplanId, Delmaal delmaal);
     // Brugt til at hente en elevplans mål med filtre og søgning fra frontend
     Task<List<Maal>> HentFiltreredeMaal(
         int brugerId, // Brugerens ID – bruges til at finde elevplanen

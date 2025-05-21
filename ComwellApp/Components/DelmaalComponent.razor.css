@@ -57,17 +57,25 @@
     color: white;
     cursor: pointer;
 }
+.status-knapper {
+    display: flex;
+    justify-content: space-between; /* venstre + højre placering */
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
 
 .status-badge {
-    align-self: flex-end;
     padding: 0.3rem 0.8rem;
     border-radius: 999px;
     font-size: 0.85rem;
     font-weight: 600;
-    margin-top: 1rem;
     display: inline-block;
     cursor: pointer;
+    white-space: nowrap;
 }
+
 
 .status-badge:hover {
     transform: translateY(-2px);
@@ -82,12 +90,19 @@
     background-color: #f9f6f2;
     color: #8c4d4d;
 }
-
-
 .status-opnået {
     background-color: #f9f6f2;
     color: #334328;
 }
+.status-badge.igang {
+    background-color: #f9f6f2;
+    color: #cd7e1b;
+}
+.status-badge.ikke-igang {
+    background-color: #f9f6f2;
+    color: #444;
+}
+
 .rediger-knap {
     width: 36px;
     height: 36px;

@@ -278,5 +278,25 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
         return bruger?.MinElevplan;
     }
+    public async Task OpdaterIgangAsync(int elevplanId, Delmaal delmaal)
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.ElevplanId, elevplanId);
+        var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
+
+        if (bruger?.MinElevplan == null)
+            throw new Exception("Elevplan ikke fundet");
+
+        var _delmaal = bruger.MinElevplan.ListPerioder
+            .SelectMany(p => p.ListMaal)
+            .SelectMany(m => m.ListDelmaal)
+            .FirstOrDefault(d => d.DelmaalId == delmaal.DelmaalId);
+
+        if (_delmaal == null)
+            throw new Exception("Delmål ikke fundet");
+
+        _delmaal.Igang = delmaal.Igang;
+
+        await BrugerCollection.ReplaceOneAsync(b => b.BrugerId == bruger.BrugerId, bruger);
+    }
 
 }

@@ -10,33 +10,45 @@
             <p>Ansvarlig: @delmaal.Ansvarlig</p>
             <p>
                 Deadline: @(delmaal.Deadline != null
-                              ? delmaal.Deadline?.ToString("dd/MM-yyyy")
-                              : delmaal.DeadlineKommentar)
+                                  ? delmaal.Deadline?.ToString("dd/MM-yyyy")
+                                  : delmaal.DeadlineKommentar)
             </p>
+
             @if (delmaal.ListOpgaver != null && delmaal.ListOpgaver.Any())
             {
-                <p> Opgaver:
+                <p>Opgaver:
                     <button class="kommentar-knap" @onclick="() => OnVisOpgaver.InvokeAsync(delmaal)">Åbn opgaver</button>
                 </p>
             }
-            <p> Kommentar:
-                <button class="kommentar-knap" @onclick="() => OnInputDelmaal.InvokeAsync(delmaal.DelmaalId)">
-                    Se kommentar
-                </button>
+
+            <p>Kommentar:
+                <button class="kommentar-knap" @onclick="() => OnInputDelmaal.InvokeAsync(delmaal.DelmaalId)">Se kommentar</button>
             </p>
+
             @if (delmaal.Status && !string.IsNullOrWhiteSpace(delmaal.StatusLog))
             {
                 <p class="status-log">@delmaal.StatusLog</p>
             }
 
-            <div class="status-badge @(delmaal.Status ? "gennemført" : "ikke-gennemført")"
-                 @onclick="() => OnToggleStatus.InvokeAsync(delmaal)">
-                @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
+            <div class="status-knapper">
+                @if (!delmaal.Status && BrugerRolle != "HR")
+                {
+                    <div class="status-badge @(delmaal.Igang ? "igang" : "ikke-igang")"
+                         @onclick="() => OnToggleIgang.InvokeAsync(delmaal)">
+                        @(delmaal.Igang ? "Igangværende" : "Ikke igang")
+                    </div>
+                }
+                <div class="status-badge @(delmaal.Status ? "gennemført" : "ikke-gennemført")"
+                     @onclick="() => OnToggleStatus.InvokeAsync(delmaal)">
+                    @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
+                </div>
+
+
             </div>
-           
+
             @if (BrugerRolle == "Køkkenchef" || BrugerRolle == "Admin")
             {
-                <p>
+                <div>
                     <button class="rediger-knap" @onclick="() => OnRedigerDelmaal.InvokeAsync(delmaal)">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                              class="bi bi-pencil" viewBox="0 0 16 16">
@@ -50,11 +62,10 @@
                          0 1-.468-.325"/>
                         </svg>
                     </button>
-                </p>
+                </div>
             }
         </div>
     }
-    
 </div>
 @code {
     [Parameter] public required Maal maal { get; set; }
@@ -74,8 +85,5 @@
     //Bruges til at sende delmålet til parent komponenten, så vi kan redigere i det
     [Parameter] public EventCallback<Delmaal> OnRedigerDelmaal { get; set; }
 
-
-
-
-
+    [Parameter] public EventCallback<Delmaal> OnToggleIgang { get; set; }
 }

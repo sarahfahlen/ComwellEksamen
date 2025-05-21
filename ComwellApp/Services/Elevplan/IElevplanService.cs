@@ -31,4 +31,6 @@ public interface IElevplanService
     Task<List<string>> HentDelmaalTyperFraPeriode(int elevplanId, int periodeIndex);
 
     Task<List<Delmaal>> HentKommendeDeadlines(int brugerId);
+    
+    Task OpdaterIgang(Shared.Elevplan plan, Delmaal delmaal);
 }

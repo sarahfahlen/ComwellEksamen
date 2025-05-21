@@ -346,4 +346,9 @@ public class ElevplanServiceMock : IElevplanService
     {
         throw new NotImplementedException();
     }
+
+    public Task OpdaterIgang(Shared.Elevplan plan, Delmaal delmaal)
+    {
+        throw new NotImplementedException();
+    }
 }

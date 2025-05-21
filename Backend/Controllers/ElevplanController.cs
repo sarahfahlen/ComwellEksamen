@@ -208,4 +208,18 @@ public class ElevplanController : ControllerBase
             return BadRequest("Kunne ikke hente kommende deadlines.");
         }
     }
+    [HttpPut("igangopdatering/{elevplanId:int}")]
+    public async Task<IActionResult> OpdaterIgang(int elevplanId, [FromBody] Delmaal delmaal)
+    {
+        try
+        {
+            await elevplanRepo.OpdaterIgangAsync(elevplanId, delmaal);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Fejl: {ex.Message}");
+        }
+    }
+
 }

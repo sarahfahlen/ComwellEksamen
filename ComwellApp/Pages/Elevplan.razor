@@ -176,8 +176,9 @@
                                               BrugerRolle="@loggedIn?.Rolle"
                                               OnInputDelmaal="AabenKommentar"
                                               OnToggleStatus="ToggleStatus"
+                                              OnToggleIgang="ToggleIgangStatus"
                                               OnRedigerDelmaal="AabenRedigerDelmaal"
-                                              OnVisOpgaver="AabenOpgaver" />
+                                              OnVisOpgaver="AabenOpgaver"/>
                         }
                         else
                         {
@@ -811,5 +812,13 @@
         await eService.OpdaterDelmaal(minPlan, valgtPeriodeIndex, maal.MaalId, aktivtDelmaalTilOpgaver);
         opgaverDialog?.Close();
     }
-    
+    private async Task ToggleIgangStatus(Delmaal d)
+    {
+        if (d.Status) return; // gennemførte må ikke toggles
+
+        d.Igang = !d.Igang;
+        await eService.OpdaterIgang(minPlan, d);
+    }
+
+
 }

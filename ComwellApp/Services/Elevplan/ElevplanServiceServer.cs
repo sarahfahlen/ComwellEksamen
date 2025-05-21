@@ -230,5 +230,17 @@ public class ElevplanServiceServer : IElevplanService
 
         return await response.Content.ReadFromJsonAsync<List<Delmaal>>() ?? new();
     }
+    public async Task OpdaterIgang(Elevplan plan, Delmaal delmaal)
+    {
+        var response = await http.PutAsJsonAsync($"api/elevplan/igangopdatering/{plan.ElevplanId}", delmaal);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[OpdaterIgang] FEJL: {fejl}");
+            throw new Exception("Kunne ikke opdatere 'Igang' status.");
+        }
+    }
+
 
 }
