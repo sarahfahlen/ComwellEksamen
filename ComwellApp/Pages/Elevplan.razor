@@ -79,8 +79,7 @@
                 <div id="elevbillede">
                     @if (!string.IsNullOrEmpty(valgtElev.Billede))
                     {
-                        <img src="@GetProfilbilledeSti(valgtElev.Billede)" alt="Elevbillede" class="elevbillede-img" />
-
+                        <img src="@GetProfilbilledeSti(valgtElev.Billede)" alt="Elevbillede" class="elevbillede-img"/>
                     }
                 </div>
             </div>
@@ -102,7 +101,55 @@
                              style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
                     </div>
 
-                    <p style="margin-bottom: -3rem;">@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den valgte praktikperiode</p>
+                    <p style="margin-bottom: -3rem;">@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den
+                        valgte praktikperiode</p>
+
+                    <!-- Mobilvisning: søgning og filter -->
+                    <div class="mobil-soeg-filter">
+                        <div class="sidepanel-værktøj">
+                            <label for="mobil-soeg">Søg delmål</label>
+                            <input type="text" id="mobil-soeg" class="soeg-input" placeholder="Skriv søgeord..."
+                                   @bind-value="soegeord" @bind-value:event="oninput" @onkeypress="HandleKeyPress"/>
+                            <button class="soege-knap" @onclick="soegningknap">Søg</button>
+                        </div>
+
+                        <div class="sidepanel-værktøj">
+                            <button class="filter-knap" @onclick="() => visFilter = !visFilter">Filtrer</button>
+
+                            @if (visFilter)
+                            {
+                                <div class="filter-boks-anim" style="margin-top: 1rem;">
+                                    <label>Mål</label>
+                                    <InputSelect class="form-control" @bind-value="ValgtMaalNavn"
+                                                 @oninput="OnChangeMaal">
+                                        <option value="">Alle mål</option>
+                                        @foreach (var m in aktivPeriode?.ListMaal ?? new())
+                                        {
+                                            <option value="@m.MaalNavn">@m.MaalNavn</option>
+                                        }
+                                    </InputSelect>
+
+                                    <label class="mt-2">Delmålstype</label>
+                                    <InputSelect class="form-control" @bind-value="ValgtDelmaalType"
+                                                 @oninput="OnChangeDelmaalType">
+                                        <option value="">Alle typer</option>
+                                        @foreach (var t in aktivPeriode?.ListMaal.SelectMany(m => m.ListDelmaal).Select(d => d.DelmaalType).Distinct() ?? new List<string>())
+                                        {
+                                            <option value="@t">@t</option>
+                                        }
+                                    </InputSelect>
+
+                                    <label class="mt-2">Status</label>
+                                    <InputSelect class="form-control" @bind-value="ValgtStatus"
+                                                 @oninput="OnChangeStatus">
+                                        <option value="">Alle</option>
+                                        <option value="true">Gennemført</option>
+                                        <option value="false">Ikke gennemført</option>
+                                    </InputSelect>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 }
             </div>
             @if (!isReadOnlyElevView && (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "Admin"))
@@ -142,7 +189,7 @@
                                                class="opgave-checkbox"
                                                checked="@opgave.OpgaveGennemfoert"
                                                @onchange="() => ToggleOpgaveStatus(opgave)"
-                                               disabled="@(loggedIn?.Rolle != "FaglærtKok" && loggedIn?.Rolle != "Køkkenchef" && loggedIn?.Rolle != "Admin")" />
+                                               disabled="@(loggedIn?.Rolle != "FaglærtKok" && loggedIn?.Rolle != "Køkkenchef" && loggedIn?.Rolle != "Admin")"/>
                                         <p class="opgave-navn"><strong>@opgave.OpgaveNavn</strong></p>
                                     </div>
                                     <p class="opgave-detaljer">@opgave.OpgaveDetaljer</p>
@@ -187,7 +234,7 @@
                             // Hvis brugeren ER en elev, der ser en andens elevplan, vises komponenten i en "readonly"-tilstand.
                             <DelmaalComponent maal="maal"
                                               BrugerRolle="ReadonlyElev"
-                                              OnVisOpgaver="AabenOpgaver" />
+                                              OnVisOpgaver="AabenOpgaver"/>
                         }
                     }
                 }
@@ -196,98 +243,94 @@
                     <p><em>Ingen mål matcher dine filtre for denne periode.</em></p>
                 }
             </div>
-            
+
             <!-- Modal dialog til at vise og redigere kommentarer -->
             @if (!isReadOnlyElevView)
             {
-            <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
-    <div class="modal-form">
-        <!-- Elevens kommentar -->
-        <label><strong>Elevens kommentar</strong></label>
+                <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
+                    <div class="modal-form">
+                        <!-- Elevens kommentar -->
+                        <label><strong>Elevens kommentar</strong></label>
 
-        @if (!string.IsNullOrWhiteSpace(elevKommentarNavn) && elevKommentarDato != null)
-        {
-            <p class="kommentar-info">
-                <strong>@elevKommentarNavn</strong>, @elevKommentarDato?.ToString("dd.MM.yyyy"):
-            </p>
-        }
+                        @if (!string.IsNullOrWhiteSpace(elevKommentarNavn) && elevKommentarDato != null)
+                        {
+                            <p class="kommentar-info">
+                                <strong>@elevKommentarNavn</strong>, @elevKommentarDato?.ToString("dd.MM.yyyy"):
+                            </p>
+                        }
 
-        @if (loggedIn?.Rolle == "Elev")
-        {
-            <div class="kommentar-med-billede">
-                <InputTextArea class="form-control kommentarbox" style="height:14rem;"
-                               @bind-Value="elevKommentar" />
-                @if (!string.IsNullOrEmpty(elevKommentarBillede))
-                {
-                    <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede" />
+                        @if (loggedIn?.Rolle == "Elev")
+                        {
+                            <div class="kommentar-med-billede">
+                                <InputTextArea class="form-control kommentarbox" style="height:14rem;"
+                                               @bind-Value="elevKommentar"/>
+                                @if (!string.IsNullOrEmpty(elevKommentarBillede))
+                                {
+                                    <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede"/>
+                                }
+                            </div>
+                            <InputFile OnChange="OnBilledeValgtElev" accept="image/*"/>
+                        }
+                        else
+                        {
+                            @if (!string.IsNullOrWhiteSpace(elevKommentar))
+                            {
+                                <p>@elevKommentar</p>
+                            }
+                            else
+                            {
+                                <p><em>Ingen elevkommentar endnu.</em></p>
+                            }
 
-                }
-            </div>
-            <InputFile OnChange="OnBilledeValgtElev" accept="image/*" />
-        }
-        else
-        {
-            @if (!string.IsNullOrWhiteSpace(elevKommentar))
-            {
-                <p>@elevKommentar</p>
-            }
-            else
-            {
-                <p><em>Ingen elevkommentar endnu.</em></p>
-            }
+                            @if (!string.IsNullOrEmpty(elevKommentarBillede))
+                            {
+                                <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede"/>
+                            }
+                        }
 
-            @if (!string.IsNullOrEmpty(elevKommentarBillede))
-            {
-                <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede" />
+                        <!-- Kokkens kommentar -->
+                        <label class="mt-3"><strong>Kok og køkkenchef's kommentar</strong></label>
 
-            }
-        }
+                        @if (!string.IsNullOrWhiteSpace(kokKommentarNavn) && kokKommentarDato != null)
+                        {
+                            <p class="kommentar-info">
+                                <strong>Senest ændret
+                                    af: @kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
+                            </p>
+                        }
 
-        <!-- Kokkens kommentar -->
-        <label class="mt-3"><strong>Kok og køkkenchef's kommentar</strong></label>
+                        @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "FaglærtKok")
+                        {
+                            <div class="kommentar-med-billede">
+                                <InputTextArea class="form-control kommentarbox" style="height:14rem;"
+                                               @bind-Value="kokKommentar"/>
+                                @if (!string.IsNullOrEmpty(kokKommentarBillede))
+                                {
+                                    <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede"/>
+                                }
+                            </div>
+                            <InputFile OnChange="OnBilledeValgtKok" accept="image/*"/>
+                        }
+                        else
+                        {
+                            @if (!string.IsNullOrWhiteSpace(kokKommentar))
+                            {
+                                <p>@kokKommentar</p>
+                            }
+                            else
+                            {
+                                <p><em>Ingen kokkekommentar endnu.</em></p>
+                            }
 
-        @if (!string.IsNullOrWhiteSpace(kokKommentarNavn) && kokKommentarDato != null)
-        {
-            <p class="kommentar-info">
-                <strong>Senest ændret af: @kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
-            </p>
-        }
+                            @if (!string.IsNullOrEmpty(kokKommentarBillede))
+                            {
+                                <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede"/>
+                            }
+                        }
 
-        @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "FaglærtKok")
-        {
-            <div class="kommentar-med-billede">
-                <InputTextArea class="form-control kommentarbox" style="height:14rem;"
-                               @bind-Value="kokKommentar" />
-                @if (!string.IsNullOrEmpty(kokKommentarBillede))
-                {
-                    <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede" />
-
-                }
-            </div>
-            <InputFile OnChange="OnBilledeValgtKok" accept="image/*" />
-        }
-        else
-        {
-            @if (!string.IsNullOrWhiteSpace(kokKommentar))
-            {
-                <p>@kokKommentar</p>
-            }
-            else
-            {
-                <p><em>Ingen kokkekommentar endnu.</em></p>
-            }
-
-            @if (!string.IsNullOrEmpty(kokKommentarBillede))
-            {
-                <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede" />
-
-            }
-        }
-
-        <button class="Gemkommentarknap" @onclick="GemKommentar">Gem kommentar</button>
-    </div>
-</ModalDialog>
-
+                        <button class="Gemkommentarknap" @onclick="GemKommentar">Gem kommentar</button>
+                    </div>
+                </ModalDialog>
             }
         </div>
 
@@ -387,7 +430,7 @@
     private string valgtDelmaalType = "";
     private bool? valgtStatus = null;
     private bool visFilter = false;
-    
+
     // Det valgte mål ID fra dropdown
     private int valgtMaalIdTilDelmaal;
 
@@ -400,7 +443,7 @@
     //Variable til vores opret/rediger delmål
     private ModalDialog? tilfoejDelmaalDialog;
     private Delmaal? delmaalTilRedigering = null;
-    
+
     //Variable til vores vis opgaver funktionalitet
     private ModalDialog? opgaverDialog;
     private Delmaal? aktivtDelmaalTilOpgaver;
@@ -458,6 +501,7 @@
             valgtElev = loggedIn;
             minPlan = loggedIn.MinElevplan;
         }
+
         //Henter elevplan for den pågældene elev
         minPlan = await bService.HentElevplanForBruger(valgtElev.BrugerId, loggedIn.BrugerId);
 
@@ -467,11 +511,12 @@
             Console.WriteLine($"Ingen elevplan fundet for brugerId {valgtElev.BrugerId}");
             return;
         }
-        
+
         if (valgtPeriodeIndex >= minPlan.ListPerioder.Count)
         {
             valgtPeriodeIndex = 0;
         }
+
         await OpdaterFiltreredeMaal();
     }
 
@@ -505,6 +550,7 @@
                     opnaaet++;
             }
         }
+
         return opnaaet;
     }
 
@@ -532,6 +578,7 @@
                 elevKommentarDato = _elevKommentar.Dato;
                 elevKommentarBillede = _elevKommentar.KommentarBillede;
             }
+
             // Henter køkkenchefens/kokkens kommentar på samme måde
             var _kokKommentar = await eService.GetKommentarAsync(minPlan.ElevplanId, delmaalId, "FaglærtKok");
             if (_kokKommentar != null)
@@ -594,7 +641,7 @@
                     OprettetAfNavn = loggedIn.Navn,
                     OprettetAfRolle = loggedIn.Rolle,
                     Tekst = kokKommentar,
-                    KommentarBillede = kokKommentarBillede     
+                    KommentarBillede = kokKommentarBillede
                 };
                 await eService.TilfoejKommentar(minPlan, aktivtDelmaalId, kommentar);
             }
@@ -603,7 +650,7 @@
         kommentarDialog?.Close(); // Lukker modalen efter gem
         // TODO: Giv bruger feedback på om det lykkedes eller fejlede
     }
-    
+
     private async Task OnBilledeValgtElev(InputFileChangeEventArgs e)
     {
         elevKommentarBillede = await UploadKommentarBilledeAsync(e.File);
@@ -615,7 +662,6 @@
     }
 
 
-    
     //Funktion der bruges til at ændre status på et delmaal
     private async Task ToggleStatus(Delmaal delmaal)
     {
@@ -630,6 +676,7 @@
         {
             delmaal.StatusLog = $"Ændret af {loggedIn.Navn} d. {DateTime.Now:dd/MM-yyyy}";
         }
+
         try
         {
             await eService.OpdaterStatus(minPlan, delmaal);
@@ -641,7 +688,7 @@
 
         StateHasChanged();
     }
-    
+
     private void ToggleOpgaveStatus(Opgaver opgave)
     {
         if (loggedIn == null) return;
@@ -651,13 +698,13 @@
         opgave.StatusLogOpgave = $"Gennemført af {loggedIn.Navn} d. {DateTime.Now:dd/MM-yyyy}";
     }
 
-    
+
     private async Task soegningknap()
     {
         Console.WriteLine($"Søger på: {soegeord}");
         await OpdaterFiltreredeMaal();
     }
-    
+
     // Aktiverer søgning når ENTER trykkes
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
@@ -666,14 +713,14 @@
             await soegningknap();
         }
     }
-    
+
     //Håndterer valg af periode og sætter index der bruges til at hente de filtrerede mål
     private async Task SkiftPeriode(int index)
     {
         valgtPeriodeIndex = index;
         await OpdaterFiltreredeMaal();
     }
-    
+
     private async Task OpdaterFiltreredeMaal()
     {
         if (valgtElev == null)
@@ -701,7 +748,7 @@
             _ = OpdaterFiltreredeMaal();
         }
     }
-    
+
     // Når et mål vælges i dropdown
     private async Task OnChangeMaal(ChangeEventArgs e)
     {
@@ -723,7 +770,7 @@
             _ = OpdaterFiltreredeMaal();
         }
     }
-    
+
     // Når en delmålstype vælges
     private async Task OnChangeDelmaalType(ChangeEventArgs e)
     {
@@ -732,7 +779,7 @@
 
         await OpdaterFiltreredeMaal(); // Kalder backend for at hente nye mål
     }
-    
+
     private string ValgtStatus
     {
         get
@@ -754,7 +801,7 @@
         }
     }
 
-   
+
     // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
     private async Task OnChangeStatus(ChangeEventArgs e)
     {
@@ -777,7 +824,7 @@
 
         await OpdaterFiltreredeMaal();
     }
-    
+
     //bruges til at åbne tilføj modal dialog
     private void AabenTilfoejDelmaal()
     {
@@ -795,14 +842,14 @@
 
         tilfoejDelmaalDialog?.Open();
     }
-    
+
     //bruges til at åbne opgavevisningen
     private void AabenOpgaver(Delmaal delmaal)
     {
         aktivtDelmaalTilOpgaver = delmaal;
         opgaverDialog?.Open();
     }
-    
+
     private async Task GemOpgaver()
     {
         if (minPlan == null || aktivtDelmaalTilOpgaver == null || aktivPeriode == null)
@@ -816,6 +863,7 @@
         await eService.OpdaterDelmaal(minPlan, valgtPeriodeIndex, maal.MaalId, aktivtDelmaalTilOpgaver);
         opgaverDialog?.Close();
     }
+
     private async Task ToggleIgangStatus(Delmaal d)
     {
         if (d.Status) return; // gennemførte må ikke toggles
@@ -823,6 +871,7 @@
         d.Igang = !d.Igang;
         await eService.OpdaterIgang(minPlan, d);
     }
+
     private string GetProfilbilledeSti(string? sti)
     {
         if (string.IsNullOrEmpty(sti) || sti == "billeder/intetprofilbillede.jpg")
@@ -830,6 +879,7 @@
 
         return $"http://localhost:5237/{sti.TrimStart('/')}"; // hentes fra backendens wwwroot
     }
+
     private async Task<string> UploadKommentarBilledeAsync(IBrowserFile file)
     {
         var content = new MultipartFormDataContent();
