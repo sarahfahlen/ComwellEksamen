@@ -1,9 +1,54 @@
 @page "/learning"
+@using ComwellApp.Services.Learning
+@using Shared;
+
+@inject ILearningService lService
 
 @inject NavigationManager navManager
 
 <h3>Læringsmoduler</h3>
+@foreach (var fag in alleFag)
+{
+    <h2>@fag?.FagomraadeNavn</h2>
+    <p>@fag?.FagomraadeBeskrivelse</p>
+
+    @if (fag != null)
+    {
+        @foreach (var underemne in fag.ListUnderemne)
+        {
+            <h3>@underemne.UnderemneNavn</h3>
+            <p>@underemne.UnderemneBeskrivelse</p>
+
+            @foreach (var element in underemne.ListElement)
+            {
+                <h4>Element: @element.ElementNavn (@element.ElementType)</h4>
+
+                @if (element is Quiz quiz)
+                {
+                    @foreach (var spoergsmaal in quiz.ListSpoergsmaal)
+                    {
+                        <p><strong>@spoergsmaal.Tekst</strong></p>
+
+                        @for (int i = 0; i < spoergsmaal.Svar.Count; i++)
+                        {
+                            <div style="margin-left: 1rem;">
+                                <label>
+                                    <input type="radio" name="@spoergsmaal.Tekst"/> @spoergsmaal.Svar[i].Tekst
+                                </label>
+                            </div>
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 @code {
-    
+    private List<Fagomraade>? alleFag;
+
+    protected override async Task OnInitializedAsync()
+    {
+        alleFag = await lService.HentMockLearning();
+    }
 }
