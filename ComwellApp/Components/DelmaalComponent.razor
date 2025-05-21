@@ -31,17 +31,35 @@
             }
 
             <div class="status-knapper">
-                @if (!delmaal.Status && BrugerRolle != "HR")
+                @if (BrugerRolle == "HR")
                 {
-                    <div class="status-badge @(delmaal.Igang ? "igang" : "ikke-igang")"
-                         @onclick="() => OnToggleIgang.InvokeAsync(delmaal)">
-                        @(delmaal.Igang ? "Igangværende" : "Ikke igang")
+                    @if (!delmaal.Status)
+                    {
+                        <div class="status-badge @(delmaal.Igang ? "igang" : "ikke-igang")" style="cursor: default; opacity: 0.8;">
+                            @(delmaal.Igang ? "Igangværende" : "Ikke igang")
+                        </div>
+                    }
+
+                    <div class="status-badge @(delmaal.Status ? "gennemført" : "ikke-gennemført")" style="cursor: default; opacity: 0.8;">
+                        @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
                     </div>
                 }
-                <div class="status-badge @(delmaal.Status ? "gennemført" : "ikke-gennemført")"
-                     @onclick="() => OnToggleStatus.InvokeAsync(delmaal)">
-                    @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
-                </div>
+                else
+                {
+                    @if (!delmaal.Status)
+                    {
+                        <div class="status-badge @(delmaal.Igang ? "igang" : "ikke-igang")"
+                             @onclick="() => OnToggleIgang.InvokeAsync(delmaal)">
+                            @(delmaal.Igang ? "Igangværende" : "Ikke igang")
+                        </div>
+                    }
+
+                    <div class="status-badge @(delmaal.Status ? "gennemført" : "ikke-gennemført")"
+                         @onclick="() => OnToggleStatus.InvokeAsync(delmaal)">
+                        @(delmaal.Status ? "Gennemført" : "Ikke gennemført")
+                    </div>
+                }
+
 
 
             </div>
