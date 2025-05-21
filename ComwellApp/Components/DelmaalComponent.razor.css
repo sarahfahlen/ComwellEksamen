@@ -18,6 +18,9 @@
     justify-content: space-between;
     transform: translateY(0);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .delmaal-overskrift {
@@ -124,5 +127,20 @@
     background-color: #b89f7d;
     transform: scale(1.05);
 }
+
+@media (max-width: 768px) {
+    .delmaal-container {
+        grid-template-columns: 1fr; /* én kolonne på mobil */
+        padding: 0 1rem; /* lidt luft i siderne */
+    }
+
+    .delmaal {
+        width: 100%;
+        box-sizing: border-box;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+}
+
 
 

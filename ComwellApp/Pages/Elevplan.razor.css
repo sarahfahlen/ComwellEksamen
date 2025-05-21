@@ -293,6 +293,10 @@
     .sidepanel {
         display: none;
     }
+    
+    .main-indhold {
+        margin: -1rem 0.5rem 1rem -0.5rem;
+    }
 }
 
 .tilfoej-delmaal-knap {

@@ -12,10 +12,18 @@ body, p, span, li, a, td, th, textarea {
     font-style: normal;
 }
 
+html, body {
+    max-width: 100vw;
+}
+
 * {
     font-family: "Mulish", sans-serif;
     font-weight: 300;
     font-style: normal;
+}
+
+#navmenu {
+    transition: transform 0.3s ease-in-out;
 }
 
 input {
@@ -191,5 +199,9 @@ input[type="file"] {
 @media (max-width: 768px) {
     main {
         padding-top: 1.9rem; /* Matcher navmenuens højde */
+    }
+    
+    .sideoverskriftelevplan {
+        font-size: calc(1.375rem + 0.5vw) !important;
     }
 }
