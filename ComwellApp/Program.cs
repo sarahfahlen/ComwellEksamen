@@ -5,6 +5,7 @@ using ComwellApp;
 using ComwellApp.Services;
 using ComwellApp.Services.Brugere;
 using ComwellApp.Services.Elevplan;
+using ComwellApp.Services.Learning;
 using ComwellApp.Services.Login;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -26,6 +27,8 @@ builder.Services.AddScoped<IdGeneratorService>();
 builder.Services.AddScoped<IElevplanService, ElevplanServiceServer>();
 builder.Services.AddScoped<IBrugereService, BrugereServiceServer>();
 builder.Services.AddScoped<ILoginService, LoginServiceServer>();
+builder.Services.AddScoped<ILearningService, LearningServiceMock>();
+
 
 
 // Kør appen
