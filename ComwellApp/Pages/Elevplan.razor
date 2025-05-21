@@ -270,7 +270,7 @@
                                 <div class="kommentar-linje">
                                     <div class="kommentar-felt">
                                         <InputTextArea class="form-control kommentarbox" @bind-Value="elevKommentar" />
-                                        <InputFile OnChange="OnBilledeValgtElev" accept="image/*" />
+                                        <InputFile OnChange="OnBilledeValgtElev" accept="image/*" class="kommentar-upload" />
                                     </div>
 
                                     @if (!string.IsNullOrEmpty(elevKommentarBillede))
@@ -331,7 +331,7 @@
                                 <div class="kommentar-linje">
                                     <div class="kommentar-felt">
                                         <InputTextArea class="form-control kommentarbox" @bind-Value="kokKommentar" />
-                                        <InputFile OnChange="OnBilledeValgtKok" accept="image/*" />
+                                        <InputFile OnChange="OnBilledeValgtKok" accept="image/*" class="kommentar-upload"/>
                                     </div>
 
                                     @if (!string.IsNullOrEmpty(kokKommentarBillede))

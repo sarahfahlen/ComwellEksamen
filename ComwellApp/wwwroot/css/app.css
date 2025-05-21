@@ -35,6 +35,7 @@ input {
 input[type="text"],
 input[type="email"],
 input[type="password"],
+input[type="file"],
 input:not([type]) {
     font-family: "Mulish", sans-serif;
     padding-top: 15px; /* Skubber teksten længere ned */
@@ -189,8 +190,7 @@ code {
     transform: translateX(6px);
 }
 
-/* === Filupload === */
-input[type="file"] {
+input[type="file"].kommentar-upload {
     margin-top: 0.6rem;
     font-size: 0.9rem;
     color: #4f4f4f;
@@ -202,7 +202,7 @@ input[type="file"] {
     transition: border-color 0.3s;
 }
 
-input[type="file"]:hover {
+input[type="file"].kommentar-upload:hover {
     border-color: #c6a979;
 }
 
