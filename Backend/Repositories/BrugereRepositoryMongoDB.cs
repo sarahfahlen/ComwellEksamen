@@ -221,5 +221,11 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
             .Distinct()
             .ToList();
     }
+    public async Task OpdaterBillede(int brugerId, string sti)
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b.BrugerId, brugerId);
+        var update = Builders<Bruger>.Update.Set(b => b.Billede, sti);
+        await BrugerCollection.UpdateOneAsync(filter, update);
+    }
 
 }

@@ -215,5 +215,57 @@ public class BrugereController : ControllerBase
             return StatusCode(500, $"Fejl ved hentning af kurser: {ex.Message}");
         }
     }
+    [HttpPost("upload-profilbillede")]
+    public async Task<IActionResult> UploadProfilBillede([FromQuery] int brugerId)
+    {
+        var file = Request.Form.Files.FirstOrDefault();
+        if (file == null || file.Length == 0)
+            return BadRequest("Intet billede valgt");
 
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+        var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+        if (!allowedExtensions.Contains(fileExtension))
+            return BadRequest("Kun JPG og PNG filer er tilladt.");
+
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "billeder", "brugere");
+        if (!Directory.Exists(uploadsFolder))
+            Directory.CreateDirectory(uploadsFolder);
+
+        var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        await using var stream = new FileStream(filePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        var relativePath = $"/billeder/brugere/{uniqueFileName}"; // ← DENNE STREG ER VIGTIG
+
+        await _repo.OpdaterBillede(brugerId, relativePath);
+
+        return Ok(relativePath);
+    }
+    [HttpDelete("slet-billede")]
+    public IActionResult SletBillede([FromQuery] string sti)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(sti) || sti == "billeder/intetprofilbillede.jpg")
+                return BadRequest("Kan ikke slette standardbilledet.");
+
+            var absolutSti = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", sti.TrimStart('/'));
+
+            if (System.IO.File.Exists(absolutSti))
+            {
+                System.IO.File.Delete(absolutSti);
+                return Ok("Billede slettet.");
+            }
+
+            return NotFound("Filen blev ikke fundet.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SletBillede] FEJL: {ex.Message}");
+            return BadRequest("Der opstod en fejl under sletning.");
+        }
+    }
 }

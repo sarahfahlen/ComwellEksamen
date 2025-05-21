@@ -5,6 +5,7 @@
 @inject IBrugereService bService
 @inject IElevplanService eService
 @inject NavigationManager navManager
+@inject HttpClient http
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
 @using Shared
@@ -78,7 +79,8 @@
                 <div id="elevbillede">
                     @if (!string.IsNullOrEmpty(valgtElev.Billede))
                     {
-                        <img src="@valgtElev.Billede" alt="Elevbillede" class="elevbillede-img"/>
+                        <img src="@GetProfilbilledeSti(valgtElev.Billede)" alt="Elevbillede" class="elevbillede-img" />
+
                     }
                 </div>
             </div>
@@ -199,85 +201,93 @@
             @if (!isReadOnlyElevView)
             {
             <ModalDialog @ref="kommentarDialog" Title="Kommentarer til delmål">
-                <div class="modal-form"><!-- Elevens kommentar -->
-                    <label><strong>Elevens kommentar</strong></label>
+    <div class="modal-form">
+        <!-- Elevens kommentar -->
+        <label><strong>Elevens kommentar</strong></label>
 
-                    @if (!string.IsNullOrWhiteSpace(elevKommentarNavn) && elevKommentarDato != null)
-                    {
-                        <p class="kommentar-info">
-                            <strong>@elevKommentarNavn</strong>, @elevKommentarDato?.ToString("dd.MM.yyyy"):
-                        </p>
-                    }
+        @if (!string.IsNullOrWhiteSpace(elevKommentarNavn) && elevKommentarDato != null)
+        {
+            <p class="kommentar-info">
+                <strong>@elevKommentarNavn</strong>, @elevKommentarDato?.ToString("dd.MM.yyyy"):
+            </p>
+        }
 
-                    @if (loggedIn?.Rolle == "Elev")
-                    {
-                        <div class="kommentar-med-billede">
-                            <InputTextArea class="form-control kommentarbox" style="height:14rem;"
-                                           @bind-Value="elevKommentar" />
-                            @if (!string.IsNullOrEmpty(elevKommentarBillede))
-                            {
-                                <img src="data:image/jpeg;base64,@elevKommentarBillede" class="kommentar-billede" />
-                            }
-                        </div>
-                        <InputFile OnChange="OnBilledeValgtElev" accept="image/*" />
-                    }
-                    else
-                    {
-                        @if (!string.IsNullOrWhiteSpace(elevKommentar))
-                        {
-                            <p>@elevKommentar</p>
-                        }
-                        else
-                        {
-                            <p><em>Ingen elevkommentar endnu.</em></p>
-                        }
+        @if (loggedIn?.Rolle == "Elev")
+        {
+            <div class="kommentar-med-billede">
+                <InputTextArea class="form-control kommentarbox" style="height:14rem;"
+                               @bind-Value="elevKommentar" />
+                @if (!string.IsNullOrEmpty(elevKommentarBillede))
+                {
+                    <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede" />
 
-                        @if (!string.IsNullOrEmpty(elevKommentarBillede))
-                        { 
-                            <img src="data:image/jpeg;base64,@elevKommentarBillede" class="kommentar-billede" />
-                        }
-                    }
+                }
+            </div>
+            <InputFile OnChange="OnBilledeValgtElev" accept="image/*" />
+        }
+        else
+        {
+            @if (!string.IsNullOrWhiteSpace(elevKommentar))
+            {
+                <p>@elevKommentar</p>
+            }
+            else
+            {
+                <p><em>Ingen elevkommentar endnu.</em></p>
+            }
 
-                    <!-- Kokkens kommentar -->
-                    <label class="mt-3"><strong>Kok og køkkenchef's kommentar</strong></label>
+            @if (!string.IsNullOrEmpty(elevKommentarBillede))
+            {
+                <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede" />
 
-                    @if (!string.IsNullOrWhiteSpace(kokKommentarNavn) && kokKommentarDato != null)
-                    {
-                        <p class="kommentar-info">
-                            <strong>Senest ændret af: @kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
-                        </p>
-                    }
+            }
+        }
 
-                    @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "FaglærtKok") 
-                    { 
-                        <div class="kommentar-med-billede">
-                            <InputTextArea class="form-control kommentarbox" style="height:14rem;"
-                                           @bind-Value="kokKommentar" />
-                            @if (!string.IsNullOrEmpty(kokKommentarBillede))
-                            {
-                                <img src="data:image/jpeg;base64,@kokKommentarBillede" class="kommentar-billede" />
-                            }
-                        </div>
-                        <InputFile OnChange="OnBilledeValgtKok" accept="image/*" /> 
-                    }
-                    else {
-                        @if (!string.IsNullOrWhiteSpace(kokKommentar))
-                        {
-                            <p>@kokKommentar</p>
-                        }
-                        else
-                        {
-                            <p><em>Ingen kokkekommentar endnu.</em></p>
-                        }
+        <!-- Kokkens kommentar -->
+        <label class="mt-3"><strong>Kok og køkkenchef's kommentar</strong></label>
 
-                        @if (!string.IsNullOrEmpty(kokKommentarBillede))
-                        {
-                            <img src="data:image/jpeg;base64,@kokKommentarBillede" class="kommentar-billede" />
-                        } }
+        @if (!string.IsNullOrWhiteSpace(kokKommentarNavn) && kokKommentarDato != null)
+        {
+            <p class="kommentar-info">
+                <strong>Senest ændret af: @kokKommentarNavn</strong>, @kokKommentarDato?.ToString("dd.MM.yyyy"):
+            </p>
+        }
 
-                    <button class="Gemkommentarknap" @onclick="GemKommentar">Gem kommentar</button>
-                </div>
-                </ModalDialog>
+        @if (loggedIn?.Rolle == "Køkkenchef" || loggedIn?.Rolle == "FaglærtKok")
+        {
+            <div class="kommentar-med-billede">
+                <InputTextArea class="form-control kommentarbox" style="height:14rem;"
+                               @bind-Value="kokKommentar" />
+                @if (!string.IsNullOrEmpty(kokKommentarBillede))
+                {
+                    <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede" />
+
+                }
+            </div>
+            <InputFile OnChange="OnBilledeValgtKok" accept="image/*" />
+        }
+        else
+        {
+            @if (!string.IsNullOrWhiteSpace(kokKommentar))
+            {
+                <p>@kokKommentar</p>
+            }
+            else
+            {
+                <p><em>Ingen kokkekommentar endnu.</em></p>
+            }
+
+            @if (!string.IsNullOrEmpty(kokKommentarBillede))
+            {
+                <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede" />
+
+            }
+        }
+
+        <button class="Gemkommentarknap" @onclick="GemKommentar">Gem kommentar</button>
+    </div>
+</ModalDialog>
+
             }
         </div>
 
@@ -596,22 +606,16 @@
     
     private async Task OnBilledeValgtElev(InputFileChangeEventArgs e)
     {
-        var billede = e.File;
-        using var stream = billede.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024); // maks 5 MB
-        using var ms = new MemoryStream();
-        await stream.CopyToAsync(ms);
-        elevKommentarBillede = Convert.ToBase64String(ms.ToArray());
+        elevKommentarBillede = await UploadKommentarBilledeAsync(e.File);
     }
 
     private async Task OnBilledeValgtKok(InputFileChangeEventArgs e)
     {
-        var billede = e.File;
-        using var stream = billede.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
-        using var ms = new MemoryStream();
-        await stream.CopyToAsync(ms);
-        kokKommentarBillede = Convert.ToBase64String(ms.ToArray());
+        kokKommentarBillede = await UploadKommentarBilledeAsync(e.File);
     }
 
+
+    
     //Funktion der bruges til at ændre status på et delmaal
     private async Task ToggleStatus(Delmaal delmaal)
     {
@@ -818,6 +822,31 @@
 
         d.Igang = !d.Igang;
         await eService.OpdaterIgang(minPlan, d);
+    }
+    private string GetProfilbilledeSti(string? sti)
+    {
+        if (string.IsNullOrEmpty(sti) || sti == "billeder/intetprofilbillede.jpg")
+            return "/billeder/intetprofilbillede.jpg"; // hentes fra frontendens wwwroot
+
+        return $"http://localhost:5237/{sti.TrimStart('/')}"; // hentes fra backendens wwwroot
+    }
+    private async Task<string> UploadKommentarBilledeAsync(IBrowserFile file)
+    {
+        var content = new MultipartFormDataContent();
+        var fileContent = new StreamContent(file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024));
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+        content.Add(fileContent, "file", file.Name);
+
+        var response = await http.PostAsync("api/elevplan/upload-kommentarbillede", content);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var path = await response.Content.ReadAsStringAsync();
+            return path.Replace("\"", ""); // fjerner evt. ekstra citationstegn
+        }
+
+        return "";
     }
 
 

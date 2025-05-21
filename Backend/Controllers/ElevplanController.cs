@@ -221,5 +221,32 @@ public class ElevplanController : ControllerBase
             return BadRequest($"Fejl: {ex.Message}");
         }
     }
+    [HttpPost("upload-kommentarbillede")]
+    public async Task<IActionResult> UploadKommentarBillede()
+    {
+        var file = Request.Form.Files.FirstOrDefault();
+        if (file == null || file.Length == 0)
+            return BadRequest("Ingen fil modtaget.");
+
+        // Opret mappe hvis den ikke findes
+        var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "billeder");
+        if (!Directory.Exists(uploadsPath))
+            Directory.CreateDirectory(uploadsPath);
+
+        // Generer unik filnavn
+        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+        var filePath = Path.Combine(uploadsPath, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        // Returnér den relative sti som gemmes i databasen
+        
+        var relativePath = Path.Combine("uploads", "billeder", fileName).Replace("\\", "/");
+        return Ok(relativePath);
+    }
+
 
 }

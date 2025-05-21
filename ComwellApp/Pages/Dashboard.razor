@@ -145,7 +145,8 @@
 
                     <!-- Højre kolonne med billede -->
                     <div class="item-right">
-                        <img src="@elev.Billede" alt="Profilbillede" />
+                        <img src="@GetProfilbilledeSti(elev.Billede)" alt="Profilbillede" class="profilbillede-dashboard" />
+
                     </div>
                 </div>
 
@@ -447,5 +448,14 @@
         using var streamRef = new DotNetStreamReference(new MemoryStream(excelData));
         await JS.InvokeVoidAsync("downloadFileFromStream", "Elever.xlsx", streamRef);
     }
+    private string GetProfilbilledeSti(string? sti)
+    {
+        if (string.IsNullOrEmpty(sti) || sti == "billeder/intetprofilbillede.jpg")
+            return "/billeder/intetprofilbillede.jpg"; // frontend
+
+        return $"http://localhost:5237{sti}"; // backend
+    }
+
+
 
 }

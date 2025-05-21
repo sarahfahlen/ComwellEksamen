@@ -8,6 +8,8 @@
 <!--Service der håndterer bruger-relateret kommunikation-->
 @inject IBrugereService bService 
 @inject NavigationManager Navigation
+@inject HttpClient http
+
 
 <!-- FORMULAR: Hele visningen er en <EditForm>, som binder sig til en ny 'Bruger' (elev) -->
 <EditForm Model="@nyElev" OnSubmit="HandleSubmit">
@@ -144,7 +146,26 @@
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
         BilledeFil = e.File;
+
+        if (BilledeFil != null)
+        {
+            var content = new MultipartFormDataContent();
+            var stream = BilledeFil.OpenReadStream(10 * 1024 * 1024);
+            var fileContent = new StreamContent(stream);
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(BilledeFil.ContentType);
+            content.Add(fileContent, "file", BilledeFil.Name);
+
+            // Her skal brugerId IKKE bruges, da brugeren endnu ikke eksisterer – du bruger en generisk endpoint
+            var response = await http.PostAsync($"api/brugere/upload-profilbillede?brugerId=0", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var sti = await response.Content.ReadAsStringAsync();
+                nyElev.Billede = sti;
+            }
+        }
     }
+
 
     // Tilbage-knappen sender brugeren til dashboard
     private void Tilbage()
@@ -164,18 +185,9 @@
         Console.WriteLine("Forsøger at oprette elev...");
         try
         {
-            // Hvis billede er valgt, konverterer vi det til Base64 og gemmer det som tekst
-            if (BilledeFil != null)
+            // Brug fallback hvis der ikke er valgt billede
+            if (string.IsNullOrWhiteSpace(nyElev.Billede))
             {
-                using var stream = BilledeFil.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
-                using var ms = new MemoryStream();
-                await stream.CopyToAsync(ms);
-                var bytes = ms.ToArray();
-                nyElev.Billede = $"data:{BilledeFil.ContentType};base64,{Convert.ToBase64String(bytes)}";
-            }
-            else
-            {
-                // Hvis intet billede vælges, brug standard-profilbillede
                 nyElev.Billede = "billeder/intetprofilbillede.jpg";
             }
 
@@ -183,23 +195,19 @@
             nyElev.Rolle = "Elev";
             nyElev.Afdeling = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
 
-            // Find ansvarlig person (køkkenchef) ud fra lokationens køkkenchef
             var ansvarlig = koekenchefer.FirstOrDefault();
-
             if (ansvarlig == null)
             {
-                Console.WriteLine("Ingen ansvarlig køkkenchef fundet for denne lokation.");
+                Console.WriteLine("Ingen ansvarlig køkkenchef fundet.");
                 return;
             }
 
-            // Vælg skabelonnavn baseret på elevens uddannelse
             string skabelonNavn = nyElev.Erhverv switch
             {
                 "Kok" => "KokSkabelon",
                 _ => throw new Exception("Ukendt erhverv – kan ikke vælge skabelon")
             };
 
-            // Send alt til backend – og backend opretter også elevplan
             await bService.TilfoejElev(nyElev, ansvarlig, skabelonNavn);
 
             successMessage = "Eleven blev oprettet med succes!";
@@ -213,6 +221,7 @@
             Console.WriteLine($"[HandleSubmit] Der opstod en fejl: {ex.Message}");
         }
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (shouldNavigate && !hasRedirected)

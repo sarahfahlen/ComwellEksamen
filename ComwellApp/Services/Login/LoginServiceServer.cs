@@ -18,8 +18,7 @@ public class LoginServiceServer : ILoginService
         this.client = client;
         this.localStorage = localStorage;
     }
-
- 
+    
     // Returnerer den bruger der er gemt lokalt i browseren (bruges mange steder i frontend til at kende "hvem er jeg?")
    
     public async Task<Bruger?> GetUserLoggedIn()

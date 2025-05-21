@@ -31,12 +31,13 @@ public class Program
         builder.Services.AddOpenApi();
 
         var app = builder.Build();
+        app.UseStaticFiles(); 
 
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
         }
-
+       
         app.UseHttpsRedirection();
         app.UseCors("policy");
         app.UseAuthorization();

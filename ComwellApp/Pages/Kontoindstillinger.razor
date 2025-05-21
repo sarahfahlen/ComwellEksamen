@@ -1,9 +1,12 @@
 @page "/kontoindstillinger"
 @using ComwellApp.Services.Login
 @using Shared
+@using Blazored.LocalStorage
+@inject ILocalStorageService localStorage
 @inject ILoginService LoginService
 @inject NavigationManager Nav
 @inject IJSRuntime JS
+@inject HttpClient http
 @if (!string.IsNullOrEmpty(successMessage))
 {
     <div class="alert alert-success">
@@ -33,8 +36,10 @@
                     <!-- Profilbillede med ikon-overlay og mulighed for at vælge et nyt billede -->
                     <div class="profilbillede-wrapper">
                         <label for="billedeUpload" class="profilbillede-label">
-                            <img src="@(!string.IsNullOrEmpty(bruger?.Billede) ? bruger.Billede : "billeder/intetprofilbillede.jpg")"
-                                 alt="Profilbillede" class="profilbillede" />
+                            <img src="@GetProfilbilledeSti()" alt="Profilbillede" class="profilbillede" />
+
+
+
                             <div class="overlay-ikon">
                                 <!-- Tjek-ikon ovenpå billedet -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
@@ -227,18 +232,52 @@
     private async Task HandleBilledeUpload(InputFileChangeEventArgs e)
     {
         billedeFil = e.File;
+
         if (billedeFil != null)
         {
-            using var stream = billedeFil.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
-            var bytes = ms.ToArray();
-            bruger!.Billede = $"data:{billedeFil.ContentType};base64,{Convert.ToBase64String(bytes)}";
+            var content = new MultipartFormDataContent();
+            var fileContent = new StreamContent(billedeFil.OpenReadStream(10 * 1024 * 1024));
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(billedeFil.ContentType);
+            content.Add(fileContent, "file", billedeFil.Name);
+            var response = await http.PostAsync($"api/brugere/upload-profilbillede?brugerId={bruger.BrugerId}", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var sti = await response.Content.ReadAsStringAsync();
+                bruger!.Billede = sti;
+
+                // 🟡 Gem den opdaterede bruger i localStorage
+                await localStorage.SetItemAsync("bruger", bruger);
+
+                // Force opdatering af visning
+                StateHasChanged();
+            }
         }
     }
 
+
+
     // Bruges til at fjerne profilbillede og sætte standard
-    private void FjernBillede() => bruger!.Billede = "billeder/intetprofilbillede.jpg";
+    private async void FjernBillede()
+    {
+        if (!string.IsNullOrWhiteSpace(bruger?.Billede) && bruger.Billede != "billeder/intetprofilbillede.jpg")
+        {
+            var response = await http.DeleteAsync($"api/brugere/slet-billede?sti={Uri.EscapeDataString(bruger.Billede)}");
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Billede slettet fra serveren.");
+            }
+            else
+            {
+                Console.WriteLine("Fejl ved sletning af billede.");
+            }
+        }
+
+        bruger!.Billede = "billeder/intetprofilbillede.jpg";
+        await localStorage.SetItemAsync("bruger", bruger);
+        StateHasChanged();
+    }
+
 
     // Viser eller skjuler adgangskodeformularen og nulstiller feltdata
     private void ToggleSkiftKodeord()
@@ -247,4 +286,14 @@
         fejlbesked = "";
         nuværendeKode = nyKode = bekraeftNyKode = "";
     }
+    private string GetProfilbilledeSti()
+    {
+        if (string.IsNullOrEmpty(bruger?.Billede) || bruger.Billede == "billeder/intetprofilbillede.jpg")
+        {
+            return "/billeder/intetprofilbillede.jpg"; // hentes fra frontendens wwwroot
+        }
+
+        return $"http://localhost:5237{bruger.Billede}"; // hentes fra backendens wwwroot
+    }
+
 }
