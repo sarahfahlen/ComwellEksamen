@@ -308,7 +308,7 @@
                                                @bind-Value="kokKommentar"/>
                                 @if (!string.IsNullOrEmpty(kokKommentarBillede))
                                 {
-                                    <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede"/>
+                                    <img src="@GetProfilbilledeSti(kokKommentarBillede)" class="kommentar-billede"/>
                                 }
                             </div>
                             <InputFile OnChange="OnBilledeValgtKok" accept="image/*"/>
@@ -326,7 +326,7 @@
 
                             @if (!string.IsNullOrEmpty(kokKommentarBillede))
                             {
-                                <img src="@GetProfilbilledeSti(elevKommentarBillede)" class="kommentar-billede"/>
+                                <img src="@GetProfilbilledeSti(kokKommentarBillede)" class="kommentar-billede"/>
                             }
                         }
 
@@ -657,13 +657,14 @@
 
     private async Task OnBilledeValgtElev(InputFileChangeEventArgs e)
     {
-        elevKommentarBillede = await UploadKommentarBilledeAsync(e.File);
+        elevKommentarBillede = await UploadKommentarBilledeAsync(e.File, "Elev");
     }
 
     private async Task OnBilledeValgtKok(InputFileChangeEventArgs e)
     {
-        kokKommentarBillede = await UploadKommentarBilledeAsync(e.File);
+        kokKommentarBillede = await UploadKommentarBilledeAsync(e.File, "FaglærtKok");
     }
+
 
 
     //Funktion der bruges til at ændre status på et delmaal
@@ -883,8 +884,7 @@
 
         return $"http://localhost:5237/{sti.TrimStart('/')}"; // hentes fra backendens wwwroot
     }
-
-    private async Task<string> UploadKommentarBilledeAsync(IBrowserFile file)
+    private async Task<string> UploadKommentarBilledeAsync(IBrowserFile file, string rolle)
     {
         var content = new MultipartFormDataContent();
         var fileContent = new StreamContent(file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024));
@@ -892,16 +892,18 @@
 
         content.Add(fileContent, "file", file.Name);
 
-        var response = await http.PostAsync("api/elevplan/upload-kommentarbillede", content);
+        // Eksempel: api/elevplan/upload-kommentarbillede?rolle=Elev
+        var response = await http.PostAsync($"api/elevplan/upload-kommentarbillede?rolle={rolle}", content);
 
         if (response.IsSuccessStatusCode)
         {
             var path = await response.Content.ReadAsStringAsync();
-            return path.Replace("\"", ""); // fjerner evt. ekstra citationstegn
+            return path.Replace("\"", "");
         }
 
         return "";
     }
+
 
 
 }
