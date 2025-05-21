@@ -153,18 +153,21 @@
             for (int i = 0; i < minPlan.ListPerioder.Count; i++)
             {
                 var periode = minPlan.ListPerioder[i];
-                if (periode?.ListMaal == null) continue;
 
-                var maal = periode.ListMaal
-                    .FirstOrDefault(m => m.ListDelmaal != null && m.ListDelmaal.Any(d => d.DelmaalId == RedigerDelmaal.DelmaalId));
-
-                if (maal != null)
+                foreach (var maal in periode.ListMaal)
                 {
-                    valgtPeriodeIndex = i;
-                    valgtMaalId = maal.MaalId;
-                    break;
+                    if (maal.ListDelmaal.Any(d => d.DelmaalId == RedigerDelmaal.DelmaalId))
+                    {
+                        valgtPeriodeIndex = i;
+                        valgtMaalId = maal.MaalId;
+                        break;
+                    }
                 }
+
+                if (valgtPeriodeIndex != -1 && valgtMaalId != 0)
+                    break;
             }
+
 
             await HentMaalOgTyper();
 
@@ -189,11 +192,8 @@
             };
             StateHasChanged();
         }
-
     }
-
-
-
+    
     private async Task OnPeriodeChanged(ChangeEventArgs e)
     {
         valgtPeriodeIndex = int.Parse(e.Value?.ToString() ?? "-1");
@@ -207,6 +207,7 @@
             maalTilValgtPeriode = await eService.HentMaalFraPeriode(minPlan.ElevplanId, valgtPeriodeIndex);
             unikkeDelmaalTyper = await eService.HentDelmaalTyperFraPeriode(minPlan.ElevplanId, valgtPeriodeIndex);
         }
+       
     }
 
     private async Task GemDelmaal()

@@ -165,6 +165,7 @@
                 @if (tilfoejDelmaalDialog != null)
                 {
                     <OpretDelmaalComponent
+                        @key="delmaalTilRedigering?.DelmaalId"
                         minPlan="@minPlan"
                         RedigerDelmaal="delmaalTilRedigering"
                         OnGemSuccess="OpdaterFiltreredeMaal"

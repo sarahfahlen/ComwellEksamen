@@ -2,13 +2,30 @@ namespace ComwellApp.Services
 {
     public class IdGeneratorService
     {
-        // Generisk metode der virker på alle lister med integer-ID’er
+        // Generisk metode
         public int GenererNytId<T>(List<T> liste, Func<T, int> idSelector)
         {
             if (liste == null || liste.Count == 0)
-                return 1; // hvis listen er tom, starter vi ved 1
+                return 1;
+            return liste.Max(idSelector) + 1;
+        }
 
-            return liste.Max(idSelector) + 1; // ellers finder vi højeste ID og lægger 1 til
+        // 🔧 Brug denne til unikt delmål-ID på tværs af hele planen
+        public int GenererNytDelmaalId(Shared.Elevplan plan)
+        {
+            var eksisterendeIds = plan.ListPerioder
+                .SelectMany(p => p.ListMaal)
+                .SelectMany(m => m.ListDelmaal)
+                .Select(d => d.DelmaalId)
+                .Where(id => id > 0)
+                .ToList();
+
+            Console.WriteLine($"📊 Delmål ID'er i hele planen: [{string.Join(", ", eksisterendeIds)}]");
+
+            if (!eksisterendeIds.Any())
+                return 1;
+
+            return eksisterendeIds.Max() + 1;
         }
     }
 }

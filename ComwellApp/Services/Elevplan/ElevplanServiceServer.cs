@@ -168,7 +168,7 @@ public class ElevplanServiceServer : IElevplanService
             throw new Exception($"Mål med ID {maalId} ikke fundet.");
 
         // Generer ID til delmål
-        nytDelmaal.DelmaalId = _idGenerator.GenererNytId(maal.ListDelmaal, d => d.DelmaalId);
+        nytDelmaal.DelmaalId = _idGenerator.GenererNytDelmaalId(plan);
         nytDelmaal.Status = false;
 
         // Generer ID til opgaver og marker som ikke gennemført
