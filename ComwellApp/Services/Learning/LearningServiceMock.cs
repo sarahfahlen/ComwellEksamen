@@ -3,8 +3,9 @@ namespace ComwellApp.Services.Learning;
 
 public class LearningServiceMock : ILearningService
 {
-    public Task<Fagomraade> HentMockLearning()
+    public async Task<List<Fagomraade>> HentMockLearning()
     {
+        List<Fagomraade> fagomraader = new List<Fagomraade>();
         var quiz = new Quiz
         {
             ElementNavn = "Steak-quiz",
@@ -39,6 +40,7 @@ public class LearningServiceMock : ILearningService
                 }
             }
         };
-        return Task.FromResult(fag);
+        fagomraader.Add(fag);
+        return fagomraader;
     }
 }

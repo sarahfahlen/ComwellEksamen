@@ -7,32 +7,36 @@
 @inject NavigationManager navManager
 
 <h3>Læringsmoduler</h3>
-<h2>@fag?.FagomraadeNavn</h2>
-<p>@fag?.FagomraadeBeskrivelse</p>
-@if (fag != null)
+@foreach (var fag in alleFag)
 {
-    @foreach (var underemne in fag.ListUnderemne)
+    <h2>@fag?.FagomraadeNavn</h2>
+    <p>@fag?.FagomraadeBeskrivelse</p>
+
+    @if (fag != null)
     {
-        <h3>@underemne.UnderemneNavn</h3>
-        <p>@underemne.UnderemneBeskrivelse</p>
-
-        @foreach (var element in underemne.ListElement)
+        @foreach (var underemne in fag.ListUnderemne)
         {
-            <h4>Element: @element.ElementNavn (@element.ElementType)</h4>
+            <h3>@underemne.UnderemneNavn</h3>
+            <p>@underemne.UnderemneBeskrivelse</p>
 
-            @if (element is Quiz quiz)
+            @foreach (var element in underemne.ListElement)
             {
-                @foreach (var spoergsmaal in quiz.ListSpoergsmaal)
-                {
-                    <p><strong>@spoergsmaal.Tekst</strong></p>
+                <h4>Element: @element.ElementNavn (@element.ElementType)</h4>
 
-                    @for (int i = 0; i < spoergsmaal.Svar.Count; i++)
+                @if (element is Quiz quiz)
+                {
+                    @foreach (var spoergsmaal in quiz.ListSpoergsmaal)
                     {
-                        <div style="margin-left: 1rem;">
-                            <label>
-                                <input type="radio" name="@spoergsmaal.Tekst" /> @spoergsmaal.Svar[i].Tekst
-                            </label>
-                        </div>
+                        <p><strong>@spoergsmaal.Tekst</strong></p>
+
+                        @for (int i = 0; i < spoergsmaal.Svar.Count; i++)
+                        {
+                            <div style="margin-left: 1rem;">
+                                <label>
+                                    <input type="radio" name="@spoergsmaal.Tekst"/> @spoergsmaal.Svar[i].Tekst
+                                </label>
+                            </div>
+                        }
                     }
                 }
             }
@@ -41,10 +45,10 @@
 }
 
 @code {
-    private Fagomraade? fag;
+    private List<Fagomraade>? alleFag;
 
     protected override async Task OnInitializedAsync()
     {
-        fag = await lService.HentMockLearning();
+        alleFag = await lService.HentMockLearning();
     }
 }
