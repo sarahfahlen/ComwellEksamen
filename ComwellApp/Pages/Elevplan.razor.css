@@ -1,3 +1,7 @@
+.alert-info {
+    width: 100%;
+}
+
 .elevplan-layout {
     display: flex;
     gap: 2rem;
