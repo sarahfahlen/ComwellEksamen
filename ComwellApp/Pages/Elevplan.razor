@@ -758,12 +758,35 @@
 
     private void ToggleOpgaveStatus(Opgaver opgave)
     {
-        if (loggedIn == null) return;
+        if (loggedIn == null || aktivtDelmaalTilOpgaver == null)
+            return;
 
         opgave.OpgaveGennemfoert = !opgave.OpgaveGennemfoert;
 
-        opgave.StatusLogOpgave = $"Gennemført af {loggedIn.Navn} d. {DateTime.Now:dd/MM-yyyy}";
+        if (opgave.OpgaveGennemfoert)
+        {
+            opgave.StatusLogOpgave = $"Gennemført af {loggedIn.Navn} d. {DateTime.Now:dd/MM-yyyy}";
+        }
+        else
+        {
+            opgave.StatusLogOpgave = null;
+        }
+
+        // Evaluer om ALLE opgaver er gennemført
+        bool alleGennemfoert = aktivtDelmaalTilOpgaver.ListOpgaver.All(o => o.OpgaveGennemfoert);
+        aktivtDelmaalTilOpgaver.Status = alleGennemfoert;
+
+        if (alleGennemfoert)
+        {
+            aktivtDelmaalTilOpgaver.StatusLog = $"Delmål automatisk markeret som gennemført d. {DateTime.Now:dd/MM-yyyy} af {loggedIn.Navn}";
+        }
+        else
+        {
+            aktivtDelmaalTilOpgaver.StatusLog = null; // valgfrit – eller behold tidligere log
+        }
     }
+
+
 
 
     private async Task soegningknap()
