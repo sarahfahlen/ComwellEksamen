@@ -6,14 +6,13 @@
 
 .laering-sidepanel {
     flex: 1;
-    min-width: 250px;
+    min-width: 275px;
     background-color: #f9f6f2;
     border: 1px dashed #d2b894;
     border-radius: 10px;
     padding: 1rem;
-    height: fit-content;
-    max-height: 100vh; /* valgfrit – begrænser højden til skærmhøjde */
-    overflow-y: auto;  /* tilføjer scroll, hvis det bliver for højt */
+    height: 75vh;
+    overflow-y: auto; /* tilføjer scroll, hvis det bliver for højt */
     transition: max-height 0.4s ease;
     animation: slideInRight 0.8s ease;
 }
@@ -91,7 +90,7 @@
 
 .laering-element-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
     margin-top: 1rem;
 }
@@ -112,6 +111,54 @@
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
     transform: translateY(-3px);
 }
+
+.element-navn{
+    text-align: center;
+}
+
+.quiz-spoergsmaal {
+    margin-bottom: 0.8rem;
+    font-size: 1.05rem;
+    color: #1C2B38;
+}
+
+.quiz-svarliste {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.quiz-svar {
+    background-color: #f9f6f2;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.quiz-svar:hover {
+    background-color: #e8d2b5;;
+    transform: translateY(-1px);
+}
+.quiz-svar:has(input[type="radio"]:checked):hover {
+    background-color: #e8d2b5;
+    transform: translateY(-1px);
+}
+
+.quiz-svar input[type="radio"] {
+    display: none;
+}
+
+.quiz-svar:has(input[type="radio"]:checked) {
+    background-color: #d2b894;
+    color: white;
+    font-weight: bold;
+}
+
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }

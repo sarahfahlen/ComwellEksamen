@@ -38,29 +38,26 @@
     <div class="laering-indhold">
         @if (valgtUnderemne != null)
         {
-            <h4 class="laering-underemne-overskrift">@valgtUnderemne.UnderemneNavn</h4>
-            <p>@valgtUnderemne.UnderemneBeskrivelse</p>
-
             <div class="laering-element-container">
                 @foreach (var element in valgtUnderemne.ListElement)
                 {
                     <div class="laering-elementkort">
-                        <h5>@element.ElementNavn (@element.ElementType)</h5>
+                        <h5 class="element-navn">@element.ElementNavn</h5>
 
                         @if (element is Quiz quiz)
                         {
                             @foreach (var spg in quiz.ListSpoergsmaal)
                             {
-                                <p><strong>@spg.Tekst</strong></p>
-                                @foreach (var svar in spg.Svar)
-                                {
-                                    <div>
-                                        <label>
+                                <p class="quiz-spoergsmaal">@spg.Tekst</p>
+                                <div class="quiz-svarliste">
+                                    @foreach (var svar in spg.Svar)
+                                    {
+                                        <label class="quiz-svar">
                                             <input type="radio" name="@spg.Tekst" />
                                             @svar.Tekst
                                         </label>
-                                    </div>
-                                }
+                                    }
+                                </div>
                             }
                         }
                     </div>
