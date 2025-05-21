@@ -169,11 +169,12 @@
                         minPlan="@minPlan"
                         RedigerDelmaal="delmaalTilRedigering"
                         OnGemSuccess="OpdaterFiltreredeMaal"
+                        OnSuccessMessage="@((string msg) => successMessage = msg)"
                         OnClose="() =>
                         {
                             tilfoejDelmaalDialog.Close();
                             delmaalTilRedigering = null;
-                        }"/>
+                        }" />
                 }
             </ModalDialog>
 
@@ -387,6 +388,11 @@
                 </ModalDialog>
             }
         </div>
+        @if (!string.IsNullOrWhiteSpace(successMessage))
+        {
+            <BekræftelsesComponent Message="@successMessage" OnDismiss="@(() => successMessage = null)" />
+        }
+
 
         <!-- Sidepanel med søgning og filtrering -->
         <div class="sidepanel">
@@ -504,6 +510,7 @@
     private ModalDialog? opgaverDialog;
     private Delmaal? aktivtDelmaalTilOpgaver;
     private string? stortBilledeUrl;
+    private string? successMessage;
 
 
     // 🟡 Kører hver gang der kommer parametre (fx ved skift af elevId i URL)

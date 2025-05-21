@@ -124,6 +124,8 @@
     [Parameter] public Delmaal? RedigerDelmaal { get; set; }
     [Parameter] public EventCallback OnGemSuccess { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<string> OnSuccessMessage { get; set; }
+
 
     private Delmaal nytDelmaal = new();
     private bool isEditMode => RedigerDelmaal != null;
@@ -207,7 +209,6 @@
             maalTilValgtPeriode = await eService.HentMaalFraPeriode(minPlan.ElevplanId, valgtPeriodeIndex);
             unikkeDelmaalTyper = await eService.HentDelmaalTyperFraPeriode(minPlan.ElevplanId, valgtPeriodeIndex);
         }
-       
     }
 
     private async Task GemDelmaal()
@@ -239,8 +240,18 @@
                 Console.WriteLine("✅ Delmål oprettet!");
             }
 
+            if (isEditMode)
+            {
+                await OnSuccessMessage.InvokeAsync("Delmålet blev opdateret.");
+            }
+            else
+            {
+                await OnSuccessMessage.InvokeAsync("Delmålet blev oprettet.");
+            }
+
             await OnGemSuccess.InvokeAsync();
             await OnClose.InvokeAsync();
+
         }
         catch (Exception ex)
         {
@@ -250,7 +261,7 @@
     private void TilfoejOpgave()
     {
         nytDelmaal.ListOpgaver.Add(new Opgaver());
-    } 
+    }
 
     private void FjernOpgave(Opgaver opg)
     {

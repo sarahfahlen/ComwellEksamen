@@ -2,17 +2,15 @@
 @using ComwellApp.Services.Login
 @using Shared
 @using Blazored.LocalStorage
+@using ComwellApp.Components
 @inject ILocalStorageService localStorage
 @inject ILoginService LoginService
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 @inject HttpClient http
-@if (!string.IsNullOrEmpty(successMessage))
-{
-    <div class="alert alert-success">
-        @successMessage
-    </div>
-}
+
+
+
 <!-- Hele visningen for kontoindstillinger -->
 <div class="opret-container">
     <!-- Tilbageknap som fører brugeren tilbage til elevplan -->
@@ -130,12 +128,14 @@
             <div class="opret-knap-container">
                 <button type="submit" class="btn">Gem ændringer</button>
             </div>
-
-            <!-- Viser en succesbesked hvis noget er blevet gemt -->
-            <SuccessMessage Message="@successMessage" />
         </EditForm>
     }
 </div>
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <BekræftelsesComponent Message="@successMessage" OnDismiss="@(() => successMessage = null)" />
+}
+
 
 @code {
     // Gemmer den bruger der er logget ind
@@ -220,11 +220,6 @@
         }
 
         await LoginService.OpdaterBruger(bruger);
-        StateHasChanged();
-
-        await Task.Delay(3000);
-        successMessage = "";
-        StateHasChanged();
     }
 
 

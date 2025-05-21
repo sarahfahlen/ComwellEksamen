@@ -1,11 +1,33 @@
-@if (!string.IsNullOrEmpty(Message))
+@if (!string.IsNullOrWhiteSpace(currentMessage))
 {
-    <div class="alert-success">
-        @Message
+    <div class="alert-success success-fade">
+        @currentMessage
     </div>
 }
 
 @code {
-    [Parameter]
-    public string? Message { get; set; }
+    [Parameter] public string? Message { get; set; }
+
+    [Parameter] public EventCallback OnDismiss { get; set; }
+    [Parameter] public EventCallback<string> OnSuccessMessage { get; set; }
+
+    private string? currentMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(Message))
+        {
+            currentMessage = Message;
+            StateHasChanged();
+
+            await Task.Delay(3000);
+            currentMessage = null;
+            StateHasChanged();
+
+            if (OnDismiss.HasDelegate)
+            {
+                await OnDismiss.InvokeAsync();
+            }
+        }
+    }
 }

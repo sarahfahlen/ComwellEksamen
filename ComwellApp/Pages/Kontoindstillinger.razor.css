@@ -303,38 +303,4 @@ p[style*="text-align: center"] {
 .adgangskode-felt{
     margin-bottom: 1rem;
 }
-.alert-success{
-    position: fixed; /* Fast position på skærmen */
-    bottom: 20px; /* 20px fra bunden */
-    left: 20px; /* 20px fra venstre */
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    z-index: 9999; /* Ligger øverst */
-    width: auto; /* Tilpasser sig indholdet */
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    animation: fadeout 0.5s ease-in-out 3.5s forwards;
-}
-.alert-success {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    z-index: 9999;
-    width: auto;
-    text-align: center;
-    font-weight: 600;
-    background-color: #b9d9b5; /* Blød grøn der passer til beige tema */
-    border: 1px solid #98c89a; /* Lidt mørkere grøn til kant */
-    color: black; /* Samme mørke tekst som resten af siden */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    animation: fadeout 0.5s ease-in-out 3.5s forwards;
-}
-@keyframes fadeout {
-    to {
-        opacity: 0;
-        transform: translateY(20px);
-        visibility: hidden;
-    }
-}
+
