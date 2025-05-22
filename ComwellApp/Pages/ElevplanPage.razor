@@ -589,6 +589,11 @@
             Console.WriteLine($"Ingen elevplan fundet for brugerId {valgtElev._id}");
             return;
         }
+        
+        if (valgtElev?.AfdelingId != null && valgtElevLokation == null)
+        {
+            valgtElevLokation = await loService.HentLokationViaId(valgtElev.AfdelingId.Value);
+        }
 
         if (valgtPeriodeIndex >= minPlan.ListPerioder.Count)
         {
