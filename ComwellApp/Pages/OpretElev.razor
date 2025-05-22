@@ -5,9 +5,11 @@
 @using ComwellApp.Services.Login
 @using Shared
 @using ComwellApp.Components
+@using ComwellApp.Services.Lokation
 <!--Service der håndterer bruger-relateret kommunikation-->
 @inject IBrugereService bService 
 @inject NavigationManager Navigation
+@inject ILokationService loService
 @inject HttpClient http
 
  
@@ -137,7 +139,7 @@
     // Når siden loades: hent lokationer (ikke ansvarlige endnu)
     protected override async Task OnInitializedAsync()
     {
-        alleKoekkener = (await bService.HentAlleLokationer())
+        alleKoekkener = (await loService.HentKoekkenLokationer())
             .OrderBy(l => l.LokationNavn)
             .ToList();
 

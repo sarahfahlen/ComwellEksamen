@@ -25,6 +25,7 @@ public class Program
         builder.Services.AddSingleton<ILoginRepository, LoginRepositoryMongoDB>();
         builder.Services.AddSingleton<IElevplanRepository, ElevplanRepositoryMongoDB>();
         builder.Services.AddSingleton<IBrugereRepository, BrugereRepositoryMongoDB>();
+        builder.Services.AddSingleton<ILokationRepository, LokationRepositoryMongoDB>();
         builder.Services.AddScoped<ExcelEksportService>();
  
 

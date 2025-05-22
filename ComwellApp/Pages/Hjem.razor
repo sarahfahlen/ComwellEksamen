@@ -3,10 +3,11 @@
 
 @inject ILoginService lService
 @inject NavigationManager navManager
-
+@inject ILokationService loService
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Elevplan
 @using ComwellApp.Services.Login
+@using ComwellApp.Services.Lokation
 @using Shared
 
 <PageTitle>Hjem</PageTitle>
@@ -138,7 +139,7 @@
         
         if (loggedIn.Afdeling != null)
         {
-            var lokationer = await bService.HentAlleLokationer();
+            var lokationer = await loService.HentKoekkenLokationer();
             brugerLokation = lokationer.FirstOrDefault(l => l.LokationId == loggedIn.Afdeling.LokationId);
         
             var kokke = await bService.HentKoekkencheferForLokation(loggedIn.Afdeling.LokationId);

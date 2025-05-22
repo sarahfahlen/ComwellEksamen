@@ -114,13 +114,6 @@ public class BrugereServiceServer : IBrugereService
 
   
     // Henter alle lokationer, som bruges i dropdown
-   
-    public async Task<List<Lokation>> HentAlleLokationer()
-    {
-        var result = await http.GetFromJsonAsync<List<Lokation>>("api/brugere/lokationer");
-        return result ?? new List<Lokation>();
-    }
-    
     public async Task<List<string>> HentAlleErhverv()
     {
         var erhverv = await http.GetFromJsonAsync<List<string>>("api/brugere/erhverv");

@@ -7,6 +7,7 @@ using ComwellApp.Services.Brugere;
 using ComwellApp.Services.Elevplan;
 using ComwellApp.Services.Learning;
 using ComwellApp.Services.Login;
+using ComwellApp.Services.Lokation;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -28,6 +29,8 @@ builder.Services.AddScoped<IElevplanService, ElevplanServiceServer>();
 builder.Services.AddScoped<IBrugereService, BrugereServiceServer>();
 builder.Services.AddScoped<ILoginService, LoginServiceServer>();
 builder.Services.AddScoped<ILearningService, LearningServiceMock>();
+builder.Services.AddScoped<ILokationService, LokationServiceServer>();
+
 
 
 
