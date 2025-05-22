@@ -9,7 +9,6 @@
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
 @using Shared
-@using ElevplanModel = Shared.Elevplan
 @using ComwellApp.Components
 @using ComwellApp.Services.Elevplan
 
@@ -458,7 +457,7 @@
     private Bruger? loggedIn;
 
     // Den elevplan vi arbejder med (enten ens egen eller én man ser som HR/Køkkenchef)
-    private ElevplanModel? minPlan;
+    private Elevplan? minPlan;
 
     // Index til at vælge hvilken praktikperiode der vises (starter på 0 = første periode)
     private int valgtPeriodeIndex = 0;
