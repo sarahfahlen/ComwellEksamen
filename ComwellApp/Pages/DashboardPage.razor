@@ -162,11 +162,11 @@
                 @if (
                     // Alle elever fra samme lokation må se hinandens elevplaner
                     (loggedIn.Rolle == "Elev" && elev.Afdeling?.LokationNavn == loggedIn.Afdeling?.LokationNavn) ||
-                    (loggedIn.BrugerId == elev.BrugerId && loggedIn.Rolle == "Elev") ||
+                    (loggedIn.Id == elev.Id && loggedIn.Rolle == "Elev") ||
                     (loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "FaglærtKok")
                 )
                 {
-                    <button class="btn btn-outline-secondary se-elevplan-knap" @onclick="@(() => GåTilElevplan(elev.BrugerId))">
+                    <button class="btn btn-outline-secondary se-elevplan-knap" @onclick="@(() => GåTilElevplan(elev.Id))">
                         Se elevplan
                     </button>
                 }

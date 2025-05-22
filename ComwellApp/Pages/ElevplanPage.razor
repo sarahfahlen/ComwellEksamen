@@ -14,7 +14,7 @@
 
 <PageTitle>Elevplan</PageTitle>
 
-@if (loggedIn?.Rolle == "Elev" && loggedIn.BrugerId != valgtElev?.BrugerId)
+@if (loggedIn?.Rolle == "Elev" && loggedIn.Id != valgtElev?.Id)
 {
     <div class="alert alert-info">
         Du ser <strong>@valgtElev?.Navn</strong>s elevplan (kun læsevisning).
@@ -170,7 +170,7 @@
                 @if (tilfoejDelmaalDialog != null)
                 {
                     <OpretDelmaalComponent
-                        @key="delmaalTilRedigering?.DelmaalId"
+                        @key="delmaalTilRedigering?.Id"
                         minPlan="@minPlan"
                         RedigerDelmaal="delmaalTilRedigering"
                         OnGemSuccess="OpdaterFiltreredeMaal"
@@ -469,7 +469,7 @@
             : null;
 
     // Returnerer true hvis den loggede bruger er en elev, og de ser på en anden elevs elevplan (dvs. elevId er sat og forskellig fra ens egen).
-    private bool isReadOnlyElevView => loggedIn?.Rolle == "Elev" && elevId != null && elevId != loggedIn.BrugerId;
+    private bool isReadOnlyElevView => loggedIn?.Rolle == "Elev" && elevId != null && elevId != loggedIn.Id;
 
     // Refererer til modal-dialogboksen der åbnes, når man klikker "Se kommentar"
     private ModalDialog? kommentarDialog;
@@ -532,11 +532,11 @@
         }
 
         // Hvis den loggede bruger er en elev, og forsøger at tilgå en anden elevs plan (dvs. elevId != ens egen)
-        if (loggedIn.Rolle == "Elev" && elevId.HasValue && elevId.Value != loggedIn.BrugerId)
+        if (loggedIn.Rolle == "Elev" && elevId.HasValue && elevId.Value != loggedIn.Id)
         {
             // Hent alle brugere, og find den elev der svarer til elevId fra URL’en
             valgtElev = await bService.HentAlle()
-                .ContinueWith(t => t.Result.FirstOrDefault(e => e.BrugerId == elevId.Value));
+                .ContinueWith(t => t.Result.FirstOrDefault(e => e.Id == elevId.Value));
 
             // Hvis eleven ikke findes, eller ikke er på samme lokation som den loggede elev – nægt adgang
             if (valgtElev == null || valgtElev.Afdeling?.LokationNavn != loggedIn.Afdeling?.LokationNavn)
@@ -549,10 +549,10 @@
 
 
         // Hvis HR/Admin/Køkkenchef ser en specifik elevplan
-        if (elevId.HasValue && elevId != loggedIn.BrugerId)
+        if (elevId.HasValue && elevId != loggedIn.Id)
         {
             var alleElever = await lService.HentEleverTilElevplanVisning();
-            valgtElev = alleElever.FirstOrDefault(e => e.BrugerId == elevId.Value);
+            valgtElev = alleElever.FirstOrDefault(e => e.Id == elevId.Value);
 
             if (valgtElev != null)
             {
@@ -572,12 +572,12 @@
         }
 
         //Henter elevplan for den pågældene elev
-        minPlan = await bService.HentElevplanForBruger(valgtElev.BrugerId, loggedIn.BrugerId);
+        minPlan = await bService.HentElevplanForBruger(valgtElev.Id, loggedIn.Id);
 
         // Tjek om der blev fundet en elevplan
         if (minPlan == null)
         {
-            Console.WriteLine($"Ingen elevplan fundet for brugerId {valgtElev.BrugerId}");
+            Console.WriteLine($"Ingen elevplan fundet for brugerId {valgtElev.Id}");
             return;
         }
 
@@ -641,7 +641,7 @@
         if (minPlan != null)
         {
             // Henter elevens kommentar til delmålet via IElevplanService
-            var _elevKommentar = await eService.GetKommentarAsync(minPlan.ElevplanId, delmaalId, "Elev");
+            var _elevKommentar = await eService.GetKommentarAsync(minPlan.Id, delmaalId, "Elev");
             if (_elevKommentar != null)
             {
                 elevKommentar = _elevKommentar.Tekst;
@@ -651,7 +651,7 @@
             }
 
             // Henter køkkenchefens/kokkens kommentar på samme måde
-            var _kokKommentar = await eService.GetKommentarAsync(minPlan.ElevplanId, delmaalId, "FaglærtKok");
+            var _kokKommentar = await eService.GetKommentarAsync(minPlan.Id, delmaalId, "FaglærtKok");
             if (_kokKommentar != null)
             {
                 kokKommentar = _kokKommentar.Tekst;
@@ -672,7 +672,7 @@
 
         if (loggedIn.Rolle == "Elev")
         {
-            var eksisterende = await eService.GetKommentarAsync(minPlan.ElevplanId, aktivtDelmaalId, "Elev");
+            var eksisterende = await eService.GetKommentarAsync(minPlan.Id, aktivtDelmaalId, "Elev");
 
             if (eksisterende != null)
             {
@@ -696,7 +696,7 @@
         }
         else if (loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "FaglærtKok")
         {
-            var eksisterende = await eService.GetKommentarAsync(minPlan.ElevplanId, aktivtDelmaalId, "FaglærtKok");
+            var eksisterende = await eService.GetKommentarAsync(minPlan.Id, aktivtDelmaalId, "FaglærtKok");
             ;
 
             if (eksisterende != null)
@@ -822,7 +822,7 @@
             return;
 
         filtreredeMaal = await eService.HentFiltreredeMaal(
-            valgtElev.BrugerId,
+            valgtElev.Id,
             valgtPeriodeIndex,
             valgtMaalNavn,
             valgtDelmaalType,
@@ -951,11 +951,11 @@
             return;
 
         var maal = aktivPeriode.ListMaal
-            .FirstOrDefault(m => m.ListDelmaal.Any(d => d.DelmaalId == aktivtDelmaalTilOpgaver.DelmaalId));
+            .FirstOrDefault(m => m.ListDelmaal.Any(d => d.Id == aktivtDelmaalTilOpgaver.Id));
 
         if (maal == null) return;
 
-        await eService.OpdaterDelmaal(minPlan, valgtPeriodeIndex, maal.MaalId, aktivtDelmaalTilOpgaver);
+        await eService.OpdaterDelmaal(minPlan, valgtPeriodeIndex, maal.Id, aktivtDelmaalTilOpgaver);
         opgaverDialog?.Close();
     }
 

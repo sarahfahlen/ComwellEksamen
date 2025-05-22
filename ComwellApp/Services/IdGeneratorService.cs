@@ -16,7 +16,7 @@ namespace ComwellApp.Services
             var eksisterendeIds = plan.ListPerioder
                 .SelectMany(p => p.ListMaal)
                 .SelectMany(m => m.ListDelmaal)
-                .Select(d => d.DelmaalId)
+                .Select(d => d.Id)
                 .Where(id => id > 0)
                 .ToList();
 

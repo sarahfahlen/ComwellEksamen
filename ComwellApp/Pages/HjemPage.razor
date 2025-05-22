@@ -134,7 +134,7 @@
 
         if (loggedIn.Rolle == "Elev")
         {
-            kommendeDeadlines = await eService.HentKommendeDeadlines(loggedIn.BrugerId);
+            kommendeDeadlines = await eService.HentKommendeDeadlines(loggedIn.Id);
         }
         
         if (loggedIn.Afdeling != null)

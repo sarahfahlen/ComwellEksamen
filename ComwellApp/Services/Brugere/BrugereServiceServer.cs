@@ -27,14 +27,14 @@ public class BrugereServiceServer : IBrugereService
     {
         // Først henter vi ALLE brugere, for at kunne generere et unikt BrugerId
         var alleBrugere = await HentAlle();
-        nyBruger.BrugerId = _idGenerator.GenererNytId(alleBrugere, b => b.BrugerId);
+        nyBruger.Id = _idGenerator.GenererNytId(alleBrugere, b => b.Id);
 
         // Henter elevplan-skabelon fra backend (fx "KokSkabelon")
         var plan = await _elevplanService.LavDefaultSkabelon(ansvarlig, skabelonType, nyBruger.StartDato!.Value);
 
 
         // Gør planen klar: tildel ansvarlig, elevplanId, sætter startperiode for praktik og beregner deadlines dynamisk
-        plan.ElevplanId = nyBruger.BrugerId;
+        plan.Id = nyBruger.Id;
         plan.Ansvarlig = ansvarlig;
 
         //  Gennemgår ALLE mål, delmål og opgaver og giver dem unikke ID'er og sætter status til "ikke gennemført"
@@ -46,18 +46,18 @@ public class BrugereServiceServer : IBrugereService
         {
             foreach (var maal in periode.ListMaal)
             {
-                maal.MaalId = _idGenerator.GenererNytId(alleMaal, m => m.MaalId);
+                maal.Id = _idGenerator.GenererNytId(alleMaal, m => m.Id);
                 alleMaal.Add(maal);
 
                 foreach (var delmaal in maal.ListDelmaal)
                 {
-                    delmaal.DelmaalId = _idGenerator.GenererNytId(alleDelmaal, d => d.DelmaalId);
+                    delmaal.Id = _idGenerator.GenererNytId(alleDelmaal, d => d.Id);
                     delmaal.Status = false;
                     alleDelmaal.Add(delmaal);
 
                     foreach (var opgave in delmaal.ListOpgaver)
                     {
-                        opgave.OpgaveId = _idGenerator.GenererNytId(alleOpgaver, o => o.OpgaveId);
+                        opgave.Id = _idGenerator.GenererNytId(alleOpgaver, o => o.Id);
                         opgave.OpgaveGennemfoert = false;
                         alleOpgaver.Add(opgave);
                     }

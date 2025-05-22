@@ -22,7 +22,7 @@
             }
 
             <p>Kommentar:
-                <button class="kommentar-knap" @onclick="() => OnInputDelmaal.InvokeAsync(delmaal.DelmaalId)">Se kommentar</button>
+                <button class="kommentar-knap" @onclick="() => OnInputDelmaal.InvokeAsync(delmaal.Id)">Se kommentar</button>
             </p>
 
             @if (delmaal.Status && !string.IsNullOrWhiteSpace(delmaal.StatusLog))

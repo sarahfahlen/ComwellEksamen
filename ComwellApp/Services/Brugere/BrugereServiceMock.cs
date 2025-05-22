@@ -23,7 +23,7 @@ public class BrugereServiceMock : IBrugereService
         {
             new Bruger
             {
-                BrugerId = 1,
+                Id = 1,
                 Navn = "Kasper",
                 Adgangskode = "1234",
                 Email = "kasper@mail.com",
@@ -32,7 +32,7 @@ public class BrugereServiceMock : IBrugereService
             },
             new Bruger
             {
-                BrugerId = 2,
+                Id = 2,
                 Navn = "Frank",
                 Adgangskode = "1234",
                 Email = "frank@mail.com",
@@ -41,7 +41,7 @@ public class BrugereServiceMock : IBrugereService
             },
             new Bruger
             {
-                BrugerId = 3,
+                Id = 3,
                 Navn = "Jane",
                 Adgangskode = "1234",
                 Email = "jane@mail.com",
@@ -50,7 +50,7 @@ public class BrugereServiceMock : IBrugereService
             },
             new Bruger
             {
-                BrugerId = 4,
+                Id = 4,
                 Navn = "Ole",
                 Adgangskode = "1234",
                 Email = "Ole@mail.com",
@@ -61,7 +61,7 @@ public class BrugereServiceMock : IBrugereService
 
         var emil = new Bruger
         {
-            BrugerId = _idGenerator.GenererNytId(_brugere, b => b.BrugerId),
+            Id = _idGenerator.GenererNytId(_brugere, b => b.Id),
             Navn = "Emil",
             Adgangskode = "1234",
             Email = "emil@mail.com",
@@ -122,7 +122,7 @@ public class BrugereServiceMock : IBrugereService
 
     public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig, string skabelonType)
     {
-        nyBruger.BrugerId = _idGenerator.GenererNytId(_brugere, b => b.BrugerId);
+        nyBruger.Id = _idGenerator.GenererNytId(_brugere, b => b.Id);
         nyBruger.MinElevplan = await _elevplanService.OpretElevplan(ansvarlig, skabelonType);
         _brugere.Add(nyBruger);
         Console.WriteLine("Brugere i systemet:");

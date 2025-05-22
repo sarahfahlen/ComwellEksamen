@@ -72,7 +72,7 @@ public class LoginServiceClientSite : ILoginService
     public async Task OpdaterBruger(Bruger bruger)
     {
         var gemte = await HentEleverTilElevplanVisning();
-        var index = gemte.FindIndex(b => b.BrugerId == bruger.BrugerId);
+        var index = gemte.FindIndex(b => b.Id == bruger.Id);
 
         if (index != -1)
         {

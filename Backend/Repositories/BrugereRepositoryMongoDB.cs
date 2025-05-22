@@ -88,17 +88,17 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
     public async Task<Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId)
     {
         // Finder eleven ud fra brugerId (den elev, hvis plan vi ønsker at hente)
-        var elev = await BrugerCollection.Find(b => b.BrugerId == brugerId).FirstOrDefaultAsync();
+        var elev = await BrugerCollection.Find(b => b.Id == brugerId).FirstOrDefaultAsync();
 
         // Finder den bruger, der anmoder om adgang (kan være elev, kok, HR, etc.)
-        var forespoerger = await BrugerCollection.Find(b => b.BrugerId == forespoergerId).FirstOrDefaultAsync();
+        var forespoerger = await BrugerCollection.Find(b => b.Id == forespoergerId).FirstOrDefaultAsync();
 
         // Hvis enten elev eller forespørger ikke findes, returneres null
         if (elev == null || forespoerger == null)
             return null;
 
         // Hvis forespørgeren er elev og prøver at tilgå en anden elevs plan
-        if (forespoerger.Rolle == "Elev" && forespoerger.BrugerId != elev.BrugerId)
+        if (forespoerger.Rolle == "Elev" && forespoerger.Id != elev.Id)
         {
             // ... og de ikke er fra samme lokation, så næg adgang
             if (forespoerger.Afdeling?.LokationNavn != elev.Afdeling?.LokationNavn)
@@ -208,7 +208,7 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
     }
     public async Task OpdaterBillede(int brugerId, string sti)
     {
-        var filter = Builders<Bruger>.Filter.Eq(b => b.BrugerId, brugerId);
+        var filter = Builders<Bruger>.Filter.Eq(b => b.Id, brugerId);
         var update = Builders<Bruger>.Update.Set(b => b.Billede, sti);
         await BrugerCollection.UpdateOneAsync(filter, update);
     }

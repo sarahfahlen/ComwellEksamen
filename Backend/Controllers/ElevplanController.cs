@@ -262,7 +262,7 @@ public class ElevplanController : ControllerBase
 
             foreach (var bruger in brugere)
             {
-                var plan = await elevplanRepo.HentElevplanMedMaal(bruger.BrugerId, 0); // midlertidig
+                var plan = await elevplanRepo.HentElevplanMedMaal(bruger.Id, 0); // midlertidig
                 if (plan == null || plan.ListPerioder == null) continue;
 
                 foreach (var periode in plan.ListPerioder)

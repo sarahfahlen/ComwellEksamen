@@ -200,7 +200,7 @@
                 return;
             }
 
-            bool success = await LoginService.SkiftAdgangskode(bruger.BrugerId, nuværendeKode, nyKode);
+            bool success = await LoginService.SkiftAdgangskode(bruger.Id, nuværendeKode, nyKode);
 
             if (!success)
             {
@@ -234,7 +234,7 @@
             var fileContent = new StreamContent(billedeFil.OpenReadStream(10 * 1024 * 1024));
             fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(billedeFil.ContentType);
             content.Add(fileContent, "file", billedeFil.Name);
-            var response = await http.PostAsync($"api/brugere/upload-profilbillede?brugerId={bruger.BrugerId}", content);
+            var response = await http.PostAsync($"api/brugere/upload-profilbillede?brugerId={bruger.Id}", content);
 
             if (response.IsSuccessStatusCode)
             {

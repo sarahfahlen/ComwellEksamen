@@ -1,17 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-
 namespace Shared;
-[BsonIgnoreExtraElements]
 
 public class Bruger
 {
-    [BsonId]
-    [BsonIgnoreIfDefault]
-    public ObjectId _id { get; set; }
-    public int BrugerId { get; set; }
+    public int Id { get; set; }
     [Required(ErrorMessage = "Navn er påkrævet")]
     public string Navn { get; set; }
     [Required(ErrorMessage = "Email er påkrævet")]

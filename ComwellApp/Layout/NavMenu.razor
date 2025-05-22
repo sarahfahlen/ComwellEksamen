@@ -188,7 +188,7 @@
 
         if (currentUser != null && currentUser.Rolle == "Elev")
         {
-            var kommende = await eService.HentKommendeDeadlines(currentUser.BrugerId);
+            var kommende = await eService.HentKommendeDeadlines(currentUser.Id);
             deadlines = kommende
                 .Select(d => $"{d.Titel} – {d.Deadline?.ToString("dd.MM.yyyy")}")
                 .ToList();
