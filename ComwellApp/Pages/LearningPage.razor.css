@@ -6,7 +6,7 @@
 
 .laering-sidepanel {
     flex: 1;
-    min-width: 275px;
+    min-width: 310px;
     background-color: #f9f6f2;
     border: 1px dashed #d2b894;
     border-radius: 10px;
@@ -18,34 +18,29 @@
 }
 .fagområde-navn{
     color: #fff !important;
+    font-size: large !important;
 }
 
 .laering-dropdown-wrapper {
-    position: relative;
     margin-bottom: 1rem;
 }
 
 .laering-dropdown-boks {
     background-color: #fff;
-    padding: 0.8rem 1rem;
+    padding: 0 0.8rem;
     border-radius: 0 0 12px 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    z-index: 1;
     overflow: hidden;
     max-height: 0;
     opacity: 0;
-    transform: translateY(-10px);
+    transform: scaleY(0.95);
     transition: all 0.3s ease;
 }
 
 .laering-dropdown-boks.vis {
-    max-height: 500px; /* max der passer til indhold */
+    max-height: 500px; /* tilpas efter behov */
     opacity: 1;
-    transform: translateY(0);
+    transform: scaleY(1);
+    padding-bottom: 1rem;
 }
 
 .laering-indhold {
@@ -54,9 +49,8 @@
 }
 
 .laering-dropdown-knap{
-    display: block;
+    display: flex;
     width: 100%;
-    margin: 0.3rem 0;
     padding: 0.6rem 1rem;
     background-color: #d2b894;
     color: white;
@@ -69,7 +63,23 @@
     transition: background-color 0.3s ease;
     z-index: 2;
     position: relative ;
+    white-space: normal;
+    word-wrap: break-word;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
 }
+
+.dropdown-pil {
+    transition: transform 0.3s ease;
+    font-size: 1rem;
+    color: white;
+}
+
+.dropdown-pil.open {
+    transform: rotate(90deg);
+}
+
 
 .laering-underemne-knap{
     background-color: #fff;
@@ -124,9 +134,10 @@
 .full-width-button {
     width: 100%;
     padding: 0.75rem 1rem;
+    margin-top: 0.5rem;
     text-align: left;
     background-color: #fff;
-    color: #d2b894;
+    color: black;
     font-size: 1rem;
     border: none;
     cursor: pointer;
@@ -145,13 +156,34 @@
 }
 
 .aktiv-underemne {
-    background-color: #d2b894 !important;
-    color: white !important;
+    background-color: #fff5e8 !important;
+    color: black !important;
     font-weight: bold;
 }
 
-.element-navn{
-    text-align: center;
+.element-navn-knap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    background-color: #eee5d8;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.element-navn-knap:hover {
+    background-color: #e1d3c3;
+}
+
+.element-indhold {
+    margin-top: 1rem;
+    padding-left: 0.5rem;
+    animation: fadeIn 0.4s ease;
 }
 
 .quiz-spoergsmaal {
@@ -197,6 +229,59 @@
     font-weight: bold;
 }
 
+.opskrift-container {
+    background-color: #fdf9f4;
+    border-left: 4px solid #d2b894;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 8px;
+    animation: fadeIn 0.4s ease;
+}
+
+.opskrift-titel {
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #1C2B38;
+}
+
+.opskrift-liste {
+    padding-left: 1.2rem;
+    list-style-type: decimal;
+}
+
+.opskrift-liste li {
+    margin-bottom: 0.4rem;
+    line-height: 1.5;
+}
+
+.opskrift-container {
+    background-color: #fdf9f4;
+    border-left: 4px solid #d2b894;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 8px;
+    animation: fadeIn 0.4s ease;
+}
+
+.opskrift-titel {
+    margin-bottom: 0.6rem;
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #1C2B38;
+}
+
+.opskrift-tekst {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.opskrift-tekst-pre {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }

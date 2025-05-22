@@ -15,7 +15,8 @@
 
                 <div class="laering-dropdown-wrapper">
                     <button class="laering-dropdown-knap" @onclick="() => ToggleDropdown(fag.FagomraadeNavn)">
-                        <h5 class="fagområde-navn">@fag.FagomraadeNavn</h5>
+                        <span class="fagområde-navn">@fag.FagomraadeNavn</span>
+                        <span class="dropdown-pil @(aaben ? "open" : "")">▸</span>
                     </button>
 
                     <div class="laering-dropdown-boks @(aaben ? "vis" : "skjul")">
@@ -40,22 +41,39 @@
                 @foreach (var element in valgtUnderemne.ListElement)
                 {
                     <div class="laering-elementkort">
-                        <h5 class="element-navn">@element.ElementNavn</h5>
-                        
-                            @foreach (var spg in element.ListSpoergsmaal )
-                            {
-                                <p class="quiz-spoergsmaal">@spg.Tekst</p>
-                                <div class="quiz-svarliste">
-                                    @foreach (var svar in spg.Svar)
+                        <button class="element-navn-knap" @onclick="() => ToggleElement(element.ElementNavn)">
+                            <span>@element.ElementNavn</span>
+                            <span class="dropdown-pil @(ElementErAaben(element.ElementNavn) ? "open" : "")">▸</span>
+                        </button>
+
+                        @if (ElementErAaben(element.ElementNavn))
+                        {
+                            <div class="element-indhold">
+                                @if (element.ElementType == "quiz")
+                                {
+                                    @foreach (var spg in element.ListSpoergsmaal)
                                     {
-                                        <label class="quiz-svar">
-                                            <input type="radio" name="@spg.Tekst" />
-                                            @svar.Tekst
-                                        </label>
+                                        <p class="quiz-spoergsmaal">@spg.Tekst</p>
+                                        <div class="quiz-svarliste">
+                                            @foreach (var svar in spg.Svar)
+                                            {
+                                                <label class="quiz-svar">
+                                                    <input type="radio" name="@spg.Tekst" />
+                                                    @svar.Tekst
+                                                </label>
+                                            }
+                                        </div>
                                     }
-                                </div>
-                            }
-                        
+                                }
+                                else if (element.ElementType == "opskrift")
+                                {
+                                    <div class="opskrift-container">
+                                        <h6 class="opskrift-titel">@element.ElementNavn</h6>
+                                        <p class="opskrift-tekst">@element.Beskrivelse</p>
+                                    </div>
+                                }
+                            </div>
+                        }
                     </div>
                 }
             </div>
@@ -71,6 +89,7 @@
     private List<Fagomraade>? alleFag;
     private Dictionary<string, bool> dropdownAaben = new();
     private Underemne? valgtUnderemne;
+    private Dictionary<string, bool> elementAaben = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,5 +103,18 @@
     private void ToggleDropdown(string fagNavn)
     {
         dropdownAaben[fagNavn] = !dropdownAaben.GetValueOrDefault(fagNavn, false);
+    }
+    
+    private void ToggleElement(string elementNavn)
+    {
+        if (elementAaben.ContainsKey(elementNavn))
+            elementAaben[elementNavn] = !elementAaben[elementNavn];
+        else
+            elementAaben[elementNavn] = true;
+    }
+
+    private bool ElementErAaben(string elementNavn)
+    {
+        return elementAaben.TryGetValue(elementNavn, out var erAaben) && erAaben;
     }
 }
