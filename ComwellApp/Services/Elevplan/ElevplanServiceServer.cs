@@ -1,6 +1,8 @@
 using System.Net.Http.Json;
 using Shared;
+
 namespace ComwellApp.Services.Elevplan;
+
 using Elevplan = Shared.Elevplan;
 
 public class ElevplanServiceServer : IElevplanService
@@ -15,32 +17,68 @@ public class ElevplanServiceServer : IElevplanService
     }
 
     private List<Elevplan> _alleElevplaner = new();
-    
-    public async Task<Elevplan> LavDefaultSkabelon(Bruger ansvarlig, string skabelonNavn)
-    {
-        //Kalder vores controller med det skabelonNavn der bruges (type af skabelon)
-        var response = await http.GetAsync($"api/elevplan/skabelon/{skabelonNavn}");
 
-        //fejlhåndtering
+    public async Task<Elevplan> LavDefaultSkabelon(Bruger ansvarlig, string skabelonNavn, DateOnly startdato)
+    {
+        var response = await http.GetAsync($"api/elevplan/skabelon/{skabelonNavn}");
         if (!response.IsSuccessStatusCode)
         {
             var fejl = await response.Content.ReadAsStringAsync();
             Console.WriteLine($"[LavDefaultSkabelon] FEJL: {fejl}");
-            throw new Exception($"Kunne ikke hente skabelon '{skabelonNavn}' fra server");
+            throw new Exception($"Fejl ved hentning af skabelon '{skabelonNavn}'");
         }
-        
-        //Omdanner skabelon til et objekt af typen Elevplan ved hjælp af Json
-        var skabelon = await response.Content.ReadFromJsonAsync<Elevplan>();
 
+        var skabelon = await response.Content.ReadFromJsonAsync<Elevplan>();
         if (skabelon == null)
-            throw new Exception("Skabelon kunne ikke læses som elevplan");
+            throw new Exception("Skabelonen kunne ikke konverteres til Elevplan");
 
         skabelon.Ansvarlig = ansvarlig;
+        skabelon.ElevStartDato = startdato;
+
+        // 🟡 Nu vil vi kun sætte datoer på – IKKE overskrive perioderne
+        foreach (var periode in skabelon.ListPerioder ?? new())
+        {
+            if (periode.Praktikvarighed > 0)
+            {
+                periode.StartDato = startdato;
+                periode.SlutDato = startdato.AddDays(periode.Praktikvarighed * 7 - 1);
+                startdato = periode.SlutDato.Value.AddDays(1); // næste periodes start
+            }
+        }
 
         return skabelon;
     }
 
-    public async Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? soegeord, bool? filterStatus)
+
+    private List<Praktikperiode> GenererPraktikperioder(DateOnly startdato)
+    {
+        var perioder = new List<Praktikperiode>();
+        var længderIuger = new[] { 52, 43, 43, 4 };
+        var start = startdato;
+
+        for (int i = 0; i < længderIuger.Length; i++)
+        {
+            var uger = længderIuger[i];
+            var slut = start.AddDays(uger * 7 - 1);
+
+            perioder.Add(new Praktikperiode
+            {
+                PraktikNavn = $"Periode {i + 1}",
+                Praktikvarighed = uger,
+                StartDato = start,
+                SlutDato = slut,
+                ListMaal = new List<Maal>()
+            });
+
+            start = slut.AddDays(1);
+        }
+
+        return perioder;
+    }
+
+
+    public async Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn,
+        string? valgtDelmaalType, string? soegeord, bool? filterStatus)
     {
         // Saml query-parametre som URL
         string url = $"api/elevplan/filtreredemaal" +
@@ -70,8 +108,6 @@ public class ElevplanServiceServer : IElevplanService
             return new();
         }
     }
-
-    
 
 
     public async Task TilfoejKommentar(Elevplan minPlan, int delmaalId, Kommentar nyKommentar)
@@ -109,7 +145,7 @@ public class ElevplanServiceServer : IElevplanService
             throw new Exception("Kunne ikke tilføje kommentar");
         }
     }
-    
+
     public async Task RedigerKommentar(Elevplan minPlan, int delmaalId, Kommentar redigeretKommentar)
     {
         var response = await http.PutAsJsonAsync(
@@ -145,7 +181,7 @@ public class ElevplanServiceServer : IElevplanService
             return null;
         }
     }
-    
+
     public async Task OpdaterStatus(Elevplan plan, Delmaal delmaal)
     {
         //Kalder vores controller, og sender det rigtige delmål med - hvor status er opdateret
@@ -158,6 +194,7 @@ public class ElevplanServiceServer : IElevplanService
             throw new Exception("Kunne ikke opdatere status");
         }
     }
+
     public async Task TilfoejDelmaal(Elevplan plan, int maalId, Delmaal nytDelmaal)
     {
         var maal = plan.ListPerioder
@@ -189,7 +226,7 @@ public class ElevplanServiceServer : IElevplanService
             throw new Exception("Kunne ikke tilføje delmål.");
         }
     }
-    
+
     public async Task OpdaterDelmaal(Elevplan plan, int periodeIndex, int maalId, Delmaal opdateretDelmaal)
     {
         var response = await http.PutAsJsonAsync(
@@ -230,6 +267,7 @@ public class ElevplanServiceServer : IElevplanService
 
         return await response.Content.ReadFromJsonAsync<List<Delmaal>>() ?? new();
     }
+
     public async Task OpdaterIgang(Elevplan plan, Delmaal delmaal)
     {
         var response = await http.PutAsJsonAsync($"api/elevplan/igangopdatering/{plan.ElevplanId}", delmaal);
@@ -241,6 +279,4 @@ public class ElevplanServiceServer : IElevplanService
             throw new Exception("Kunne ikke opdatere 'Igang' status.");
         }
     }
-
-
 }

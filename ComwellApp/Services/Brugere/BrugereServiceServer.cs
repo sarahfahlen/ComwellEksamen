@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using ComwellApp.Services.Elevplan;
 using Shared;
 
 namespace ComwellApp.Services.Brugere;
@@ -29,28 +30,12 @@ public class BrugereServiceServer : IBrugereService
         nyBruger.BrugerId = _idGenerator.GenererNytId(alleBrugere, b => b.BrugerId);
 
         // Henter elevplan-skabelon fra backend (fx "KokSkabelon")
-        var response = await http.GetAsync($"api/elevplan/skabelon/{skabelonType}");
-        if (!response.IsSuccessStatusCode)
-        {
-            // Hvis der er fejl, læs besked fra backend og vis den i konsollen
-            var fejl = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"[TilfoejElev] FEJL: {fejl}");
-            throw new Exception($"Fejl ved hentning af skabelon '{skabelonType}'");
-        }
+        var plan = await _elevplanService.LavDefaultSkabelon(ansvarlig, skabelonType, nyBruger.StartDato!.Value);
 
-        // Konverterer JSON-svaret til en rigtig .NET Elevplan
-        var plan = await response.Content.ReadFromJsonAsync<Shared.Elevplan>();
-        if (plan == null)
-            throw new Exception("Skabelonen kunne ikke konverteres til Elevplan");
 
         // Gør planen klar: tildel ansvarlig, elevplanId, sætter startperiode for praktik og beregner deadlines dynamisk
         plan.ElevplanId = nyBruger.BrugerId;
         plan.Ansvarlig = ansvarlig;
-        if (nyBruger.StartDato != null && plan.ListPerioder?.Count > 0)
-        {
-            plan.ListPerioder[0].StartDato = nyBruger.StartDato;
-        }
-        BeregnDeadlinesIElevplan(plan);
 
         //  Gennemgår ALLE mål, delmål og opgaver og giver dem unikke ID'er og sætter status til "ikke gennemført"
         var alleMaal = new List<Maal>();
@@ -111,9 +96,7 @@ public class BrugereServiceServer : IBrugereService
         var kokke = await http.GetFromJsonAsync<List<Bruger>>(url);
         return kokke ?? new List<Bruger>();
     }
-
-  
-    // Henter alle lokationer, som bruges i dropdown
+    
     public async Task<List<string>> HentAlleErhverv()
     {
         var erhverv = await http.GetFromJsonAsync<List<string>>("api/brugere/erhverv");
@@ -197,6 +180,14 @@ public class BrugereServiceServer : IBrugereService
                 }
             }
         }
+    }
+    
+    private readonly IElevplanService _elevplanService;
+    public BrugereServiceServer(HttpClient http, IdGeneratorService idGenerator, IElevplanService elevplanService)
+    {
+        this.http = http;
+        _idGenerator = idGenerator;
+        _elevplanService = elevplanService;
     }
 
 }

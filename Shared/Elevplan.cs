@@ -11,6 +11,7 @@ public class Elevplan
     [BsonIgnoreIfDefault]
     public ObjectId _id { get; set; }
     public int ElevplanId { get; set; }
+    public DateOnly? ElevStartDato { get; set; }
     public Bruger Ansvarlig { get; set; }
     public List<Praktikperiode> ListPerioder { get; set; }
 }

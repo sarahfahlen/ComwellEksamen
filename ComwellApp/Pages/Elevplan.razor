@@ -72,6 +72,12 @@
 
                         <div class="elevdata-label"><strong> Lokation for elevtid </strong></div>
                         <div class="elevdata-value">@valgtElev.Afdeling.LokationNavn</div>
+
+                        @if (aktivPeriode != null)
+                        {
+                            <div class="elevdata-label"><strong> Slutdato for perioden </strong></div>
+                            <div class="elevdata-value">@aktivPeriode.SlutDato / Dage tilbage: @BeregnDageTilbage()</div>
+                        }
                     </div>
                 </div>
 
@@ -998,5 +1004,22 @@
     {
         stortBilledeUrl = null;
     }
+    
+    private int BeregnDageTilbage()
+    {
+        var idag = DateOnly.FromDateTime(DateTime.Today);
+        var slut = aktivPeriode?.SlutDato;
+
+        if (slut == null || idag > slut)
+        {
+            return 0;
+        }
+
+        var dage = slut.Value.DayNumber - idag.DayNumber;
+
+        return dage;
+    }
+
+
 
 }
