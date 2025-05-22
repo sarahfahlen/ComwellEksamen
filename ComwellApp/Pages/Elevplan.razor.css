@@ -274,6 +274,11 @@
     .main-indhold {
         margin: -1rem 0.5rem 1rem -0.5rem;
     }
+    
+    .kommentar-felt {
+        margin-right: -10rem !important;
+        margin-left: -1.5rem !important;
+    }
 }
 
 .tilfoej-delmaal-knap {
