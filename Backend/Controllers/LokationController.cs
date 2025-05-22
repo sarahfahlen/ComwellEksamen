@@ -28,4 +28,14 @@ public class LokationController : ControllerBase
         var lokationer = await _repo.HentLokationerAfType("Skole");
         return lokationer.Any() ? Ok(lokationer) : NotFound("Ingen skole-lokationer fundet");
     }
+    
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Lokation>> GetLokationById(int id)
+    {
+        var lokation = await _repo.HentLokationViaId(id);
+        if (lokation == null)
+            return NotFound();
+        return Ok(lokation);
+    }
+
 }

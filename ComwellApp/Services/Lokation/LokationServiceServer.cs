@@ -24,7 +24,7 @@ public class LokationServiceServer : ILokationService
     
     public async Task<Shared.Lokation?> HentLokationViaId(int id)
     {
-        return await _http.GetFromJsonAsync<Shared.Lokation>($"api/lokation/{id}");
+        return await _http.GetFromJsonAsync<Shared.Lokation>($"api/lokationer/{id}");
     }
 
 
