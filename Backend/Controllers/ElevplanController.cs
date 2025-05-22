@@ -11,10 +11,12 @@ public class ElevplanController : ControllerBase
     private readonly IElevplanRepository elevplanRepo;
     private readonly IBrugereRepository brugereRepo;
 
-    public ElevplanController(IElevplanRepository elevplanRepo)
+    public ElevplanController(IElevplanRepository elevplanRepo, IBrugereRepository brugereRepo)
     {
         this.elevplanRepo = elevplanRepo;
+        this.brugereRepo = brugereRepo;
     }
+
 
     //Henter skabelonen fra repository - returnerer NotFound hvis fejl, ellers returnerer den skabelonen
     //ActionResult bruges til enten at returnere Elevplan eller en fejlbesked 
@@ -246,6 +248,47 @@ public class ElevplanController : ControllerBase
         
         var relativePath = Path.Combine("uploads", "billeder", fileName).Replace("\\", "/");
         return Ok(relativePath);
+    }
+   
+    [HttpGet("deadlines-raw/{adminId}")]
+    public async Task<ActionResult<Dictionary<string, List<Delmaal>>>> HentDeadlinesRaw(int adminId)
+    {
+        try
+        {
+            var idag = DateOnly.FromDateTime(DateTime.Today);
+            var resultat = new Dictionary<string, List<Delmaal>>();
+
+            var brugere = await brugereRepo.HentAlle();
+
+            foreach (var bruger in brugere)
+            {
+                var plan = await elevplanRepo.HentElevplanMedMaal(bruger.BrugerId, 0); // midlertidig
+                if (plan == null || plan.ListPerioder == null) continue;
+
+                foreach (var periode in plan.ListPerioder)
+                {
+                    var delmaalListe = periode.ListMaal
+                        .SelectMany(m => m.ListDelmaal)
+                        .Where(d => d.Deadline.HasValue && !d.Status)
+                        .ToList();
+
+                    if (delmaalListe.Any())
+                    {
+                        if (!resultat.ContainsKey(bruger.Navn))
+                            resultat[bruger.Navn] = new List<Delmaal>();
+
+                        resultat[bruger.Navn].AddRange(delmaalListe);
+                    }
+                }
+            }
+
+            return Ok(resultat);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[HentDeadlinesRaw] FEJL: {ex.Message}");
+            return BadRequest("Kunne ikke hente deadlines.");
+        }
     }
 
 
