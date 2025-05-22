@@ -4,6 +4,7 @@
 @inject ILoginService lService
 @inject IBrugereService bService
 @inject IElevplanService eService
+@inject ILokationService loService
 @inject NavigationManager navManager
 @inject HttpClient http
 @using ComwellApp.Services.Brugere
@@ -11,10 +12,11 @@
 @using Shared
 @using ComwellApp.Components
 @using ComwellApp.Services.Elevplan
+@using ComwellApp.Services.Lokation
 
 <PageTitle>Elevplan</PageTitle>
 
-@if (loggedIn?.Rolle == "Elev" && loggedIn.Id != valgtElev?.Id)
+@if (loggedIn?.Rolle == "Elev" && loggedIn._id != valgtElev?._id)
 {
     <div class="alert alert-info">
         Du ser <strong>@valgtElev?.Navn</strong>s elevplan (kun læsevisning).
@@ -70,7 +72,7 @@
                         <div class="elevdata-value">@valgtElev.MinElevplan.Ansvarlig.Navn</div>
 
                         <div class="elevdata-label"><strong> Lokation for elevtid </strong></div>
-                        <div class="elevdata-value">@valgtElev.Afdeling.LokationNavn</div>
+                        <div class="elevdata-value">@valgtElevLokation?.LokationNavn</div>
 
                         @if (aktivPeriode != null)
                         {
@@ -170,7 +172,7 @@
                 @if (tilfoejDelmaalDialog != null)
                 {
                     <OpretDelmaalComponent
-                        @key="delmaalTilRedigering?.Id"
+                        @key="delmaalTilRedigering?._id"
                         minPlan="@minPlan"
                         RedigerDelmaal="delmaalTilRedigering"
                         OnGemSuccess="OpdaterFiltreredeMaal"
@@ -468,8 +470,11 @@
             ? minPlan.ListPerioder[valgtPeriodeIndex]
             : null;
 
+    //bruges til at hente elevens lokation, ud fra det ID der er i dens objekt
+    private Lokation? valgtElevLokation;
+    
     // Returnerer true hvis den loggede bruger er en elev, og de ser på en anden elevs elevplan (dvs. elevId er sat og forskellig fra ens egen).
-    private bool isReadOnlyElevView => loggedIn?.Rolle == "Elev" && elevId != null && elevId != loggedIn.Id;
+    private bool isReadOnlyElevView => loggedIn?.Rolle == "Elev" && elevId != null && elevId != loggedIn._id;
 
     // Refererer til modal-dialogboksen der åbnes, når man klikker "Se kommentar"
     private ModalDialog? kommentarDialog;
@@ -532,27 +537,31 @@
         }
 
         // Hvis den loggede bruger er en elev, og forsøger at tilgå en anden elevs plan (dvs. elevId != ens egen)
-        if (loggedIn.Rolle == "Elev" && elevId.HasValue && elevId.Value != loggedIn.Id)
+        if (loggedIn.Rolle == "Elev" && elevId.HasValue && elevId.Value != loggedIn._id)
         {
-            // Hent alle brugere, og find den elev der svarer til elevId fra URL’en
-            valgtElev = await bService.HentAlle()
-                .ContinueWith(t => t.Result.FirstOrDefault(e => e.Id == elevId.Value));
+            // Hent alle brugere, og find den elev der svarer til elevId fra URL’en - og find dens lokation
+            valgtElev = await bService.HentAlle().ContinueWith(t => t.Result.FirstOrDefault(e => e._id == elevId.Value));
+
+            if (valgtElev?.AfdelingId != null)
+            {
+                valgtElevLokation = await loService.HentLokationViaId(valgtElev.AfdelingId.Value);
+            }
 
             // Hvis eleven ikke findes, eller ikke er på samme lokation som den loggede elev – nægt adgang
-            if (valgtElev == null || valgtElev.Afdeling?.LokationNavn != loggedIn.Afdeling?.LokationNavn)
+            if (valgtElev == null || valgtElev.AfdelingId != loggedIn.AfdelingId)
             {
-                // Send brugeren tilbage til dashboard – de har ikke adgang til at se elevplanen
                 navManager.NavigateTo("/dashboard");
                 return;
             }
+
         }
 
 
         // Hvis HR/Admin/Køkkenchef ser en specifik elevplan
-        if (elevId.HasValue && elevId != loggedIn.Id)
+        if (elevId.HasValue && elevId != loggedIn._id)
         {
             var alleElever = await lService.HentEleverTilElevplanVisning();
-            valgtElev = alleElever.FirstOrDefault(e => e.Id == elevId.Value);
+            valgtElev = alleElever.FirstOrDefault(e => e._id == elevId.Value);
 
             if (valgtElev != null)
             {
@@ -572,12 +581,12 @@
         }
 
         //Henter elevplan for den pågældene elev
-        minPlan = await bService.HentElevplanForBruger(valgtElev.Id, loggedIn.Id);
+        minPlan = await bService.HentElevplanForBruger(valgtElev._id, loggedIn._id);
 
         // Tjek om der blev fundet en elevplan
         if (minPlan == null)
         {
-            Console.WriteLine($"Ingen elevplan fundet for brugerId {valgtElev.Id}");
+            Console.WriteLine($"Ingen elevplan fundet for brugerId {valgtElev._id}");
             return;
         }
 
@@ -641,7 +650,7 @@
         if (minPlan != null)
         {
             // Henter elevens kommentar til delmålet via IElevplanService
-            var _elevKommentar = await eService.GetKommentarAsync(minPlan.Id, delmaalId, "Elev");
+            var _elevKommentar = await eService.GetKommentarAsync(minPlan._id, delmaalId, "Elev");
             if (_elevKommentar != null)
             {
                 elevKommentar = _elevKommentar.Tekst;
@@ -651,7 +660,7 @@
             }
 
             // Henter køkkenchefens/kokkens kommentar på samme måde
-            var _kokKommentar = await eService.GetKommentarAsync(minPlan.Id, delmaalId, "FaglærtKok");
+            var _kokKommentar = await eService.GetKommentarAsync(minPlan._id, delmaalId, "FaglærtKok");
             if (_kokKommentar != null)
             {
                 kokKommentar = _kokKommentar.Tekst;
@@ -672,7 +681,7 @@
 
         if (loggedIn.Rolle == "Elev")
         {
-            var eksisterende = await eService.GetKommentarAsync(minPlan.Id, aktivtDelmaalId, "Elev");
+            var eksisterende = await eService.GetKommentarAsync(minPlan._id, aktivtDelmaalId, "Elev");
 
             if (eksisterende != null)
             {
@@ -696,7 +705,7 @@
         }
         else if (loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "FaglærtKok")
         {
-            var eksisterende = await eService.GetKommentarAsync(minPlan.Id, aktivtDelmaalId, "FaglærtKok");
+            var eksisterende = await eService.GetKommentarAsync(minPlan._id, aktivtDelmaalId, "FaglærtKok");
             ;
 
             if (eksisterende != null)
@@ -822,7 +831,7 @@
             return;
 
         filtreredeMaal = await eService.HentFiltreredeMaal(
-            valgtElev.Id,
+            valgtElev._id,
             valgtPeriodeIndex,
             valgtMaalNavn,
             valgtDelmaalType,
@@ -951,11 +960,11 @@
             return;
 
         var maal = aktivPeriode.ListMaal
-            .FirstOrDefault(m => m.ListDelmaal.Any(d => d.Id == aktivtDelmaalTilOpgaver.Id));
+            .FirstOrDefault(m => m.ListDelmaal.Any(d => d._id == aktivtDelmaalTilOpgaver._id));
 
         if (maal == null) return;
 
-        await eService.OpdaterDelmaal(minPlan, valgtPeriodeIndex, maal.Id, aktivtDelmaalTilOpgaver);
+        await eService.OpdaterDelmaal(minPlan, valgtPeriodeIndex, maal._id, aktivtDelmaalTilOpgaver);
         opgaverDialog?.Close();
     }
 

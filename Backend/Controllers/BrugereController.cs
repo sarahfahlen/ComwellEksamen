@@ -94,7 +94,7 @@ public class BrugereController : ControllerBase
 
             // Filtrerer dem, der arbejder på den valgte lokation
             var filtrerede = brugere
-                .Where(b => b.Afdeling?.Id == lokationId)
+                .Where(b => b.AfdelingId == lokationId)
                 .ToList();
 
             if (!filtrerede.Any())
@@ -129,11 +129,29 @@ public class BrugereController : ControllerBase
         [FromQuery] int? deadline,
         [FromQuery] string? rolle,
         [FromQuery] string? status,
-        [FromQuery] string? brugerLokation)
+        [FromQuery] string? afdelingId) // <-- ny parameter
     {
-        var elever = await _repo.HentFiltreredeElever(soegeord, lokation, kursus, erhverv, deadline, rolle, status, brugerLokation);
+        // Pars afdelingId fra string → int?
+        int? parsedAfdelingId = null;
+        if (int.TryParse(afdelingId, out int temp))
+        {
+            parsedAfdelingId = temp;
+        }
+
+        // Kald repository med parsedAfdelingId
+        var elever = await _repo.HentFiltreredeElever(
+            soegeord ?? "",
+            lokation ?? "",
+            kursus ?? "",
+            erhverv ?? "",
+            deadline,
+            rolle ?? "",
+            status ?? "",
+            parsedAfdelingId);
+
         return Ok(elever);
     }
+
     
     [HttpGet("eksporter-elever")]
     public async Task<IActionResult> EksporterEleverTilExcel(
@@ -144,19 +162,20 @@ public class BrugereController : ControllerBase
         [FromQuery] int? deadline,
         [FromQuery] string? rolle,
         [FromQuery] string? status,
-        [FromQuery] string? brugerLokation,
+        [FromQuery] int? afdelingId, 
         [FromServices] ExcelEksportService excelService)
     {
-        //Henter listen af elever baseret på filtrering, ud fra vores repo metode
+        // Henter listen af elever baseret på filtrering
         var elever = await _repo.HentFiltreredeElever(
-            soegeord ?? "", 
-            lokation ?? "", 
-            kursus ?? "", 
-            erhverv ?? "", 
-            deadline, 
-            rolle ?? "Elev", 
+            soegeord ?? "",
+            lokation ?? "",
+            kursus ?? "",
+            erhverv ?? "",
+            deadline,
+            rolle ?? "Elev",
             status ?? "",
-            brugerLokation);
+            afdelingId // ← ændret her
+        );
 
         var excelBytes = excelService.GenererExcelMedNavne(elever);
 
@@ -165,6 +184,7 @@ public class BrugereController : ControllerBase
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "Elever.xlsx");
     }
+
 
     [HttpGet("erhverv")]
     public async Task<ActionResult<List<string>>> HentErhverv()

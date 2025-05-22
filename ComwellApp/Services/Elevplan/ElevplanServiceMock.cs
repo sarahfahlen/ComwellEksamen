@@ -19,16 +19,16 @@ public class ElevplanServiceMock : IElevplanService
         var delmaal = minPlan.ListPerioder
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.Id == delmaalId);
+            .FirstOrDefault(d => d._id == delmaalId);
 
         if (delmaal != null)
         {
             //Genererer et ID til den nye kommentar via vores service
-            nyKommentar.Id = _idGenerator.GenererNytId(delmaal.Kommentarer, k => k.Id);
+            nyKommentar._id = _idGenerator.GenererNytId(delmaal.Kommentar, k => k._id);
             nyKommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
 
             //kommentar tilføjes
-            delmaal.Kommentarer.Add(nyKommentar);
+            delmaal.Kommentar.Add(nyKommentar);
         }
 
         return Task.CompletedTask;
@@ -72,7 +72,7 @@ public class ElevplanServiceMock : IElevplanService
             .Where(m => string.IsNullOrWhiteSpace(valgtMaalNavn) || m.MaalNavn == valgtMaalNavn)
             .Select(m => new Maal
             {
-                Id = m.Id,
+                _id = m._id,
                 MaalNavn = m.MaalNavn,
                 ListDelmaal = m.ListDelmaal
                     .Where(d =>
@@ -91,7 +91,7 @@ public class ElevplanServiceMock : IElevplanService
     public async Task<Shared.Elevplan> OpretElevplan(Bruger ansvarlig, string skabelonNavn)
     {
         var plan = await LavDefaultSkabelon(ansvarlig, skabelonNavn);
-        plan.Id = _idGenerator.GenererNytId(alleElevplaner, p => p.Id);
+        plan._id = _idGenerator.GenererNytId(alleElevplaner, p => p._id);
         alleElevplaner.Add(plan);
         return plan;
     }

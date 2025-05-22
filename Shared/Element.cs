@@ -4,7 +4,7 @@ namespace Shared;
 
 public class Element
 {
-    public int Id { get; set; }
+    public int _id { get; set; }
     public int ElementId { get; set; }
     public string ElementNavn { get; set; }
     public string ElementBeskrivelse { get; set; }

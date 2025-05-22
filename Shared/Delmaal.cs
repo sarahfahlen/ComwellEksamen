@@ -4,7 +4,7 @@ namespace Shared;
 public class Delmaal
 {
     
-    public int Id { get; set; }
+    public int _id { get; set; }
     [Required(ErrorMessage = "Delmålstype er påkrævet")]
     public string DelmaalType { get; set; }
     [Required(ErrorMessage = "Titel er påkrævet")]
@@ -21,7 +21,7 @@ public class Delmaal
     
     public string? StatusLog { get; set; }
     
-    public List<Kommentar> Kommentarer { get; set; } = new ();
+    public List<Kommentar> Kommentar { get; set; } = new ();
     
     public List <Opgaver> ListOpgaver { get; set; } = new ();
 }

@@ -12,7 +12,15 @@ public interface IBrugereRepository
     Task<List<string>> HentKurser();
     Task<Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId);
 
-    Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, string? brugerLokation);
+    Task<List<Bruger>> HentFiltreredeElever(
+        string soegeord,
+        string lokation,
+        string kursus,
+        string erhverv,
+        int? deadline,
+        string rolle,
+        string status,
+        int? afdelingId);
     // I IBrugereRepository.cs
     Task OpdaterBillede(int brugerId, string sti);
 

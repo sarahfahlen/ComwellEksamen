@@ -93,7 +93,7 @@ public class LoginServiceServer : ILoginService
    
     public async Task OpdaterBruger(Bruger bruger)
     {
-        var response = await client.PutAsJsonAsync($"{serverUrl}/api/users/{bruger.Id}", bruger);
+        var response = await client.PutAsJsonAsync($"{serverUrl}/api/users/{bruger._id}", bruger);
 
         if (!response.IsSuccessStatusCode)
         {

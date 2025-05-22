@@ -116,7 +116,7 @@ public class ElevplanServiceServer : IElevplanService
         var delmaal = minPlan.ListPerioder
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.Id == delmaalId);
+            .FirstOrDefault(d => d._id == delmaalId);
 
         if (delmaal == null)
             throw new Exception("Delmål ikke fundet i planen.");
@@ -129,12 +129,12 @@ public class ElevplanServiceServer : IElevplanService
         }
 
         //Opretter Id til den nye kommentar, og sætter dagens dato på
-        nyKommentar.Id = _idGenerator.GenererNytId(delmaal.Kommentarer, k => k.Id);
+        nyKommentar._id = _idGenerator.GenererNytId(delmaal.Kommentar, k => k._id);
         nyKommentar.Dato = DateOnly.FromDateTime(DateTime.Today);
 
         //Kalder vores controller og forsøger at gemme den nye kommentar
         var response = await http.PostAsJsonAsync(
-            $"api/elevplan/kommentar/{minPlan.Id}/{delmaalId}",
+            $"api/elevplan/kommentar/{minPlan._id}/{delmaalId}",
             nyKommentar);
 
         //Fejlhåndtering
@@ -149,7 +149,7 @@ public class ElevplanServiceServer : IElevplanService
     public async Task RedigerKommentar(Elevplan minPlan, int delmaalId, Kommentar redigeretKommentar)
     {
         var response = await http.PutAsJsonAsync(
-            $"api/elevplan/kommentar/{minPlan.Id}/{delmaalId}/{redigeretKommentar.Id}",
+            $"api/elevplan/kommentar/{minPlan._id}/{delmaalId}/{redigeretKommentar._id}",
             redigeretKommentar);
 
         if (!response.IsSuccessStatusCode)
@@ -185,7 +185,7 @@ public class ElevplanServiceServer : IElevplanService
     public async Task OpdaterStatus(Elevplan plan, Delmaal delmaal)
     {
         //Kalder vores controller, og sender det rigtige delmål med - hvor status er opdateret
-        var response = await http.PutAsJsonAsync($"api/elevplan/statusopdatering/{plan.Id}", delmaal);
+        var response = await http.PutAsJsonAsync($"api/elevplan/statusopdatering/{plan._id}", delmaal);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -199,24 +199,24 @@ public class ElevplanServiceServer : IElevplanService
     {
         var maal = plan.ListPerioder
             .SelectMany(p => p.ListMaal)
-            .FirstOrDefault(m => m.Id == maalId);
+            .FirstOrDefault(m => m._id == maalId);
 
         if (maal == null)
             throw new Exception($"Mål med ID {maalId} ikke fundet.");
 
         // Generer ID til delmål
-        nytDelmaal.Id = _idGenerator.GenererNytDelmaalId(plan);
+        nytDelmaal._id = _idGenerator.GenererNytDelmaalId(plan);
         nytDelmaal.Status = false;
 
         // Generer ID til opgaver og marker som ikke gennemført
         foreach (var opg in nytDelmaal.ListOpgaver)
         {
-            opg.Id = _idGenerator.GenererNytId(nytDelmaal.ListOpgaver, d => d.Id);
+            opg._id = _idGenerator.GenererNytId(nytDelmaal.ListOpgaver, d => d._id);
             opg.OpgaveGennemfoert = false;
         }
 
         var response = await http.PostAsJsonAsync(
-            $"api/elevplan/delmaal/{plan.Id}/{maalId}",
+            $"api/elevplan/delmaal/{plan._id}/{maalId}",
             nytDelmaal);
 
         if (!response.IsSuccessStatusCode)
@@ -230,7 +230,7 @@ public class ElevplanServiceServer : IElevplanService
     public async Task OpdaterDelmaal(Elevplan plan, int periodeIndex, int maalId, Delmaal opdateretDelmaal)
     {
         var response = await http.PutAsJsonAsync(
-            $"api/elevplan/delmaal/{plan.Id}/{periodeIndex}/{maalId}/{opdateretDelmaal.Id}",
+            $"api/elevplan/delmaal/{plan._id}/{periodeIndex}/{maalId}/{opdateretDelmaal._id}",
             opdateretDelmaal);
 
         if (!response.IsSuccessStatusCode)
@@ -270,7 +270,7 @@ public class ElevplanServiceServer : IElevplanService
 
     public async Task OpdaterIgang(Elevplan plan, Delmaal delmaal)
     {
-        var response = await http.PutAsJsonAsync($"api/elevplan/igangopdatering/{plan.Id}", delmaal);
+        var response = await http.PutAsJsonAsync($"api/elevplan/igangopdatering/{plan._id}", delmaal);
 
         if (!response.IsSuccessStatusCode)
         {

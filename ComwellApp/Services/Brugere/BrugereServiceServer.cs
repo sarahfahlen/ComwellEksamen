@@ -9,13 +9,16 @@ public class BrugereServiceServer : IBrugereService
 {
     private readonly HttpClient http; // Bruges til at sende HTTP-requests til vores backend
     private readonly IdGeneratorService _idGenerator; // Bruges til at generere unikke ID’er til fx elevplaner, delmål og elever
+    private readonly IElevplanService _elevplanService;
     private static readonly List<Bruger> _brugere = new();
-    public BrugereServiceServer(HttpClient http, IdGeneratorService idGenerator)
+    public BrugereServiceServer(HttpClient http, IdGeneratorService idGenerator, IElevplanService elevplanService)
     {
         this.http = http;
         _idGenerator = idGenerator;
+        _elevplanService = elevplanService;
     }
-
+    
+    
     // Interne lister (bliver dog ikke rigtig brugt her)
     private List<Shared.Elevplan> _allePlaner = new();
     private List<Bruger> _alleBrugere = new();
@@ -27,15 +30,17 @@ public class BrugereServiceServer : IBrugereService
     {
         // Først henter vi ALLE brugere, for at kunne generere et unikt BrugerId
         var alleBrugere = await HentAlle();
-        nyBruger.Id = _idGenerator.GenererNytId(alleBrugere, b => b.Id);
+        nyBruger._id = _idGenerator.GenererNytId(alleBrugere, b => b._id);
 
         // Henter elevplan-skabelon fra backend (fx "KokSkabelon")
         var plan = await _elevplanService.LavDefaultSkabelon(ansvarlig, skabelonType, nyBruger.StartDato!.Value);
 
 
-        // Gør planen klar: tildel ansvarlig, elevplanId, sætter startperiode for praktik og beregner deadlines dynamisk
-        plan.Id = nyBruger.Id;
+        // Gør planen klar: tildel ansvarlig, elevplanId og beregner deadlines dynamisk
+        plan._id = nyBruger._id;
         plan.Ansvarlig = ansvarlig;
+        
+        BeregnDeadlinesIElevplan(plan);
 
         //  Gennemgår ALLE mål, delmål og opgaver og giver dem unikke ID'er og sætter status til "ikke gennemført"
         var alleMaal = new List<Maal>();
@@ -46,18 +51,18 @@ public class BrugereServiceServer : IBrugereService
         {
             foreach (var maal in periode.ListMaal)
             {
-                maal.Id = _idGenerator.GenererNytId(alleMaal, m => m.Id);
+                maal._id = _idGenerator.GenererNytId(alleMaal, m => m._id);
                 alleMaal.Add(maal);
 
                 foreach (var delmaal in maal.ListDelmaal)
                 {
-                    delmaal.Id = _idGenerator.GenererNytId(alleDelmaal, d => d.Id);
+                    delmaal._id = _idGenerator.GenererNytId(alleDelmaal, d => d._id);
                     delmaal.Status = false;
                     alleDelmaal.Add(delmaal);
 
                     foreach (var opgave in delmaal.ListOpgaver)
                     {
-                        opgave.Id = _idGenerator.GenererNytId(alleOpgaver, o => o.Id);
+                        opgave._id = _idGenerator.GenererNytId(alleOpgaver, o => o._id);
                         opgave.OpgaveGennemfoert = false;
                         alleOpgaver.Add(opgave);
                     }
@@ -79,9 +84,16 @@ public class BrugereServiceServer : IBrugereService
     }
 
    
-    // Henter alle brugere fra backend (kun elever)
-
+    
+    //Henter alle brugere fra backend
     public async Task<List<Bruger>> HentAlle()
+    {
+        return await http.GetFromJsonAsync<List<Bruger>>("api/brugere")
+               ?? new List<Bruger>(); // fallback hvis server returnerer null
+    }
+    
+    // Henter alle elever fra backend
+    public async Task<List<Bruger>> HentAlleElever()
     {
         return await http.GetFromJsonAsync<List<Bruger>>("api/brugere/elever")
                ?? new List<Bruger>(); // fallback hvis server returnerer null
@@ -124,7 +136,7 @@ public class BrugereServiceServer : IBrugereService
         return await response.Content.ReadFromJsonAsync<Shared.Elevplan?>();
     }
     
-    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, string? brugerLokation)
+    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, int? afdelingId)
     {
         var url = $"api/brugere/filtreredeelever?soegeord={Uri.EscapeDataString(soegeord)}" +
                   $"&lokation={Uri.EscapeDataString(lokation)}" +
@@ -133,8 +145,7 @@ public class BrugereServiceServer : IBrugereService
                   $"&deadline={(deadline.HasValue ? deadline.Value.ToString() : "")}" +
                   $"&rolle={Uri.EscapeDataString(rolle)}" +
                   $"&status={Uri.EscapeDataString(status ?? "")}" +
-                  $"&brugerLokation={Uri.EscapeDataString(brugerLokation ?? "")}";
-
+                  $"&afdelingId={(afdelingId.HasValue ? afdelingId.Value.ToString() : "")}";
         return await http.GetFromJsonAsync<List<Bruger>>(url) ?? new();
     }
 
@@ -146,7 +157,7 @@ public class BrugereServiceServer : IBrugereService
         int? deadline,
         string rolle,
         string? status,
-        string? brugerLokation)
+        int? afdelingId) 
     {
         var url = $"api/brugere/eksporter-elever?" +
                   $"soegeord={Uri.EscapeDataString(soegeord)}" +
@@ -155,11 +166,12 @@ public class BrugereServiceServer : IBrugereService
                   $"&erhverv={Uri.EscapeDataString(erhverv ?? "")}" +
                   $"&deadline={(deadline.HasValue ? deadline.Value.ToString() : "")}" +
                   $"&rolle={Uri.EscapeDataString(rolle)}" +
-                  $"&status={Uri.EscapeDataString(status ?? "")}" + // <-- Tilføj dette
-                  $"&brugerLokation={Uri.EscapeDataString(brugerLokation ?? "")}";
+                  $"&status={Uri.EscapeDataString(status ?? "")}" +
+                  $"&afdelingId={(afdelingId.HasValue ? afdelingId.Value.ToString() : "")}";
 
         return await http.GetByteArrayAsync(url);
     }
+
 
     
     //Funktion til dynamisk at beregne deadline for et delmål, baseret på DageTilDeadline
@@ -180,14 +192,6 @@ public class BrugereServiceServer : IBrugereService
                 }
             }
         }
-    }
-    
-    private readonly IElevplanService _elevplanService;
-    public BrugereServiceServer(HttpClient http, IdGeneratorService idGenerator, IElevplanService elevplanService)
-    {
-        this.http = http;
-        _idGenerator = idGenerator;
-        _elevplanService = elevplanService;
     }
 
 }

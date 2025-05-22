@@ -73,7 +73,7 @@ public class LoginRepositoryMongoDB : ILoginRepository
   
     public async Task<bool> OpdaterBrugerAsync(int id, Bruger bruger)
     {
-        var filter = Builders<Bruger>.Filter.Eq(b => b.Id, id); // find bruger med matching ID
+        var filter = Builders<Bruger>.Filter.Eq(b => b._id, id); // find bruger med matching ID
 
         var eksisterende = await HentBrugerViaIdAsync(id); // tjek om brugeren eksisterer
         if (eksisterende == null)
@@ -95,7 +95,7 @@ public class LoginRepositoryMongoDB : ILoginRepository
     // Bruges fx ved login eller når en bruger skal vises eller opdateres.
     public async Task<Bruger?> HentBrugerViaIdAsync(int id)
     {
-        var filter = Builders<Bruger>.Filter.Eq(b => b.Id, id); // filter der matcher på ID
+        var filter = Builders<Bruger>.Filter.Eq(b => b._id, id); // filter der matcher på ID
         return await LoginCollection.Find(filter).FirstOrDefaultAsync(); // returnér første (eller null)
     }
 }

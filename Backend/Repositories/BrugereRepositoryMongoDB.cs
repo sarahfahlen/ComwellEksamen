@@ -88,20 +88,20 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
     public async Task<Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId)
     {
         // Finder eleven ud fra brugerId (den elev, hvis plan vi ønsker at hente)
-        var elev = await BrugerCollection.Find(b => b.Id == brugerId).FirstOrDefaultAsync();
+        var elev = await BrugerCollection.Find(b => b._id == brugerId).FirstOrDefaultAsync();
 
         // Finder den bruger, der anmoder om adgang (kan være elev, kok, HR, etc.)
-        var forespoerger = await BrugerCollection.Find(b => b.Id == forespoergerId).FirstOrDefaultAsync();
+        var forespoerger = await BrugerCollection.Find(b => b._id == forespoergerId).FirstOrDefaultAsync();
 
         // Hvis enten elev eller forespørger ikke findes, returneres null
         if (elev == null || forespoerger == null)
             return null;
 
         // Hvis forespørgeren er elev og prøver at tilgå en anden elevs plan
-        if (forespoerger.Rolle == "Elev" && forespoerger.Id != elev.Id)
+        if (forespoerger.Rolle == "Elev" && forespoerger._id != elev._id)
         {
             // ... og de ikke er fra samme lokation, så næg adgang
-            if (forespoerger.Afdeling?.LokationNavn != elev.Afdeling?.LokationNavn)
+            if (forespoerger.AfdelingId != elev.AfdelingId)
                 return null;
         }
 
@@ -109,20 +109,23 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         return elev.MinElevplan;
     }
     
-    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, string? brugerLokation)
+    public async Task<List<Bruger>> HentFiltreredeElever(
+        string soegeord, string lokation, string kursus, string erhverv,
+        int? deadline, string rolle, string? status, int? afdelingId) 
     {
         var filterBuilder = Builders<Bruger>.Filter;
         var filter = filterBuilder.Eq(b => b.Rolle, "Elev"); // Vis kun elever
-
-        // Begræns til brugerens lokation, medmindre det er HR/Admin
-        if (rolle != "HR" && rolle != "Admin" && !string.IsNullOrEmpty(brugerLokation))
+        
+        // Begræns til brugerens AfdelingId, medmindre det er HR/Admin
+        if (rolle != "HR" && rolle != "Admin" && afdelingId.HasValue)
         {
-            filter &= filterBuilder.Eq(b => b.Afdeling.LokationNavn, brugerLokation);
+            filter &= filterBuilder.Eq(b => b.AfdelingId, afdelingId.Value);
         }
 
+
         // Almindelige filtre
-        if (!string.IsNullOrWhiteSpace(lokation))
-            filter &= filterBuilder.Eq(b => b.Afdeling.LokationNavn, lokation);
+        if (int.TryParse(lokation, out int lokationId))
+            filter &= filterBuilder.Eq(b => b.AfdelingId, lokationId);
 
         if (!string.IsNullOrWhiteSpace(erhverv))
             filter &= filterBuilder.Eq(b => b.Erhverv, erhverv);
@@ -208,7 +211,7 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
     }
     public async Task OpdaterBillede(int brugerId, string sti)
     {
-        var filter = Builders<Bruger>.Filter.Eq(b => b.Id, brugerId);
+        var filter = Builders<Bruger>.Filter.Eq(b => b._id, brugerId);
         var update = Builders<Bruger>.Update.Set(b => b.Billede, sti);
         await BrugerCollection.UpdateOneAsync(filter, update);
     }

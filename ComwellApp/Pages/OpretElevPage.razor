@@ -61,7 +61,7 @@
                         <option disabled selected value="">Vælg køkken</option>
                         @foreach (var k in alleKoekkener)
                         {
-                            <option value="@k.Id">@k.LokationNavn</option>
+                            <option value="@k._id">@k.LokationNavn</option>
                         }
                     </select>
                     <ValidationMessage For="@(() => valgtKoekkenId)" />
@@ -139,11 +139,7 @@
     // Når siden loades: hent lokationer (ikke ansvarlige endnu)
     protected override async Task OnInitializedAsync()
     {
-        alleKoekkener = (await loService.HentKoekkenLokationer())
-            .OrderBy(l => l.LokationNavn)
-            .ToList();
-
-        koekenchefer = new(); // Rydder ansvarlige indtil der vælges køkken
+        alleKoekkener = await loService.HentKoekkenLokationer();
     }
 
     // Når bruger vælger billede, gem det i memory
@@ -197,7 +193,7 @@
 
             // Sæt rolle og afdeling/lokation
             nyElev.Rolle = "Elev";
-            nyElev.Afdeling = alleKoekkener.FirstOrDefault(k => k.Id == valgtKoekkenId);
+            nyElev.AfdelingId = valgtKoekkenId;
 
             var ansvarlig = koekenchefer.FirstOrDefault();
             if (ansvarlig == null)

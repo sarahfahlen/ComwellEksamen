@@ -3,7 +3,7 @@ namespace Shared;
 
 public class Lokation
 {
-   public int Id { get; set; } 
+   public int _id { get; set; } 
    public string LokationNavn { get; set; }
    public string Adresse { get; set;}
    

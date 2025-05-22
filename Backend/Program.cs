@@ -1,3 +1,4 @@
+using MongoDB.Bson.Serialization;
 using Backend.Repositories;
 using Backend.Repositories.Interface;
 using backend.Services;

@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-namespace Shared;
 
+namespace Shared;
 public class Bruger
 {
-    public int Id { get; set; }
+    public int _id { get; set; }
     [Required(ErrorMessage = "Navn er påkrævet")]
     public string Navn { get; set; }
     [Required(ErrorMessage = "Email er påkrævet")]
@@ -26,7 +26,7 @@ public class Bruger
     public DateOnly? SlutDato { get; set;}
     
     public string? Kursus { get; set; }
-    public Lokation? Afdeling { get; set; }
+    public int? AfdelingId { get; set; }
 
     public Elevplan? MinElevplan { get; set; }
 }

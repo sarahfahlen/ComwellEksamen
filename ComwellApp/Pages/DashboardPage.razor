@@ -144,7 +144,7 @@
 
                     <!-- Midterkolonne med fremgang -->
                     <div class="item-center">
-                        <p>Lokation: @elev.Afdeling?.LokationNavn</p>
+                        <p>Lokation: @(elev.AfdelingId != null && lokationLookup.TryGetValue(elev.AfdelingId.Value, out var lok) ? lok.LokationNavn : "Ukendt")</p>
                         <p>Delmål opnået: @opnaaet / @iAlt</p>
                         <div class="statusbar-outer">
                             <div class="statusbar-inner" style="background: @gradient; clip-path: inset(0 calc(100% - @procentInt%) 0 0);"></div>
@@ -160,13 +160,13 @@
 
                 <!-- Knappen til at gå til elevers elevplan -->
                 @if (
-                    // Alle elever fra samme lokation må se hinandens elevplaner
-                    (loggedIn.Rolle == "Elev" && elev.Afdeling?.LokationNavn == loggedIn.Afdeling?.LokationNavn) ||
-                    (loggedIn.Id == elev.Id && loggedIn.Rolle == "Elev") ||
+                    (loggedIn.Rolle == "Elev" && elev.AfdelingId == loggedIn.AfdelingId) ||
+                    (loggedIn._id == elev._id && loggedIn.Rolle == "Elev") ||
                     (loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "FaglærtKok")
                 )
+
                 {
-                    <button class="btn btn-outline-secondary se-elevplan-knap" @onclick="@(() => GåTilElevplan(elev.Id))">
+                    <button class="btn btn-outline-secondary se-elevplan-knap" @onclick="@(() => GåTilElevplan(elev._id))">
                         Se elevplan
                     </button>
                 }
@@ -195,6 +195,8 @@
     private bool visFilter = false;
     private List<Lokation> lokationer = new();
     private List<string> erhvervMuligheder = new();
+    //matcher elevens lokationId med lokationen fra backend
+    private Dictionary<int, Lokation> lokationLookup = new();
 
     // Når siden loades (komponent initialiseres), henter vi data
     protected override async Task OnInitializedAsync()
@@ -209,9 +211,10 @@
         }
 
         // Hent alle elever via IBrugereService (sender kald til backend)
-        alleElever = await bService.HentAlle();
+        alleElever = await bService.HentAlleElever();
 
         lokationer = await loService.HentKoekkenLokationer();
+        lokationLookup = lokationer.ToDictionary(l => l._id, l => l);
         erhvervMuligheder = await bService.HentAlleErhverv();
         kurser = await bService.HentAlleKurser();
         FiltrerElever(); // sortér elever baseret på rolle/lokation
@@ -226,15 +229,15 @@
         if (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok" || loggedIn.Rolle == "Køkkenchef")
         {
             elever = alleElever
-                .Where(e => e.Afdeling?.LokationNavn == loggedIn.Afdeling?.LokationNavn)
+                .Where(e => e.AfdelingId != null && e.AfdelingId == loggedIn.AfdelingId)
                 .ToList();
         }
         else
         {
-            // HR og Admin ser alle
             elever = alleElever;
         }
     }
+
 
     // Navigerer til opret-elev siden, når man trykker "Opret elev"
     private void OnClickOpret()
@@ -290,15 +293,16 @@
         if (loggedIn == null) return;
 
         elever = await bService.HentFiltreredeElever(
-            soegeord,
-            valgtLokation,
-            valgtKursus,
-            valgtErhverv,
-            valgtDeadline,
-            loggedIn.Rolle,
-            valgtStatus,
-            loggedIn.Afdeling?.LokationNavn
-        );
+    soegeord,
+    valgtLokation,
+    valgtKursus,
+    valgtErhverv,
+    valgtDeadline,
+    loggedIn.Rolle,
+    valgtStatus,
+    loggedIn.AfdelingId.Value
+    );
+
 
         StateHasChanged();
     }
@@ -442,6 +446,14 @@
         if (loggedIn == null)
             return;
 
+        int? afdelingId = null;
+        if (!string.IsNullOrWhiteSpace(valgtLokation) && lokationer.Any())
+        {
+            var match = lokationer.FirstOrDefault(l => l.LokationNavn == valgtLokation);
+            if (match != null)
+                afdelingId = match._id;
+        }
+
         var excelData = await bService.EksporterFiltreredeElever(
             soegeord,
             valgtLokation,
@@ -450,12 +462,13 @@
             valgtDeadline,
             loggedIn.Rolle,
             valgtStatus,
-            loggedIn.Afdeling?.LokationNavn
+            afdelingId
         );
 
         using var streamRef = new DotNetStreamReference(new MemoryStream(excelData));
         await JS.InvokeVoidAsync("downloadFileFromStream", "Elever.xlsx", streamRef);
     }
+
     private string GetProfilbilledeSti(string? sti)
     {
         if (string.IsNullOrEmpty(sti) || sti == "billeder/intetprofilbillede.jpg")

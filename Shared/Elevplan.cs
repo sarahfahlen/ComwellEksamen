@@ -4,8 +4,10 @@ namespace Shared;
 
 public class Elevplan
 {
-    public int Id { get; set; }
+    public int _id { get; set; }
     public DateOnly? ElevStartDato { get; set; }
     public Bruger Ansvarlig { get; set; }
+    
+    public string? SkabelonNavn { get; set; }
     public List<Praktikperiode> ListPerioder { get; set; }
 }

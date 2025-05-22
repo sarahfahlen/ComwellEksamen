@@ -21,5 +21,11 @@ public class LokationServiceServer : ILokationService
     {
         return await _http.GetFromJsonAsync<List<Shared.Lokation>>("api/lokationer/skole") ?? new();
     }
+    
+    public async Task<Shared.Lokation?> HentLokationViaId(int id)
+    {
+        return await _http.GetFromJsonAsync<Shared.Lokation>($"api/lokation/{id}");
+    }
+
 
 }

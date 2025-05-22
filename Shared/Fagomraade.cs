@@ -5,7 +5,7 @@ namespace Shared;
 
 public class Fagomraade
 {
-    public int Id { get; set; }
+    public int _id { get; set; }
     public string FagomraadeNavn { get; set; }
     public string FagomraadeBeskrivelse { get; set; }
 

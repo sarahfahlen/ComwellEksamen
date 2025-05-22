@@ -23,4 +23,11 @@ public class LokationRepositoryMongoDB : ILokationRepository
         var filter = Builders<Lokation>.Filter.Eq(l => l.LokationType, type);
         return await LokationCollection.Find(filter).ToListAsync();
     }
+    
+    public async Task<Lokation?> HentLokationViaId(int id)
+    {
+        var filter = Builders<Lokation>.Filter.Eq(l => l._id, id);
+        return await LokationCollection.Find(filter).FirstOrDefaultAsync();
+    }
+
 }

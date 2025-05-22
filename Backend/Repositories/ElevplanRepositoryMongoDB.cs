@@ -55,7 +55,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
     public async Task TilfoejKommentar(int elevplanId, int delmaalId, Kommentar kommentar)
     {
         //opretter et filter der finder den rigtige elevplan, ved at lede efter elevplanID i brugere
-        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.Id, elevplanId);
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan._id, elevplanId);
         var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
         
         if (bruger == null || bruger.MinElevplan == null)
@@ -65,16 +65,16 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         var delmaal = bruger.MinElevplan.ListPerioder
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.Id == delmaalId);
+            .FirstOrDefault(d => d._id == delmaalId);
 
         if (delmaal == null)
             throw new Exception($"Delmål med ID {delmaalId} blev ikke fundet.");
         
         //Tilføjer kommentaren til listen af kommentarer for delmålet
-        delmaal.Kommentarer.Add(kommentar);
+        delmaal.Kommentar.Add(kommentar);
 
         //Opdaterer brugeren - dette gøres da kommentarer er dybt embedded og derfor er svære at tilgå
-        await BrugerCollection.ReplaceOneAsync(b => b.Id == bruger.Id, bruger);
+        await BrugerCollection.ReplaceOneAsync(b => b._id == bruger._id, bruger);
     }
     
     public async Task<Kommentar?> GetKommentarAsync(int elevplanId, int delmaalId, string brugerRolle)
@@ -90,7 +90,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         var delmaal = bruger.MinElevplan.ListPerioder?
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.Id == delmaalId);
+            .FirstOrDefault(d => d._id == delmaalId);
 
         if (delmaal == null)
             return null;
@@ -98,18 +98,18 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         //Returnerer kommentaren som matcher brugeren som er logget ind's rolle - faglært og køkkenchef tæller for 1
         if (brugerRolle == "FaglærtKok" || brugerRolle == "Køkkenchef")
         {
-            return delmaal.Kommentarer?
+            return delmaal.Kommentar?
                 .FirstOrDefault(k => k.OprettetAfRolle == "FaglærtKok" || k.OprettetAfRolle == "Køkkenchef");
         }
 
-        return delmaal.Kommentarer?
+        return delmaal.Kommentar?
             .FirstOrDefault(k => k.OprettetAfRolle == brugerRolle);
 
     }
     
     public async Task RedigerKommentarAsync(int elevplanId, int delmaalId, int kommentarId, Kommentar redigeretKommentar)
     {
-        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.Id, elevplanId);
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan._id, elevplanId);
         var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
 
         if (bruger?.MinElevplan == null)
@@ -118,12 +118,12 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         var delmaal = bruger.MinElevplan.ListPerioder
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.Id == delmaalId);
+            .FirstOrDefault(d => d._id == delmaalId);
 
         if (delmaal == null)
             throw new Exception($"Delmål med ID {delmaalId} ikke fundet.");
 
-        var kommentar = delmaal.Kommentarer.FirstOrDefault(k => k.Id == kommentarId);
+        var kommentar = delmaal.Kommentar.FirstOrDefault(k => k._id == kommentarId);
 
         if (kommentar == null)
             throw new Exception($"Kommentar med ID {kommentarId} ikke fundet.");
@@ -134,14 +134,14 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         kommentar.KommentarBillede = redigeretKommentar.KommentarBillede;
 
         // Opdater databasen
-        await BrugerCollection.ReplaceOneAsync(b => b.Id == bruger.Id, bruger);
+        await BrugerCollection.ReplaceOneAsync(b => b._id == bruger._id, bruger);
     }
 
     
     public async Task OpdaterStatusAsync(int elevplanId, Delmaal delmaal)
     {
         //Finder den rette elevplan, ved at søge efter elevplanID
-        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.Id, elevplanId);
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan._id, elevplanId);
         var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
 
         if (bruger?.MinElevplan == null)
@@ -151,7 +151,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         var _delmaal = bruger.MinElevplan.ListPerioder
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.Id == delmaal.Id);
+            .FirstOrDefault(d => d._id == delmaal._id);
 
         if (_delmaal == null)
             throw new Exception("Delmål ikke fundet");
@@ -161,7 +161,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         _delmaal.StatusLog = delmaal.StatusLog;
         
         //Opdaterer brugeren, for at gemme den nye status
-        await BrugerCollection.ReplaceOneAsync(b => b.Id == bruger.Id, bruger);
+        await BrugerCollection.ReplaceOneAsync(b => b._id == bruger._id, bruger);
     }
 
 
@@ -176,7 +176,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         bool? filterStatus)
     {
         // Finder brugeren baseret på brugerId
-        var bruger = await BrugerCollection.Find(b => b.Id == brugerId).FirstOrDefaultAsync();
+        var bruger = await BrugerCollection.Find(b => b._id == brugerId).FirstOrDefaultAsync();
 
         // Hvis brugeren ikke har nogen elevplan
         if (bruger?.MinElevplan == null)
@@ -199,7 +199,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
             .Where(m => string.IsNullOrWhiteSpace(valgtMaalNavn) || m.MaalNavn == valgtMaalNavn)
             .Select(m => new Maal
             {
-                Id = m.Id,
+                _id = m._id,
                 MaalNavn = m.MaalNavn,
                 ListDelmaal = m.ListDelmaal
                     .Where(d =>
@@ -214,7 +214,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
     }
     public async Task TilfoejDelmaal(int elevplanId, int maalId, Delmaal nytDelmaal)
     {
-        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.Id, elevplanId);
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan._id, elevplanId);
         var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
 
         if (bruger?.MinElevplan == null)
@@ -222,7 +222,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
 
         var maal = bruger.MinElevplan.ListPerioder
             .SelectMany(p => p.ListMaal)
-            .FirstOrDefault(m => m.Id == maalId);
+            .FirstOrDefault(m => m._id == maalId);
 
         if (maal == null)
             throw new Exception($"Mål med ID {maalId} ikke fundet.");
@@ -241,12 +241,12 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         }
 
 
-        await BrugerCollection.ReplaceOneAsync(b => b.Id == bruger.Id, bruger);
+        await BrugerCollection.ReplaceOneAsync(b => b._id == bruger._id, bruger);
     }
     
     public async Task OpdaterDelmaal(int elevplanId, int periodeIndex, int maalId, int delmaalId, Delmaal opdateretDelmaal)
     {
-        var filter = Builders<Bruger>.Filter.Eq(b => b.Id, elevplanId);
+        var filter = Builders<Bruger>.Filter.Eq(b => b._id, elevplanId);
         var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
         var plan = bruger?.MinElevplan;
 
@@ -257,11 +257,11 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         if (periode == null)
             throw new Exception("Periode ikke fundet.");
 
-        var maal = periode.ListMaal.FirstOrDefault(m => m.Id == maalId);
+        var maal = periode.ListMaal.FirstOrDefault(m => m._id == maalId);
         if (maal == null)
             throw new Exception("Mål ikke fundet.");
 
-        var delmaalIndex = maal.ListDelmaal.FindIndex(d => d.Id == delmaalId);
+        var delmaalIndex = maal.ListDelmaal.FindIndex(d => d._id == delmaalId);
         if (delmaalIndex == -1)
             throw new Exception("Delmål ikke fundet.");
 
@@ -274,13 +274,13 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
     
     public async Task<Elevplan?> HentElevplanMedMaal(int elevplanId, int periodeIndex)
     {
-        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.Id, elevplanId);
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan._id, elevplanId);
         var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
         return bruger?.MinElevplan;
     }
     public async Task OpdaterIgangAsync(int elevplanId, Delmaal delmaal)
     {
-        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan.Id, elevplanId);
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan._id, elevplanId);
         var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
 
         if (bruger?.MinElevplan == null)
@@ -289,14 +289,14 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         var _delmaal = bruger.MinElevplan.ListPerioder
             .SelectMany(p => p.ListMaal)
             .SelectMany(m => m.ListDelmaal)
-            .FirstOrDefault(d => d.Id == delmaal.Id);
+            .FirstOrDefault(d => d._id == delmaal._id);
 
         if (_delmaal == null)
             throw new Exception("Delmål ikke fundet");
 
         _delmaal.Igang = delmaal.Igang;
 
-        await BrugerCollection.ReplaceOneAsync(b => b.Id == bruger.Id, bruger);
+        await BrugerCollection.ReplaceOneAsync(b => b._id == bruger._id, bruger);
     }
 
 }

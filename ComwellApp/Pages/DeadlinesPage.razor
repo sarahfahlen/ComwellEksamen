@@ -95,7 +95,7 @@ else
         if (loggedIn == null || loggedIn.Rolle == "Elev") return;
 
         elevDelmaal = await http.GetFromJsonAsync<Dictionary<string, List<Delmaal>>>(
-            $"api/elevplan/deadlines-raw/{loggedIn.Id}");
+            $"api/elevplan/deadlines-raw/{loggedIn._id}");
     }
 
     private void ToggleElev(string elevId)

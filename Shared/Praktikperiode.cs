@@ -2,7 +2,7 @@ namespace Shared;
 
 public class Praktikperiode
 {
-    public int Id { get; set; }
+    public int _id { get; set; }
     public string PraktikNavn { get; set; }
     public int? Skolevarighed { get; set; }
     public int Praktikvarighed { get; set; }

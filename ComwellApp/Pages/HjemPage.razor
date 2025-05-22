@@ -134,19 +134,18 @@
 
         if (loggedIn.Rolle == "Elev")
         {
-            kommendeDeadlines = await eService.HentKommendeDeadlines(loggedIn.Id);
+            kommendeDeadlines = await eService.HentKommendeDeadlines(loggedIn._id);
         }
         
-        if (loggedIn.Afdeling != null)
+        if (loggedIn.AfdelingId != null)
         {
-            var lokationer = await loService.HentKoekkenLokationer();
-            brugerLokation = lokationer.FirstOrDefault(l => l.Id == loggedIn.Afdeling.Id);
-        
-            var kokke = await bService.HentKoekkencheferForLokation(loggedIn.Afdeling.Id);
-            koekkenchef = kokke.FirstOrDefault();
-            
-            var alleBrugere = await bService.HentAlle();
-            hrPerson = alleBrugere.FirstOrDefault(b => b.Rolle == "Kok");
+                brugerLokation = await loService.HentLokationViaId(loggedIn.AfdelingId.Value);
+
+                var kokke = await bService.HentKoekkencheferForLokation(loggedIn.AfdelingId.Value);
+                koekkenchef = kokke.FirstOrDefault();
+
+                var alleBrugere = await bService.HentAlle();
+                hrPerson = alleBrugere.FirstOrDefault(b => b.Rolle == "HR");
         }
 
     }

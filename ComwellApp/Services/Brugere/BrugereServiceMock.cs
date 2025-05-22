@@ -23,7 +23,7 @@ public class BrugereServiceMock : IBrugereService
         {
             new Bruger
             {
-                Id = 1,
+                _id = 1,
                 Navn = "Kasper",
                 Adgangskode = "1234",
                 Email = "kasper@mail.com",
@@ -32,7 +32,7 @@ public class BrugereServiceMock : IBrugereService
             },
             new Bruger
             {
-                Id = 2,
+                _id = 2,
                 Navn = "Frank",
                 Adgangskode = "1234",
                 Email = "frank@mail.com",
@@ -41,7 +41,7 @@ public class BrugereServiceMock : IBrugereService
             },
             new Bruger
             {
-                Id = 3,
+                _id = 3,
                 Navn = "Jane",
                 Adgangskode = "1234",
                 Email = "jane@mail.com",
@@ -50,7 +50,7 @@ public class BrugereServiceMock : IBrugereService
             },
             new Bruger
             {
-                Id = 4,
+                _id = 4,
                 Navn = "Ole",
                 Adgangskode = "1234",
                 Email = "Ole@mail.com",
@@ -61,7 +61,7 @@ public class BrugereServiceMock : IBrugereService
 
         var emil = new Bruger
         {
-            Id = _idGenerator.GenererNytId(_brugere, b => b.Id),
+            _id = _idGenerator.GenererNytId(_brugere, b => b._id),
             Navn = "Emil",
             Adgangskode = "1234",
             Email = "emil@mail.com",
@@ -76,6 +76,11 @@ public class BrugereServiceMock : IBrugereService
     public Task<List<Bruger>> HentAlle()
     {
         return Task.FromResult(_brugere);
+    }
+
+    public Task<List<Bruger>> HentAlleElever()
+    {
+        throw new NotImplementedException();
     }
 
     public Task<Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId)
@@ -108,21 +113,27 @@ public class BrugereServiceMock : IBrugereService
         throw new NotImplementedException();
     }
 
-    public Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle,
-        string? status, string? brugerLokation)
+    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, int? afdelingId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<byte[]> EksporterFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline,
-        string rolle, string? status, string? brugerLokation)
+public Task<byte[]> EksporterFiltreredeElever(
+    string soegeord,
+    string lokation,
+    string kursus,
+    string erhverv,
+    int? deadline,
+    string rolle,
+    string? status,
+    int? afdelingId) 
     {
         throw new NotImplementedException();
     }
 
     public async Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig, string skabelonType)
     {
-        nyBruger.Id = _idGenerator.GenererNytId(_brugere, b => b.Id);
+        nyBruger._id = _idGenerator.GenererNytId(_brugere, b => b._id);
         nyBruger.MinElevplan = await _elevplanService.OpretElevplan(ansvarlig, skabelonType);
         _brugere.Add(nyBruger);
         Console.WriteLine("Brugere i systemet:");

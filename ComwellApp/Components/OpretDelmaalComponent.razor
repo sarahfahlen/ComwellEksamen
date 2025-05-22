@@ -31,7 +31,7 @@
                         <option value="0" disabled selected hidden>-- Vælg mål --</option>
                         @foreach (var maal in maalTilValgtPeriode)
                         {
-                            <option value="@maal.Id">@maal.MaalNavn</option>
+                            <option value="@maal._id">@maal.MaalNavn</option>
                         }
                     </select>
                     <label>Vælg mål</label>
@@ -43,7 +43,7 @@
             <!-- Vist som tekst ved redigering -->
             <div class="form-floating-group">
                 <p><strong>Periode:</strong> Periode @(valgtPeriodeIndex + 1)</p>
-                <p><strong>Mål:</strong> @maalTilValgtPeriode.FirstOrDefault(m => m.Id == valgtMaalId)?.MaalNavn</p>
+                <p><strong>Mål:</strong> @maalTilValgtPeriode.FirstOrDefault(m => m._id == valgtMaalId)?.MaalNavn</p>
             </div>
         }
 
@@ -137,7 +137,7 @@
     
     protected override async void OnParametersSet()
     {
-        Console.WriteLine("🔄 OnParametersSet kaldt med DelmaalId: " + RedigerDelmaal?.Id);
+        Console.WriteLine("🔄 OnParametersSet kaldt med DelmaalId: " + RedigerDelmaal?._id);
         
         if (RedigerDelmaal == null)
         {
@@ -158,10 +158,10 @@
 
                 foreach (var maal in periode.ListMaal)
                 {
-                    if (maal.ListDelmaal.Any(d => d.Id == RedigerDelmaal.Id))
+                    if (maal.ListDelmaal.Any(d => d._id == RedigerDelmaal._id))
                     {
                         valgtPeriodeIndex = i;
-                        valgtMaalId = maal.Id;
+                        valgtMaalId = maal._id;
                         break;
                     }
                 }
@@ -176,7 +176,7 @@
             // Brug defensiv tilgang hele vejen
             nytDelmaal = new Delmaal
             {
-                Id = RedigerDelmaal?.Id ?? 0,
+                _id = RedigerDelmaal?._id ?? 0,
                 DelmaalType = RedigerDelmaal?.DelmaalType ?? "",
                 Titel = RedigerDelmaal?.Titel ?? "",
                 Beskrivelse = RedigerDelmaal?.Beskrivelse ?? "",
@@ -206,8 +206,8 @@
     {
         if (minPlan != null && valgtPeriodeIndex >= 0)
         {
-            maalTilValgtPeriode = await eService.HentMaalFraPeriode(minPlan.Id, valgtPeriodeIndex);
-            unikkeDelmaalTyper = await eService.HentDelmaalTyperFraPeriode(minPlan.Id, valgtPeriodeIndex);
+            maalTilValgtPeriode = await eService.HentMaalFraPeriode(minPlan._id, valgtPeriodeIndex);
+            unikkeDelmaalTyper = await eService.HentDelmaalTyperFraPeriode(minPlan._id, valgtPeriodeIndex);
         }
     }
 
