@@ -3,5 +3,5 @@ namespace ComwellApp.Services.Learning;
 
 public interface ILearningService
 {
-    public Task<List<Fagomraade>> HentMockLearning();
+    Task<List<Fagomraade>> HentAlleFagomraader();
 }

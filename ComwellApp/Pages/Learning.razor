@@ -2,7 +2,7 @@
 @using ComwellApp.Services.Learning
 @using Shared
 
-@inject ILearningService lService
+@inject ILearningService leService
 
 <h1>Læringsmoduler</h1>
 <div class="laering-wrapper">
@@ -43,10 +43,8 @@
                 {
                     <div class="laering-elementkort">
                         <h5 class="element-navn">@element.ElementNavn</h5>
-
-                        @if (element is Quiz quiz)
-                        {
-                            @foreach (var spg in quiz.ListSpoergsmaal)
+                        
+                            @foreach (var spg in element.ListSpoergsmaal )
                             {
                                 <p class="quiz-spoergsmaal">@spg.Tekst</p>
                                 <div class="quiz-svarliste">
@@ -59,7 +57,7 @@
                                     }
                                 </div>
                             }
-                        }
+                        
                     </div>
                 }
             </div>
@@ -78,7 +76,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        alleFag = await lService.HentMockLearning();
+        alleFag = await leService.HentAlleFagomraader();
         foreach (var fag in alleFag)
         {
             dropdownAaben[fag.FagomraadeNavn] = false;

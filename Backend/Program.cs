@@ -1,6 +1,7 @@
 using Backend.Repositories;
 using Backend.Repositories.Interface;
 using backend.Services;
+using Shared;
 
 namespace backend;
 
@@ -25,6 +26,7 @@ public class Program
         builder.Services.AddSingleton<ILoginRepository, LoginRepositoryMongoDB>();
         builder.Services.AddSingleton<IElevplanRepository, ElevplanRepositoryMongoDB>();
         builder.Services.AddSingleton<IBrugereRepository, BrugereRepositoryMongoDB>();
+        builder.Services.AddSingleton<ILearningRepository, LearningRepositoryMongoDB>();
         builder.Services.AddScoped<ExcelEksportService>();
  
 

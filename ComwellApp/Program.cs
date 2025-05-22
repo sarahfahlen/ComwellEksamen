@@ -27,7 +27,7 @@ builder.Services.AddScoped<IdGeneratorService>();
 builder.Services.AddScoped<IElevplanService, ElevplanServiceServer>();
 builder.Services.AddScoped<IBrugereService, BrugereServiceServer>();
 builder.Services.AddScoped<ILoginService, LoginServiceServer>();
-builder.Services.AddScoped<ILearningService, LearningServiceMock>();
+builder.Services.AddScoped<ILearningService, LearningServiceServer>();
 
 
 

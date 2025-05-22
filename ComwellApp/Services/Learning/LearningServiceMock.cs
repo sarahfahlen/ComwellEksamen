@@ -3,10 +3,10 @@ namespace ComwellApp.Services.Learning;
 
 public class LearningServiceMock : ILearningService
 {
-    public async Task<List<Fagomraade>> HentMockLearning()
+    public async Task<List<Fagomraade>> HentAlleFagomraader()
     {
         List<Fagomraade> fagomraader = new List<Fagomraade>();
-        var quiz = new Quiz
+        var quiz = new Element()
         {
             ElementNavn = "Steak-quiz",
             ElementType = "quiz",
