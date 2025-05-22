@@ -94,7 +94,7 @@ public class BrugereController : ControllerBase
 
             // Filtrerer dem, der arbejder på den valgte lokation
             var filtrerede = brugere
-                .Where(b => b.Afdeling?.LokationId == lokationId)
+                .Where(b => b.Afdeling?.Id == lokationId)
                 .ToList();
 
             if (!filtrerede.Any())

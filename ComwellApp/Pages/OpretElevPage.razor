@@ -61,7 +61,7 @@
                         <option disabled selected value="">Vælg køkken</option>
                         @foreach (var k in alleKoekkener)
                         {
-                            <option value="@k.LokationId">@k.LokationNavn</option>
+                            <option value="@k.Id">@k.LokationNavn</option>
                         }
                     </select>
                     <ValidationMessage For="@(() => valgtKoekkenId)" />
@@ -197,7 +197,7 @@
 
             // Sæt rolle og afdeling/lokation
             nyElev.Rolle = "Elev";
-            nyElev.Afdeling = alleKoekkener.FirstOrDefault(k => k.LokationId == valgtKoekkenId);
+            nyElev.Afdeling = alleKoekkener.FirstOrDefault(k => k.Id == valgtKoekkenId);
 
             var ansvarlig = koekenchefer.FirstOrDefault();
             if (ansvarlig == null)
