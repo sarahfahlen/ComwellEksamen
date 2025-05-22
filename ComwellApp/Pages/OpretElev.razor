@@ -5,9 +5,11 @@
 @using ComwellApp.Services.Login
 @using Shared
 @using ComwellApp.Components
+@using ComwellApp.Services.Lokation
 <!--Service der håndterer bruger-relateret kommunikation-->
 @inject IBrugereService bService 
 @inject NavigationManager Navigation
+@inject ILokationService loService
 @inject HttpClient http
 
  
@@ -97,10 +99,12 @@
         <p class="note-tekst">Ved oprettelse af ny elev oprettes der automatisk en ny elevplan</p>
     </div>
 </EditForm>
-@if (true)
+@if (!string.IsNullOrWhiteSpace(successMessage))
 {
-    <SuccessMessage Message="🔥 This should show no matter what" />
+    <BekræftelsesComponent Message="@successMessage" OnDismiss="@(() => successMessage = null)" />
 }
+
+
 
 @code {
     private int? valgtKoekkenId; // Den valgte lokation 
@@ -109,7 +113,7 @@
     private List<Lokation> alleKoekkener = new(); // Alle lokationer brugeren kan vælge imellem
 
     private IBrowserFile? BilledeFil; // Billedet brugeren uploader
-    private string successMessage; //brugt til success besked (bekræftelseskomponent
+    private string successMessage; 
     private bool showSuccess = false;
     private bool shouldNavigate = false;
     private bool hasRedirected = false;
@@ -126,7 +130,7 @@
     {
         get => valgtKoekkenId;
         set
-        {
+        { 
             valgtKoekkenId = value;
             _ = OnLokationValgt(value); 
         }
@@ -135,7 +139,7 @@
     // Når siden loades: hent lokationer (ikke ansvarlige endnu)
     protected override async Task OnInitializedAsync()
     {
-        alleKoekkener = (await bService.HentAlleLokationer())
+        alleKoekkener = (await loService.HentKoekkenLokationer())
             .OrderBy(l => l.LokationNavn)
             .ToList();
 
@@ -210,11 +214,9 @@
 
             await bService.TilfoejElev(nyElev, ansvarlig, skabelonNavn);
 
-            successMessage = "Eleven blev oprettet med succes!";
-            showSuccess = true;
+            successMessage = "Eleven blev oprettet";
             shouldNavigate = true;
-
-            StateHasChanged();
+            
         }
         catch (Exception ex)
         {
@@ -231,8 +233,7 @@
             // Wait to let the UI render the success message before navigating
             await Task.Delay(1); // Wait for a frame to complete rendering
             StateHasChanged();   // Trigger real render
-
-            await Task.Delay(3000); // THEN wait 3 seconds
+            await Task.Delay(3000);
             Navigation.NavigateTo("/dashboard");
         }
     }

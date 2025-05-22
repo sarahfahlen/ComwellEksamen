@@ -165,14 +165,16 @@
                 @if (tilfoejDelmaalDialog != null)
                 {
                     <OpretDelmaalComponent
+                        @key="delmaalTilRedigering?.DelmaalId"
                         minPlan="@minPlan"
                         RedigerDelmaal="delmaalTilRedigering"
                         OnGemSuccess="OpdaterFiltreredeMaal"
+                        OnSuccessMessage="@((string msg) => successMessage = msg)"
                         OnClose="() =>
                         {
                             tilfoejDelmaalDialog.Close();
                             delmaalTilRedigering = null;
-                        }"/>
+                        }" />
                 }
             </ModalDialog>
 
@@ -269,7 +271,7 @@
                                 <div class="kommentar-linje">
                                     <div class="kommentar-felt">
                                         <InputTextArea class="form-control kommentarbox" @bind-Value="elevKommentar" />
-                                        <InputFile OnChange="OnBilledeValgtElev" accept="image/*" />
+                                        <InputFile OnChange="OnBilledeValgtElev" accept="image/*" class="kommentar-upload" />
                                     </div>
 
                                     @if (!string.IsNullOrEmpty(elevKommentarBillede))
@@ -330,7 +332,7 @@
                                 <div class="kommentar-linje">
                                     <div class="kommentar-felt">
                                         <InputTextArea class="form-control kommentarbox" @bind-Value="kokKommentar" />
-                                        <InputFile OnChange="OnBilledeValgtKok" accept="image/*" />
+                                        <InputFile OnChange="OnBilledeValgtKok" accept="image/*" class="kommentar-upload"/>
                                     </div>
 
                                     @if (!string.IsNullOrEmpty(kokKommentarBillede))
@@ -386,6 +388,11 @@
                 </ModalDialog>
             }
         </div>
+        @if (!string.IsNullOrWhiteSpace(successMessage))
+        {
+            <BekræftelsesComponent Message="@successMessage" OnDismiss="@(() => successMessage = null)" />
+        }
+
 
         <!-- Sidepanel med søgning og filtrering -->
         <div class="sidepanel">
@@ -503,6 +510,7 @@
     private ModalDialog? opgaverDialog;
     private Delmaal? aktivtDelmaalTilOpgaver;
     private string? stortBilledeUrl;
+    private string? successMessage;
 
 
     // 🟡 Kører hver gang der kommer parametre (fx ved skift af elevId i URL)
@@ -750,12 +758,35 @@
 
     private void ToggleOpgaveStatus(Opgaver opgave)
     {
-        if (loggedIn == null) return;
+        if (loggedIn == null || aktivtDelmaalTilOpgaver == null)
+            return;
 
         opgave.OpgaveGennemfoert = !opgave.OpgaveGennemfoert;
 
-        opgave.StatusLogOpgave = $"Gennemført af {loggedIn.Navn} d. {DateTime.Now:dd/MM-yyyy}";
+        if (opgave.OpgaveGennemfoert)
+        {
+            opgave.StatusLogOpgave = $"Gennemført af {loggedIn.Navn} d. {DateTime.Now:dd/MM-yyyy}";
+        }
+        else
+        {
+            opgave.StatusLogOpgave = null;
+        }
+
+        // Evaluer om ALLE opgaver er gennemført
+        bool alleGennemfoert = aktivtDelmaalTilOpgaver.ListOpgaver.All(o => o.OpgaveGennemfoert);
+        aktivtDelmaalTilOpgaver.Status = alleGennemfoert;
+
+        if (alleGennemfoert)
+        {
+            aktivtDelmaalTilOpgaver.StatusLog = $"Delmål automatisk markeret som gennemført d. {DateTime.Now:dd/MM-yyyy} af {loggedIn.Navn}";
+        }
+        else
+        {
+            aktivtDelmaalTilOpgaver.StatusLog = null; // valgfrit – eller behold tidligere log
+        }
     }
+
+
 
 
     private async Task soegningknap()

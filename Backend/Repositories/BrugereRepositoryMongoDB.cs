@@ -82,22 +82,7 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
     }
 
     
-    // Henter alle unikke lokationer fra brugernes tilknyttede afdelinger.
-    // Bruges fx i frontend, hvor man vælger hvilket køkken eller afdeling eleven skal tilknyttes.
-    public async Task<List<Lokation>> HentAlleLokationer()
-    {
-        // Vi starter med kun at hente brugere der har en afdeling (for ellers er der ingen lokation)
-        var filter = Builders<Bruger>.Filter.Ne(b => b.Afdeling, null); 
-        var brugere = await BrugerCollection.Find(filter).ToListAsync();
-
-        // Nu filtrerer vi, så vi kun får én af hver unikke lokation
-        return brugere
-            .Where(b => b.Afdeling != null)
-            .Select(b => b.Afdeling!)
-            .GroupBy(l => l.LokationId)
-            .Select(g => g.First())
-            .ToList();
-    }
+   
     
     // Henter elevplan ud fra brugerens brugerId
     public async Task<Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId)

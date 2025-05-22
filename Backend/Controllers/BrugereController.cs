@@ -107,28 +107,6 @@ public class BrugereController : ControllerBase
             return StatusCode(500, $"Fejl under hentning af køkkenchefer: {ex.Message}");
         }
     }
-
-
-    // GET: /api/brugere/lokationer
-    // Denne metode bruges til at hente en liste af alle unikke lokationer, baseret på brugernes tilknytning
-    [HttpGet("lokationer")]
-    public async Task<ActionResult<List<Lokation>>> HentAlleLokationer()
-    {
-        try
-        {
-            // Vi bruger repo til at hente alle lokationer (unik baseret på LokationId)
-            var lokationer = await _repo.HentAlleLokationer();
-
-            if (lokationer == null || !lokationer.Any())
-                return NotFound("Der blev ikke fundet nogen lokationer.");
-
-            return Ok(lokationer);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Fejl under hentning af lokationer: {ex.Message}");
-        }
-    }
     
     // Henter brugerens elevplan ud fra brugerId
     [HttpGet("{brugerId}/elevplan")]

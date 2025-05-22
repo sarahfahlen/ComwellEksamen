@@ -5,9 +5,12 @@
 @inject ILoginService lService
 @inject IBrugereService bService
 @inject IJSRuntime JS
+@inject ILokationService loService
+
 
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
+@using ComwellApp.Services.Lokation
 @using Shared
 
 <PageTitle>Dashboard</PageTitle> <!-- Vises i browserens faneblad -->
@@ -207,8 +210,8 @@
 
         // Hent alle elever via IBrugereService (sender kald til backend)
         alleElever = await bService.HentAlle();
-        
-        lokationer = await bService.HentAlleLokationer();
+
+        lokationer = await loService.HentKoekkenLokationer();
         erhvervMuligheder = await bService.HentAlleErhverv();
         kurser = await bService.HentAlleKurser();
         FiltrerElever(); // sortér elever baseret på rolle/lokation

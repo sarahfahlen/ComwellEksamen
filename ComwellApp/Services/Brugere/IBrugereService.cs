@@ -8,8 +8,6 @@ public interface IBrugereService
     Task<List<Bruger>> HentAlle();
     Task<Shared.Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId);
     Task<List<Bruger>> HentKoekkencheferForLokation(int lokationId);
-
-    Task<List<Lokation>> HentAlleLokationer();
     Task<List<string>> HentAlleErhverv();
     Task<List<string>> HentAlleKurser();
     Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, string? brugerLokation);
