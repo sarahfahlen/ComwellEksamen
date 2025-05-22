@@ -136,10 +136,9 @@ public class BrugereServiceServer : IBrugereService
         return await response.Content.ReadFromJsonAsync<Shared.Elevplan?>();
     }
     
-    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, int? afdelingId)
+    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string kursus, string erhverv, int? deadline, string rolle, string? status, int? afdelingId)
     {
         var url = $"api/brugere/filtreredeelever?soegeord={Uri.EscapeDataString(soegeord)}" +
-                  $"&lokation={Uri.EscapeDataString(lokation)}" +
                   $"&kursus={Uri.EscapeDataString(kursus)}" +
                   $"&erhverv={Uri.EscapeDataString(erhverv)}" +
                   $"&deadline={(deadline.HasValue ? deadline.Value.ToString() : "")}" +
@@ -151,7 +150,6 @@ public class BrugereServiceServer : IBrugereService
 
     public async Task<byte[]> EksporterFiltreredeElever(
         string soegeord,
-        string lokation,
         string kursus,
         string erhverv,
         int? deadline,
@@ -161,7 +159,6 @@ public class BrugereServiceServer : IBrugereService
     {
         var url = $"api/brugere/eksporter-elever?" +
                   $"soegeord={Uri.EscapeDataString(soegeord)}" +
-                  $"&lokation={Uri.EscapeDataString(lokation ?? "")}" +
                   $"&kursus={Uri.EscapeDataString(kursus ?? "")}" +
                   $"&erhverv={Uri.EscapeDataString(erhverv ?? "")}" +
                   $"&deadline={(deadline.HasValue ? deadline.Value.ToString() : "")}" +

@@ -57,11 +57,12 @@
         <div class="filter-row">
             <div class="filter-item" style="flex: 1;">
                 <label>Lokation</label>
-                <InputSelect class="form-control" @bind-Value="ValgtLokation" @oninput="OnChangeLokation">
+                <InputSelect class="form-control" @bind-Value="ValgtAfdelingId" @oninput="OnChangeAfdeling"
+                             disabled="@(loggedIn?.Rolle != "Admin" && loggedIn?.Rolle != "HR")">
                     <option value="">Alle lokationer</option>
                     @foreach (var l in lokationer)
                     {
-                        <option value="@l.LokationNavn">@l.LokationNavn</option>
+                        <option value="@l._id">@l.LokationNavn</option>
                     }
                 </InputSelect>
             </div>
@@ -185,7 +186,7 @@
     private List<Bruger> elever = new();
     
     private string soegeord = "";
-    private string valgtLokation = "";
+    private int? valgtAfdelingId = null;
     private string valgtKursus = "";
     private string valgtErhverv = "";
     private string valgtDeadlineValg = ""; // "overskredet" eller ""
@@ -292,17 +293,20 @@
     {
         if (loggedIn == null) return;
 
-        elever = await bService.HentFiltreredeElever(
-    soegeord,
-    valgtLokation,
-    valgtKursus,
-    valgtErhverv,
-    valgtDeadline,
-    loggedIn.Rolle,
-    valgtStatus,
-    loggedIn.AfdelingId.Value
-    );
+        // Brug den valgte afdeling fra dropdown, ikke kun den indloggede
+        var afdelingTilFiltrering = (loggedIn.Rolle == "Admin" || loggedIn.Rolle == "HR")
+            ? valgtAfdelingId
+            : loggedIn.AfdelingId;
 
+        elever = await bService.HentFiltreredeElever(
+            soegeord,
+            valgtKursus,
+            valgtErhverv,
+            valgtDeadline,
+            loggedIn.Rolle,
+            valgtStatus,
+            afdelingTilFiltrering
+        );
 
         StateHasChanged();
     }
@@ -311,37 +315,37 @@
     {
         // Nulstil alle filterfelter
         soegeord = "";
-        valgtLokation = "";
         valgtKursus = "";
         valgtErhverv = "";
         valgtDeadlineValg = "";
         valgtDeadline = null;
         valgtStatus = "";
+        valgtAfdelingId = null;
 
         // Opdater visningen med alle elever
         await OpdaterFiltreredeElever();
     }
     
     // Gemmer det valgte lokation fra dropdown
-    private string ValgtLokation
+    private int? ValgtAfdelingId
     {
-        get => valgtLokation;
+        get => valgtAfdelingId;
         set
         {
-            valgtLokation = value;
-
-            // Hver gang bruger vælger et nyt mål, opdateres listen af mål og delmål
+            valgtAfdelingId = value;
             _ = OpdaterFiltreredeElever();
         }
     }
     
     // Når et lokation vælges i dropdown
-    private async Task OnChangeLokation(ChangeEventArgs e)
+    private async Task OnChangeAfdeling(ChangeEventArgs e)
     {
-        valgtLokation = e.Value?.ToString() ?? "";
-        Console.WriteLine($"Mål valgt: {valgtLokation}");
+        if (int.TryParse(e.Value?.ToString(), out int id))
+            valgtAfdelingId = id;
+        else
+            valgtAfdelingId = null;
 
-        await OpdaterFiltreredeElever(); // Kalder backend for at hente nye mål
+        await OpdaterFiltreredeElever();
     }
     
     // Gemmer det valgte erhverv fra dropdown
@@ -446,23 +450,15 @@
         if (loggedIn == null)
             return;
 
-        int? afdelingId = null;
-        if (!string.IsNullOrWhiteSpace(valgtLokation) && lokationer.Any())
-        {
-            var match = lokationer.FirstOrDefault(l => l.LokationNavn == valgtLokation);
-            if (match != null)
-                afdelingId = match._id;
-        }
-
+        // Brug valgtAfdelingId direkte, uden at slå noget op
         var excelData = await bService.EksporterFiltreredeElever(
             soegeord,
-            valgtLokation,
             valgtKursus,
             valgtErhverv,
             valgtDeadline,
             loggedIn.Rolle,
             valgtStatus,
-            afdelingId
+            valgtAfdelingId
         );
 
         using var streamRef = new DotNetStreamReference(new MemoryStream(excelData));

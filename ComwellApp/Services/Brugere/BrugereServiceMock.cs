@@ -113,14 +113,13 @@ public class BrugereServiceMock : IBrugereService
         throw new NotImplementedException();
     }
 
-    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv, int? deadline, string rolle, string? status, int? afdelingId)
+    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string kursus, string erhverv, int? deadline, string rolle, string? status, int? afdelingId)
     {
         throw new NotImplementedException();
     }
 
 public Task<byte[]> EksporterFiltreredeElever(
     string soegeord,
-    string lokation,
     string kursus,
     string erhverv,
     int? deadline,

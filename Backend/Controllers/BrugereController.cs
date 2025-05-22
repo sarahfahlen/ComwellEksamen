@@ -123,7 +123,6 @@ public class BrugereController : ControllerBase
     [HttpGet("filtreredeelever")]
     public async Task<ActionResult<List<Bruger>>> HentFiltreredeElever(
         [FromQuery] string? soegeord,
-        [FromQuery] string? lokation,
         [FromQuery] string? kursus,
         [FromQuery] string? erhverv,
         [FromQuery] int? deadline,
@@ -141,7 +140,6 @@ public class BrugereController : ControllerBase
         // Kald repository med parsedAfdelingId
         var elever = await _repo.HentFiltreredeElever(
             soegeord ?? "",
-            lokation ?? "",
             kursus ?? "",
             erhverv ?? "",
             deadline,
@@ -156,7 +154,6 @@ public class BrugereController : ControllerBase
     [HttpGet("eksporter-elever")]
     public async Task<IActionResult> EksporterEleverTilExcel(
         [FromQuery] string? soegeord,
-        [FromQuery] string? lokation,
         [FromQuery] string? kursus,
         [FromQuery] string? erhverv,
         [FromQuery] int? deadline,
@@ -168,7 +165,6 @@ public class BrugereController : ControllerBase
         // Henter listen af elever baseret på filtrering
         var elever = await _repo.HentFiltreredeElever(
             soegeord ?? "",
-            lokation ?? "",
             kursus ?? "",
             erhverv ?? "",
             deadline,

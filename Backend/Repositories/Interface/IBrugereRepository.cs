@@ -14,7 +14,6 @@ public interface IBrugereRepository
 
     Task<List<Bruger>> HentFiltreredeElever(
         string soegeord,
-        string lokation,
         string kursus,
         string erhverv,
         int? deadline,

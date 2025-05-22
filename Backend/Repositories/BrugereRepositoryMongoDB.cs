@@ -110,23 +110,20 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
     }
     
     public async Task<List<Bruger>> HentFiltreredeElever(
-        string soegeord, string lokation, string kursus, string erhverv,
+        string soegeord, string kursus, string erhverv,
         int? deadline, string rolle, string? status, int? afdelingId) 
     {
         var filterBuilder = Builders<Bruger>.Filter;
         var filter = filterBuilder.Eq(b => b.Rolle, "Elev"); // Vis kun elever
         
         // Begræns til brugerens AfdelingId, medmindre det er HR/Admin
-        if (rolle != "HR" && rolle != "Admin" && afdelingId.HasValue)
+        if (afdelingId.HasValue)
         {
             filter &= filterBuilder.Eq(b => b.AfdelingId, afdelingId.Value);
         }
 
 
         // Almindelige filtre
-        if (int.TryParse(lokation, out int lokationId))
-            filter &= filterBuilder.Eq(b => b.AfdelingId, lokationId);
-
         if (!string.IsNullOrWhiteSpace(erhverv))
             filter &= filterBuilder.Eq(b => b.Erhverv, erhverv);
 

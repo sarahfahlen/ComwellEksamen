@@ -12,12 +12,11 @@ public interface IBrugereService
     Task<List<string>> HentAlleErhverv();
     Task<List<string>> HentAlleKurser();
 
-    Task<List<Bruger>> HentFiltreredeElever(string soegeord, string lokation, string kursus, string erhverv,
+    Task<List<Bruger>> HentFiltreredeElever(string soegeord, string kursus, string erhverv,
         int? deadline, string rolle, string? status, int? afdelingId);
 
     Task<byte[]> EksporterFiltreredeElever(
         string soegeord,
-        string lokation,
         string kursus,
         string erhverv,
         int? deadline,
