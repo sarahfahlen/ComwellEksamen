@@ -50,7 +50,7 @@
 
         @if (loggedIn?.Rolle == "Elev")
         {
-            <div class="dashboard-box klikbarsted">
+            <div class="dashboard-box klikbarsted" @onclick="ÅbenLearningModul">
                 <h4>Learning Module</h4>
             </div>
         }
@@ -174,5 +174,9 @@
         visDeadlinesModal = false;
     }
 
+    private void ÅbenLearningModul()
+    {
+        navManager.NavigateTo("/learning");
+    }
 }
 
