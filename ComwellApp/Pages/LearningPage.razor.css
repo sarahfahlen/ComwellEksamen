@@ -14,7 +14,7 @@
     height: 75vh;
     overflow-y: auto; /* tilføjer scroll, hvis det bliver for højt */
     transition: max-height 0.4s ease;
-    animation: slideInRight 0.8s ease;
+    animation: slideInLeft 0.8s ease;
 }
 .fagområde-navn{
     color: #fff !important;
@@ -28,15 +28,24 @@
 .laering-dropdown-boks {
     background-color: #fff;
     padding: 0.8rem 1rem;
-    border-radius: 0 0 12px 12px; /* kun nederste hjørner */
+    border-radius: 0 0 12px 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     position: absolute;
     top: 100%;
     left: 0;
     width: 100%;
     z-index: 1;
-    margin-top: -7px; 
-    animation: slidedown 0.25s ease forwards;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.laering-dropdown-boks.vis {
+    max-height: 500px; /* max der passer til indhold */
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .laering-indhold {
@@ -112,6 +121,35 @@
     transform: translateY(-3px);
 }
 
+.full-width-button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    background-color: #fff;
+    color: #d2b894;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    display: block;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.full-width-button:hover {
+    background-color: #f2e8dc;
+}
+
+.underemne-indhold {
+    display: block;
+    width: 100%;
+}
+
+.aktiv-underemne {
+    background-color: #d2b894 !important;
+    color: white !important;
+    font-weight: bold;
+}
+
 .element-navn{
     text-align: center;
 }
@@ -170,14 +208,17 @@
     to { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
 @keyframes slideDown {
-    0% {
-        max-height: 0;
+    from {
         opacity: 0;
         transform: translateY(-10px);
     }
-    100% {
-        max-height: 500px; /* højt nok til din menu */
+    to {
         opacity: 1;
         transform: translateY(0);
     }

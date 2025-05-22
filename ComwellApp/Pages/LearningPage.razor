@@ -18,17 +18,15 @@
                         <h5 class="fagområde-navn">@fag.FagomraadeNavn</h5>
                     </button>
 
-                    @if (aaben)
-                    {
-                        <div class="laering-dropdown-boks">
-                            @foreach (var underemne in fag.ListUnderemne)
-                            {
-                                <button class="laering-underemne-knap" @onclick="() => valgtUnderemne = underemne">
-                                    @underemne.UnderemneNavn
-                                </button>
-                            }
-                        </div>
-                    }
+                    <div class="laering-dropdown-boks @(aaben ? "vis" : "skjul")">
+                        @foreach (var underemne in fag.ListUnderemne)
+                        {
+                            <button class="laering-underemne-knap full-width-button @(valgtUnderemne == underemne ? "aktiv-underemne" : "")"
+                                    @onclick="() => valgtUnderemne = underemne">
+                                <span class="underemne-indhold">@underemne.UnderemneNavn</span>
+                            </button>
+                        }
+                    </div>
                 </div>
 
             }
