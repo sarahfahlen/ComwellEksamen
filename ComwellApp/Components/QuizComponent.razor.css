@@ -39,7 +39,16 @@
 }
 
 .quiz-fremdrift {
-    margin-top: 1rem;
+    position: relative;
+    margin-top: 2rem;
+    height: 3rem; /* giver højde til at placere ting indenfor */
+}
+
+.quiz-prikker-wrapper {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     gap: 0.5rem;
 }
@@ -57,12 +66,36 @@
 
 .quiz-resultat {
     margin-top: 1rem;
-    background-color: #fdf9f4;
-    border: 1px solid #d2b894;
     padding: 1.5rem;
+    text-align: center;
     border-radius: 10px;
     animation: fadeIn 0.4s ease;
 }
+
+.næste-knap {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8rem;
+    margin-left: 1rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    background-color: #d2b894;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.næste-knap:hover {
+    background-color: #c6a979;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }

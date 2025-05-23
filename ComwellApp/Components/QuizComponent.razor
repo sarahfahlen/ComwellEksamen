@@ -21,14 +21,16 @@
         }
     </div>
 
-    <button class="btn btn-primary" @onclick="Næste">Næste</button>
-
     <div class="quiz-fremdrift">
-        @for (int i = 0; i < Spoergsmaal.Count; i++)
-        {
-            <span class="quiz-prik @(i == aktueltIndex ? "aktiv" : "")">●</span>
-        }
+        <div class="quiz-prikker-wrapper">
+            @for (int i = 0; i < Spoergsmaal.Count; i++)
+            {
+                <span class="quiz-prik @(i == aktueltIndex ? "aktiv" : "")">●</span>
+            }
+        </div>
+        <button class="næste-knap" @onclick="Næste">Næste</button>
     </div>
+
 }
 else
 {

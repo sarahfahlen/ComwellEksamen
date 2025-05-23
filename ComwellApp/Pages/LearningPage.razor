@@ -16,7 +16,7 @@
 
                 <div class="laering-dropdown-wrapper">
                     <button class="laering-dropdown-knap" @onclick="() => ToggleDropdown(fag.FagomraadeNavn)">
-                        <span class="fagområde-navn">@fag.FagomraadeNavn</span>
+                        <span class="fagområde-navn"> <strong>@fag.FagomraadeNavn </strong> </span>
                         <span class="dropdown-pil @(aaben ? "open" : "")">▸</span>
                     </button>
 
@@ -25,7 +25,7 @@
                         {
                             <button class="laering-underemne-knap full-width-button @(valgtUnderemne == underemne ? "aktiv-underemne" : "")"
                                     @onclick="() => valgtUnderemne = underemne">
-                                <span class="underemne-indhold">@underemne.UnderemneNavn</span>
+                                <span class="underemne-indhold @(valgtUnderemne == underemne ? "aktiv-underemne-tekst" : "")">@underemne.UnderemneNavn</span>
                             </button>
                         }
                     </div>
@@ -42,7 +42,7 @@
                 {
                     <div class="laering-elementkort">
                         <button class="element-navn-knap" @onclick="() => ToggleElement(element.ElementNavn)">
-                            <span>@element.ElementNavn</span>
+                            <span><h4>@element.ElementNavn</h4></span>
                             <span class="dropdown-pil @(ElementErAaben(element.ElementNavn) ? "open" : "")">▸</span>
                         </button>
 

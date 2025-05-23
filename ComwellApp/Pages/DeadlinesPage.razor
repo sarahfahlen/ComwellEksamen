@@ -97,8 +97,7 @@ else
     {
         loggedIn = await lService.GetUserLoggedIn();
         if (loggedIn == null || loggedIn.Rolle == "Elev") return;
-
-        // ✅ Use only the backend ViewModel call
+        
         alleDeadlines = await eService.HentDelmaalVisning(loggedIn._id);
     }
 

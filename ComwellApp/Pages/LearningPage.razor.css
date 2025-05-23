@@ -75,7 +75,7 @@
 .dropdown-pil {
     transition: transform 0.3s ease;
     font-size: 1rem;
-    color: white;
+    color: transparent;
 }
 
 .dropdown-pil.open {
@@ -147,8 +147,8 @@
     transition: background-color 0.3s ease;
 }
 
-.full-width-button:hover {
-    background-color: #f2e8dc;
+.underemne-indhold:hover {
+    font-weight: bold;
 }
 
 .underemne-indhold {
@@ -156,29 +156,28 @@
     width: 100%;
 }
 
+.aktiv-underemne-tekst{
+    font-weight: bold;  
+}
+
 .aktiv-underemne {
-    background-color: #fff5e8 !important;
     color: black !important;
     font-weight: bold;
 }
 
 .element-navn-knap {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     width: 100%;
     padding: 0.6rem 1rem;
-    background-color: #eee5d8;
+    background-color: #fff;
     border: none;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease;
-}
-
-.element-navn-knap:hover {
-    background-color: #e1d3c3;
 }
 
 .element-indhold {
@@ -218,3 +217,10 @@
     from { opacity: 0; transform: translateX(-20px); }
     to { opacity: 1; transform: translateX(0); }
 }
+
+@media screen and (max-width: 600px) {
+    .laering-element-container {
+        grid-template-columns: 1fr; /* kun én kolonne på mobil */
+    }
+}
+
