@@ -1,3 +1,4 @@
+using ComwellApp.Pages;
 using Shared;
 using ElevplanModel = Shared.Elevplan;
 
@@ -34,4 +35,6 @@ public interface IElevplanService
     Task<List<Delmaal>> HentKommendeDeadlines(int brugerId);
     
     Task OpdaterIgang(Shared.Elevplan plan, Delmaal delmaal);
+
+    Task<List<DeadlinesPage.DelmaalVisning>> HentDelmaalVisning(int loggedInId);
 }

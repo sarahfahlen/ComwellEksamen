@@ -1,4 +1,5 @@
 using Backend.Repositories.Interface;
+using ComwellApp.Pages;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
 
@@ -10,11 +11,13 @@ public class ElevplanController : ControllerBase
 {
     private readonly IElevplanRepository elevplanRepo;
     private readonly IBrugereRepository brugereRepo;
+    private readonly ILokationRepository lokationRepo;
 
-    public ElevplanController(IElevplanRepository elevplanRepo, IBrugereRepository brugereRepo)
+    public ElevplanController(IElevplanRepository elevplanRepo, IBrugereRepository brugereRepo, ILokationRepository lokationRepo)
     {
         this.elevplanRepo = elevplanRepo;
         this.brugereRepo = brugereRepo;
+        this.lokationRepo = lokationRepo;
     }
 
 
@@ -306,6 +309,65 @@ public class ElevplanController : ControllerBase
             return BadRequest("Kunne ikke hente deadlines.");
         }
     }
+    [HttpGet("visningsdeadlines/{brugerId}")]
+    public async Task<ActionResult<List<DeadlinesPage.DelmaalVisning>>> HentDeadlinesSomVisning(int brugerId)
+    {
+        var visninger = new List<DeadlinesPage.DelmaalVisning>();
+        var idag = DateOnly.FromDateTime(DateTime.Today);
+
+        var alleBrugere = await brugereRepo.HentAlle();
+        var currentUser = alleBrugere.FirstOrDefault(b => b._id == brugerId);
+
+        if (currentUser == null)
+            return BadRequest("Bruger ikke fundet.");
+
+        foreach (var elev in alleBrugere)
+        {
+            var plan = await elevplanRepo.HentElevplanMedMaal(elev._id, -1);
+            if (plan == null) continue;
+
+            bool erKoekkenchefForElev = plan.Ansvarlig?._id == currentUser._id;
+
+            var delmaalListe = plan.ListPerioder
+                .SelectMany(p => p.ListMaal)
+                .SelectMany(m => m.ListDelmaal);
+
+            IEnumerable<Delmaal> relevante = Enumerable.Empty<Delmaal>();
+
+            if (currentUser.Rolle is "Admin" or "HR")
+            {
+                relevante = delmaalListe.Where(d => d.Deadline.HasValue && d.Deadline.Value < idag && !d.Status);
+            }
+            else if (currentUser.Rolle == "Køkkenchef" && erKoekkenchefForElev)
+            {
+                relevante = delmaalListe.Where(d => d.Deadline.HasValue && !d.Status);
+            }
+
+            string lokationNavn = "Ukendt";
+            if (elev.AfdelingId.HasValue)
+            {
+                var lokation = await lokationRepo.HentLokationViaId(elev.AfdelingId.Value);
+                lokationNavn = lokation?.LokationNavn ?? "Ukendt";
+            }
+
+            foreach (var d in relevante)
+            {
+                visninger.Add(new DeadlinesPage.DelmaalVisning
+                {
+                    Navn = elev.Navn,
+                    Lokation = lokationNavn,
+                    Erhverv = elev.Erhverv ?? "Ukendt",
+                    Titel = d.Titel,
+                    Deadline = d.Deadline,
+                    DeadlineKommentar = d.DeadlineKommentar,
+                    ErOverskredet = d.Deadline < idag
+                });
+            }
+        }
+
+        return Ok(visninger);
+    }
+
 
 
 }

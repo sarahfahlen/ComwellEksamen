@@ -2,14 +2,15 @@
 @inject IJSRuntime JS
 @inject ILoginService lService
 @inject IBrugereService bService
-@inject HttpClient http
+@inject IElevplanService eService
 @using ComwellApp.Services.Brugere
+@using ComwellApp.Services.Elevplan
 @using ComwellApp.Services.Login
 @using Shared
 
 <div class="overskrift-tilbage">
-    <h3 class="overskrift">Oversigt over deadlines</h3>
-    <button class="tilbage-knap" @onclick="Tilbage">← Tilbage til elevplan</button>
+<h3 class="overskrift">Oversigt over deadlines</h3>
+<button class="tilbage-knap" @onclick="Tilbage">← Tilbage til elevplan</button>
 </div>
 
 @if (loggedIn == null)
@@ -20,33 +21,36 @@ else if (loggedIn.Rolle == "Elev")
 {
     <p style="margin-top: 3rem">Du har ikke adgang til denne side.</p>
 }
-else if (!elevDelmaal.Any())
+else if (!alleDeadlines.Any())
 {
     <p style="margin-top: 3rem">Ingen relevante deadlines fundet.</p>
 }
 else
 {
     <div class="elevkort-grid">
-        @foreach (var elev in elevDelmaal)
+        @foreach (var gruppe in alleDeadlines.GroupBy(d => d.Navn))
         {
-            var elevId = elev.Key.Replace(" ", "_");
-            var deadlines = elev.Value;
-            var lokation = deadlines.FirstOrDefault()?.DeadlineKommentar ?? "Ukendt";
-            var erhverv = deadlines.FirstOrDefault()?.Ansvarlig ?? "Ukendt";
-
-            var overskredet = deadlines.Count(d => d.Deadline < DateOnly.FromDateTime(DateTime.Today));
-            var kommende = deadlines.Count(d => d.Deadline >= DateOnly.FromDateTime(DateTime.Today));
+            var elevId = gruppe.Key.Replace(" ", "_");
 
             <div class="elevkort-card">
                 <div class="elevkort-header" @onclick="() => ToggleElev(elevId)">
                     <div>
-                        <h4>@elev.Key</h4>
+                        <h4>@gruppe.Key</h4>
                         <div class="deadline-overblik">
-                            <span class="badge overskredet">@overskredet overskredne</span>
-                            <span class="badge kommende">@kommende kommende</span>
+                            @if (loggedIn.Rolle is "Admin" or "HR")
+                            {
+                                var overskredetAntal = gruppe.Count(d => d.ErOverskredet);
+                                <span class="badge overskredet">@overskredetAntal overskredne</span>
+                            }
+                            else if (loggedIn.Rolle == "Køkkenchef")
+                            {
+                                var kommendeAntal = gruppe.Count(d => !d.ErOverskredet);
+                                <span class="badge kommende">@kommendeAntal kommende</span>
+                            }
+
                         </div>
-                        <p style="margin-top: 0.5rem;"><strong>Lokation:</strong> @lokation</p>
-                        <p><strong>Erhverv:</strong> @erhverv</p>
+                        <p style="margin-top: 0.5rem;"><strong>Lokation:</strong> @gruppe.First().Lokation</p>
+                        <p><strong>Erhverv:</strong> @gruppe.First().Erhverv</p>
                     </div>
                     <button class="toggle-knap" title="Klik for at vise/skjule deadlines">
                         @((åbneElever.Contains(elevId)) ? "Skjul" : "Vis")
@@ -54,13 +58,13 @@ else
                 </div>
 
                 <div class="elev-delmaal @(åbneElever.Contains(elevId) ? "vis" : "")">
-                    @foreach (var d in deadlines)
+                    @foreach (var d in gruppe)
                     {
                         <div class="deadline-kort">
                             <div class="titel">@d.Titel</div>
                             <div class="dato">Deadline: <strong>@d.Deadline?.ToString("dd.MM.yyyy")</strong></div>
-                            <div class="status @(d.Deadline < DateOnly.FromDateTime(DateTime.Today) ? "overskredet" : "kommende")">
-                                @if (d.Deadline < DateOnly.FromDateTime(DateTime.Today))
+                            <div class="status @(d.ErOverskredet ? "overskredet" : "kommende")">
+                                @if (d.ErOverskredet)
                                 {
                                     var dageSiden = d.Deadline.HasValue
                                         ? DateOnly.FromDateTime(DateTime.Today).DayNumber - d.Deadline.Value.DayNumber
@@ -86,17 +90,18 @@ else
 
 @code {
     private Bruger? loggedIn;
+    private List<DelmaalVisning> alleDeadlines = new();
     private HashSet<string> åbneElever = new();
-    private Dictionary<string, List<Delmaal>> elevDelmaal = new();
 
     protected override async Task OnInitializedAsync()
     {
         loggedIn = await lService.GetUserLoggedIn();
         if (loggedIn == null || loggedIn.Rolle == "Elev") return;
 
-        elevDelmaal = await http.GetFromJsonAsync<Dictionary<string, List<Delmaal>>>(
-            $"api/elevplan/deadlines-raw/{loggedIn._id}");
+        // ✅ Use only the backend ViewModel call
+        alleDeadlines = await eService.HentDelmaalVisning(loggedIn._id);
     }
+
 
     private void ToggleElev(string elevId)
     {
@@ -109,5 +114,16 @@ else
     private async Task Tilbage()
     {
         await JS.InvokeVoidAsync("history.back");
+    }
+
+    public class DelmaalVisning
+    {
+        public string Navn { get; set; } = "";
+        public string Lokation { get; set; } = "";
+        public string Erhverv { get; set; } = "";
+        public string Titel { get; set; } = "";
+        public DateOnly? Deadline { get; set; }
+        public string? DeadlineKommentar { get; set; }
+        public bool ErOverskredet { get; set; }
     }
 }

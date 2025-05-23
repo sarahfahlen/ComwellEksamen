@@ -1,3 +1,4 @@
+using ComwellApp.Pages;
 using Shared;
 
 namespace ComwellApp.Services.Elevplan;
@@ -137,6 +138,11 @@ public class ElevplanServiceMock : IElevplanService
     }
 
     public Task OpdaterIgang(Shared.Elevplan plan, Delmaal delmaal)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<DeadlinesPage.DelmaalVisning>> HentDelmaalVisning(int loggedInId)
     {
         throw new NotImplementedException();
     }
