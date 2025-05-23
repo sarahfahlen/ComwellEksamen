@@ -27,6 +27,5 @@ public class Bruger
     
     public string? Kursus { get; set; }
     public int? AfdelingId { get; set; }
-    public int? SkoleId { get; set; }
     public Elevplan? MinElevplan { get; set; }
 }
