@@ -139,7 +139,7 @@
                              style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
                     </div>
 
-                    <p style="margin-bottom: -3rem;">@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den
+                    <p style="margin-bottom: -1rem;">@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den
                         valgte praktikperiode</p>
 
                     <!-- Mobilvisning: søgning og filter -->
@@ -180,11 +180,11 @@
                                     </InputSelect>
 
                                     <label class="mt-2">Status</label>
-                                    <InputSelect class="form-control" @bind-value="ValgtStatus"
-                                                 @oninput="OnChangeStatus">
+                                    <InputSelect class="form-control" @bind-value="ValgtStatus" @oninput="OnChangeStatus">
                                         <option value="">Alle</option>
                                         <option value="true">Gennemført</option>
                                         <option value="false">Ikke gennemført</option>
+                                        <option value="igang">Igangværende</option>
                                     </InputSelect>
                                 </div>
                             }
@@ -299,7 +299,7 @@
                 }
                 else
                 {
-                    <p><em>Ingen mål matcher dine filtre for denne periode.</em></p>
+                    <p class="søgningfejlbesked"><em>Ingen mål matcher dine filtre for denne periode.</em></p>
                 }
             </div>
 
@@ -491,6 +491,7 @@
                             <option value="">Alle</option>
                             <option value="true">Gennemført</option>
                             <option value="false">Ikke gennemført</option>
+                            <option value="igang">Igangværende</option>
                         </InputSelect>
                     </div>
                 }
@@ -553,7 +554,7 @@
     private string soegeord = "";
     private string valgtMaalNavn = "";
     private string valgtDelmaalType = "";
-    private bool? valgtStatus = null;
+    private string? valgtStatus = null;
     private bool visFilter = false;
 
     // Det valgte mål ID fra dropdown
@@ -1000,47 +1001,19 @@
 
     private string ValgtStatus
     {
-        get
-        {
-            if (valgtStatus == true) return "true";
-            if (valgtStatus == false) return "false";
-            return ""; // "Alle"
-        }
+        get => valgtStatus ?? "";
         set
         {
-            if (string.IsNullOrWhiteSpace(value))
-                valgtStatus = null;
-            else if (value == "true")
-                valgtStatus = true;
-            else if (value == "false")
-                valgtStatus = false;
-
+            valgtStatus = string.IsNullOrWhiteSpace(value) ? null : value;
             _ = OpdaterFiltreredeMaal();
         }
     }
 
-
     // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
     private async Task OnChangeStatus(ChangeEventArgs e)
     {
-        var value = e.Value?.ToString();
-
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            valgtStatus = null;
-        }
-        else if (value.Equals("true", StringComparison.OrdinalIgnoreCase))
-        {
-            valgtStatus = true;
-        }
-        else if (value.Equals("false", StringComparison.OrdinalIgnoreCase))
-        {
-            valgtStatus = false;
-        }
-
-        Console.WriteLine($"Status valgt: {valgtStatus}");
-
-        await OpdaterFiltreredeMaal();
+        ValgtStatus = e.Value?.ToString() ?? "";
+        await Task.CompletedTask;
     }
 
     //bruges til at åbne tilføj modal dialog

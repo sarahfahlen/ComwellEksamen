@@ -102,7 +102,7 @@ public class ElevplanController : ControllerBase
         [FromQuery] string? valgtMaalNavn, // Valgt mål-navn (bruges som filter)
         [FromQuery] string? valgtDelmaalType, // Valgt type af delmål (fx "Intro", "Kursus" – bruges som filter)
         [FromQuery] string? soegeord, // Søgeord til fritekstsøgning i delmålstitler
-        [FromQuery] bool? filterStatus) // Statusfilter: true = gennemført, false = ikke gennemført
+        [FromQuery] string? filterStatus) // Statusfilter: true = gennemført, false = ikke gennemført
     {
         try
         {

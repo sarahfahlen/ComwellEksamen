@@ -22,8 +22,7 @@ public interface IElevplanService
     //Bruges til at oprette default skabelon til nye elever
     Task<Shared.Elevplan> LavDefaultSkabelon(Bruger ansvarlig, string skabelonNavn, DateOnly startdato);
     //Bruges til at hente de filtrede mål på elevplanen
-    Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType,
-        string? soegeord, bool? filterStatus);
+    Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn, string? valgtDelmaalType, string? soegeord, string? filterStatus);
 
     Task TilfoejDelmaal(Shared.Elevplan plan, int maalId, Delmaal nytDelmaal);
     Task OpdaterDelmaal(Shared.Elevplan plan, int periodeIndex, int maalId, Delmaal opdateretDelmaal);
