@@ -56,6 +56,18 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         await BrugerCollection.InsertOneAsync(nyBruger);
     }
     
+    public async Task ArkiverElev(Bruger elev)
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b._id, elev._id);
+        var update = Builders<Bruger>.Update.Set(b => b.Aktiv, elev.Aktiv);
+
+        var result = await BrugerCollection.UpdateOneAsync(filter, update);
+
+        if (result.MatchedCount == 0)
+            throw new Exception("Bruger ikke fundet");
+    }
+    
+    
     // Henter alle brugere – uanset rolle.
     public async Task<List<Bruger>> HentAlle()
     {

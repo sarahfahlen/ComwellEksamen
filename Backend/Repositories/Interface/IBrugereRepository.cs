@@ -4,6 +4,9 @@ namespace Backend.Repositories.Interface;
 public interface IBrugereRepository
 {
     Task TilfoejElev(Bruger nyBruger);
+    
+    Task ArkiverElev(Bruger elev);
+    
     Task<List<Bruger>> HentAlle();
     Task<List<Bruger>> HentAlleElever();
 

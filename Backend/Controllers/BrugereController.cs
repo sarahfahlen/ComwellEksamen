@@ -35,6 +35,22 @@ public class BrugereController : ControllerBase
         // Til sidst svarer vi tilbage med 200 OK og en besked
         return Ok("Bruger med elevplan oprettet");
     }
+    
+    [HttpPut("arkiver")]
+    public async Task<IActionResult> ArkiverElev([FromBody] Bruger elev)
+    {
+        try
+        {
+            await _repo.ArkiverElev(elev);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Kunne ikke arkivere elev: {ex.Message}");
+        }
+    }
+
+    
     // GET: /api/brugere
     [HttpGet]
     public async Task<ActionResult<List<Bruger>>> HentAlle()

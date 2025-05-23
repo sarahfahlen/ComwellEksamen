@@ -82,6 +82,21 @@ public class BrugereServiceServer : IBrugereService
             throw new Exception("Kunne ikke oprette bruger med elevplan");
         }
     }
+    
+    public async Task ArkiverElev(Bruger elev)
+    {
+        elev.Aktiv = false; // her sætter vi aktiv til false - det betyder arkiveret
+
+        var response = await http.PutAsJsonAsync($"api/brugere/arkiver", elev);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[ArkiverElev] FEJL: {fejl}");
+            throw new Exception("Kunne ikke arkivere elev");
+        }
+    }
+
 
    
     

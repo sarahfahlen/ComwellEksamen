@@ -73,6 +73,11 @@ public class BrugereServiceMock : IBrugereService
         _brugere.Add(emil);
     }
 
+    public Task ArkiverElev(Bruger elev)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<List<Bruger>> HentAlle()
     {
         return Task.FromResult(_brugere);

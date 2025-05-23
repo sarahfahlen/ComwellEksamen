@@ -164,7 +164,8 @@ input[disabled], select[disabled] {
     transition: clip-path 0.6s ease-in-out;
 }
 
-.se-elevplan-knap {
+.se-elevplan-knap, 
+.arkiver-knap {
     background-color: transparent;
     border: 2px solid #d2b894;
     color: #1C2B38;
@@ -178,10 +179,15 @@ input[disabled], select[disabled] {
     margin-top: 0.8rem;
 }
 
-.se-elevplan-knap:hover {
+.se-elevplan-knap:hover,  
+.arkiver-knap:hover {
     background-color: #d2b894;
     color: white;
     cursor: pointer;
+}
+
+.arkiver-knap{
+    align-self: flex-end !important;
 }
 
 .filter-box {
