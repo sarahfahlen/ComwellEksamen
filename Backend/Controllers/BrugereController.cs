@@ -246,7 +246,10 @@ public class BrugereController : ControllerBase
         if (!allowedExtensions.Contains(fileExtension))
             return BadRequest("Kun JPG og PNG filer er tilladt.");
 
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "billeder", "brugere");
+        // GEMMER IKKE I wwwroot, men i Azure HOME (fx /home/billeder/brugere)
+        var root = Environment.GetEnvironmentVariable("HOME") ?? Directory.GetCurrentDirectory();
+        var uploadsFolder = Path.Combine(root, "billeder", "brugere");
+
         if (!Directory.Exists(uploadsFolder))
             Directory.CreateDirectory(uploadsFolder);
 
@@ -256,34 +259,47 @@ public class BrugereController : ControllerBase
         await using var stream = new FileStream(filePath, FileMode.Create);
         await file.CopyToAsync(stream);
 
-        var relativePath = $"/billeder/brugere/{uniqueFileName}"; // ← DENNE STREG ER VIGTIG
+        // Gem kun filnavn (ikke hele path)
+        var relativePath = $"billeder/brugere/{uniqueFileName}";
 
         await _repo.OpdaterBillede(brugerId, relativePath);
 
         return Ok(relativePath);
     }
-    [HttpDelete("slet-billede")]
-    public IActionResult SletBillede([FromQuery] string sti)
+    [HttpGet("hent-profilbillede/{filnavn}")]
+    public IActionResult HentProfilBillede(string filnavn)
     {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(sti) || sti == "billeder/intetprofilbillede.jpg")
-                return BadRequest("Kan ikke slette standardbilledet.");
+        var root = Environment.GetEnvironmentVariable("HOME") ?? Directory.GetCurrentDirectory();
+        var uploadFolder = Path.Combine(root, "billeder", "brugere");
+        var filePath = Path.Combine(uploadFolder, filnavn);
 
-            var absolutSti = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", sti.TrimStart('/'));
+        if (!System.IO.File.Exists(filePath))
+            return NotFound();
 
-            if (System.IO.File.Exists(absolutSti))
-            {
-                System.IO.File.Delete(absolutSti);
-                return Ok("Billede slettet.");
-            }
-
-            return NotFound("Filen blev ikke fundet.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[SletBillede] FEJL: {ex.Message}");
-            return BadRequest("Der opstod en fejl under sletning.");
-        }
+        var contentType = "image/" + Path.GetExtension(filePath).TrimStart('.');
+        var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        return File(stream, contentType);
     }
+
+    [HttpDelete("slet-billede")]
+    public IActionResult SletProfilbillede([FromQuery] string sti)
+    {
+        if (string.IsNullOrWhiteSpace(sti))
+            return BadRequest("Ingen sti angivet.");
+
+        var filnavn = Path.GetFileName(sti); // sikrer os mod stier udenfor mappen
+
+        var root = Environment.GetEnvironmentVariable("HOME") ?? Directory.GetCurrentDirectory();
+        var uploadFolder = Path.Combine(root, "billeder", "brugere");
+        var filePath = Path.Combine(uploadFolder, filnavn);
+
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.Delete(filePath);
+            return Ok("Billede slettet.");
+        }
+
+        return NotFound("Filen blev ikke fundet.");
+    }
+
 }

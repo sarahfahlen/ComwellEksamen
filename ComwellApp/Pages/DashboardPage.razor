@@ -5,6 +5,7 @@
 @inject ILoginService lService
 @inject IBrugereService bService
 @inject IJSRuntime JS
+@inject HttpClient http
 @inject ILokationService loService
 
 
@@ -472,13 +473,14 @@
         await JS.InvokeVoidAsync("downloadFileFromStream", "Elever.xlsx", streamRef);
     }
 
-    private string GetProfilbilledeSti(string? sti)
+    private string GetProfilbilledeSti(string? filnavn)
     {
-        if (string.IsNullOrEmpty(sti) || sti == "billeder/intetprofilbillede.jpg")
-            return "/billeder/intetprofilbillede.jpg"; // frontend
+        if (string.IsNullOrEmpty(filnavn) || filnavn == "billeder/intetprofilbillede.jpg")
+            return "/billeder/intetprofilbillede.jpg"; // fallback fra wwwroot
 
-        return $"http://localhost:5237{sti}"; // backend
+        return $"{http.BaseAddress?.ToString().TrimEnd('/')}/api/brugere/hent-profilbillede/{Path.GetFileName(filnavn)}";
     }
+
     
     private async Task Arkiver(Bruger elev)
     {

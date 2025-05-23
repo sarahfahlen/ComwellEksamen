@@ -331,7 +331,7 @@
                                     @if (!string.IsNullOrEmpty(elevKommentarBillede))
                                     {
                                         <div class="kommentar-billede-container right-align">
-                                            <img src="@GetProfilbilledeSti(elevKommentarBillede)"
+                                            <img src="@GetKommentarSti(elevKommentarBillede)"
                                                  class="kommentar-billede"
                                                  @onclick="@(() => ÅbnStortBillede(elevKommentarBillede))"
                                                  style="cursor: zoom-in;" />
@@ -359,7 +359,7 @@
                                 @if (!string.IsNullOrEmpty(elevKommentarBillede))
                                 {
                                     <div class="kommentar-billede-container right-align">
-                                        <img src="@GetProfilbilledeSti(elevKommentarBillede)"
+                                        <img src="@GetKommentarSti(elevKommentarBillede)"
                                              class="kommentar-billede"
                                              @onclick="@(() => ÅbnStortBillede(elevKommentarBillede))"
                                              style="cursor: zoom-in;" />
@@ -392,7 +392,7 @@
                                     @if (!string.IsNullOrEmpty(kokKommentarBillede))
                                     {
                                         <div class="kommentar-billede-container right-align">
-                                            <img src="@GetProfilbilledeSti(kokKommentarBillede)"
+                                            <img src="@GetKommentarSti(kokKommentarBillede)"
                                                  class="kommentar-billede"
                                                  @onclick="@(() => ÅbnStortBillede(kokKommentarBillede))"
                                                  style="cursor: zoom-in;" />
@@ -419,7 +419,7 @@
                                 @if (!string.IsNullOrEmpty(kokKommentarBillede))
                                 {
                                     <div class="kommentar-billede-container right-align">
-                                        <img src="@GetProfilbilledeSti(kokKommentarBillede)"
+                                        <img src="@GetKommentarSti(kokKommentarBillede)"
                                              class="kommentar-billede"
                                              @onclick="@(() => ÅbnStortBillede(kokKommentarBillede))"
                                              style="cursor: zoom-in;" />
@@ -1090,12 +1090,13 @@
         await eService.OpdaterIgang(minPlan, d);
     }
 
-    private string GetProfilbilledeSti(string? sti)
+    private string GetKommentarSti(string? filnavn)
     {
-        if (string.IsNullOrEmpty(sti) || sti == "billeder/intetprofilbillede.jpg")
-            return "/billeder/intetprofilbillede.jpg"; // hentes fra frontendens wwwroot
+        if (string.IsNullOrEmpty(filnavn) || filnavn == "billeder/intetprofilbillede.jpg")
+            return "/billeder/intetprofilbillede.jpg"; // fallback fra frontendens wwwroot
 
-        return $"http://localhost:5237/{sti.TrimStart('/')}"; // hentes fra backendens wwwroot
+        // Trim evt. afsluttende skråstreg og saml med endpoint
+        return $"{http.BaseAddress?.ToString().TrimEnd('/')}/api/elevplan/hent-kommentarbillede/{filnavn}";
     }
     private async Task<string> UploadKommentarBilledeAsync(IBrowserFile file, string rolle)
     {
@@ -1116,17 +1117,26 @@
 
         return "";
     }
+    
+
 
     private void ÅbnStortBillede(string? sti)
     {
-        stortBilledeUrl = GetProfilbilledeSti(sti);
+        stortBilledeUrl = GetKommentarSti(sti);
     }
 
     private void LukLightbox()
     {
         stortBilledeUrl = null;
     }
-    
+    private string GetProfilbilledeSti(string? filnavn)
+    {
+        if (string.IsNullOrEmpty(filnavn) || filnavn == "billeder/intetprofilbillede.jpg")
+            return "/billeder/intetprofilbillede.jpg"; // fallback fra wwwroot
+
+        return $"{http.BaseAddress?.ToString().TrimEnd('/')}/api/brugere/hent-profilbillede/{Path.GetFileName(filnavn)}";
+    }
+
     private int BeregnDageTilbage()
     {
         var idag = DateOnly.FromDateTime(DateTime.Today);

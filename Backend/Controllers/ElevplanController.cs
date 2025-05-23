@@ -249,26 +249,37 @@ public class ElevplanController : ControllerBase
         if (file == null || file.Length == 0)
             return BadRequest("Ingen fil modtaget.");
 
-        // Opret mappe hvis den ikke findes
-        var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "billeder");
-        if (!Directory.Exists(uploadsPath))
-            Directory.CreateDirectory(uploadsPath);
+        // Brug HOME fra Azure, ellers lokal fallback
+        var root = Environment.GetEnvironmentVariable("HOME") ?? Directory.GetCurrentDirectory();
+        var uploadFolder = Path.Combine(root, "billeder");
 
-        // Generer unik filnavn
+        if (!Directory.Exists(uploadFolder))
+            Directory.CreateDirectory(uploadFolder);
+
         var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-        var filePath = Path.Combine(uploadsPath, fileName);
+        var filePath = Path.Combine(uploadFolder, fileName);
 
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
+        using var stream = new FileStream(filePath, FileMode.Create);
+        await file.CopyToAsync(stream);
 
-        // Returnér den relative sti som gemmes i databasen
-        
-        var relativePath = Path.Combine("uploads", "billeder", fileName).Replace("\\", "/");
-        return Ok(relativePath);
+        return Ok(fileName); // kun filnavn returneres
     }
-   
+    [HttpGet("hent-kommentarbillede/{filnavn}")]
+    public IActionResult HentKommentarBillede(string filnavn)
+    {
+        var root = Environment.GetEnvironmentVariable("HOME") ?? Directory.GetCurrentDirectory();
+        var uploadFolder = Path.Combine(root, "billeder");
+        var filePath = Path.Combine(uploadFolder, filnavn);
+
+        if (!System.IO.File.Exists(filePath))
+            return NotFound();
+
+        var contentType = "image/" + Path.GetExtension(filePath).TrimStart('.'); 
+        var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        return File(stream, contentType);
+    }
+
+
     [HttpGet("deadlines-raw/{adminId}")]
     public async Task<ActionResult<Dictionary<string, List<Delmaal>>>> HentDeadlinesRaw(int adminId)
     {
