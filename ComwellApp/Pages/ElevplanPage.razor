@@ -82,9 +82,9 @@
                         <div class="elevdata-label"><strong> Skole </strong></div>
                         <div class="elevdata-value skole-linje">
                             <span>
-                                @if (valgtElev?.SkoleId != null)
+                                @if (aktivPeriode?.SkoleId != null)
                                 {
-                                    var valgtSkole = skoler.FirstOrDefault(s => s._id == valgtElev.SkoleId);
+                                    var valgtSkole = skoler.FirstOrDefault(s => s._id == aktivPeriode.SkoleId);
                                     @((valgtSkole != null) ? valgtSkole.LokationNavn : "Skole ikke valgt")
                                 }
                                 else
@@ -658,8 +658,7 @@
     private async Task AabenRedigerSkole()
     {
         skoler = await loService.HentSkoleLokationer();
-
-        valgtSkoleId = valgtElev?.SkoleId;
+        valgtSkoleId = aktivPeriode?.SkoleId;
         skoleDialog?.Open();
     }
 
@@ -669,7 +668,11 @@
             return;
 
         // Sæt SkoleId til null hvis brugeren ikke har valgt noget (dropdown value == "")
-        valgtElev.SkoleId = valgtSkoleId == 0 ? null : valgtSkoleId;
+        if (aktivPeriode != null)
+        {
+            aktivPeriode.SkoleId = valgtSkoleId == 0 ? null : valgtSkoleId;
+        }
+
 
         await bService.OpdaterBruger(valgtElev);
 
