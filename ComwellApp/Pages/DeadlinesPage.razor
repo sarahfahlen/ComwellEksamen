@@ -51,7 +51,9 @@ else
                                 @if (overskredetAntal > 0){
                                     <span class="badge overskredet">@overskredetAntal overskredne</span>
                                 }
-                                <span class="badge kommende">@kommendeAntal deadlines de næste 30 dage</span>
+                                @if (kommendeAntal > 0){
+                                    <span class="badge kommende">@kommendeAntal deadlines de næste 30 dage</span>
+                                }
                             }
 
                         </div>
