@@ -142,7 +142,7 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
     
     public async Task<List<Bruger>> HentFiltreredeElever(
         string soegeord, string kursus, string erhverv,
-        int? deadline, string rolle, string? status, int? afdelingId) 
+        int? deadline, string rolle, string? status, int? afdelingId, bool? aktiv) 
     {
         var filterBuilder = Builders<Bruger>.Filter;
         var filter = filterBuilder.Eq(b => b.Rolle, "Elev"); // Vis kun elever
@@ -152,7 +152,6 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         {
             filter &= filterBuilder.Eq(b => b.AfdelingId, afdelingId.Value);
         }
-
 
         // Almindelige filtre
         if (!string.IsNullOrWhiteSpace(erhverv))
@@ -206,6 +205,11 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
                     .SelectMany(p => p.ListMaal)
                     .SelectMany(m => m.ListDelmaal)
                     .Any(d => d.Status == ønsketStatus));
+        }
+        
+        if (aktiv.HasValue)
+        {
+            filter &= filterBuilder.Eq(b => b.Aktiv, aktiv.Value); // 👈 NYT
         }
         
         return await BrugerCollection.Find(filter).ToListAsync();

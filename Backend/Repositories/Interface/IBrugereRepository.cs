@@ -24,7 +24,8 @@ public interface IBrugereRepository
         int? deadline,
         string rolle,
         string status,
-        int? afdelingId);
+        int? afdelingId,
+        bool? aktiv);
     // I IBrugereRepository.cs
     Task OpdaterBillede(int brugerId, string sti);
 

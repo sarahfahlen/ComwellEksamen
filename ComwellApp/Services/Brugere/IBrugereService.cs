@@ -18,7 +18,7 @@ public interface IBrugereService
     Task OpdaterSkoleId(int brugerId, int periodeIndex, int? nySkoleId);
 
     Task<List<Bruger>> HentFiltreredeElever(string soegeord, string kursus, string erhverv,
-        int? deadline, string rolle, string? status, int? afdelingId);
+        int? deadline, string rolle, string? status, int? afdelingId, bool? aktiv);
 
     Task<byte[]> EksporterFiltreredeElever(
         string soegeord,
@@ -27,5 +27,6 @@ public interface IBrugereService
         int? deadline,
         string rolle,
         string? status,
-        int? afdelingId);
+        int? afdelingId,
+        bool? aktiv);
 }

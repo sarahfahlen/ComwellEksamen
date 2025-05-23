@@ -144,13 +144,20 @@ public class BrugereController : ControllerBase
         [FromQuery] int? deadline,
         [FromQuery] string? rolle,
         [FromQuery] string? status,
-        [FromQuery] string? afdelingId) // <-- ny parameter
+        [FromQuery] string? afdelingId,
+        [FromQuery] string? aktiv)
     {
         // Pars afdelingId fra string → int?
         int? parsedAfdelingId = null;
         if (int.TryParse(afdelingId, out int temp))
         {
             parsedAfdelingId = temp;
+        }
+        
+        bool? parsedAktiv = null;
+        if (bool.TryParse(aktiv, out bool aktivBool))
+        {
+            parsedAktiv = aktivBool;
         }
 
         // Kald repository med parsedAfdelingId
@@ -161,7 +168,8 @@ public class BrugereController : ControllerBase
             deadline,
             rolle ?? "",
             status ?? "",
-            parsedAfdelingId);
+            parsedAfdelingId,
+            parsedAktiv);
 
         return Ok(elever);
     }
@@ -204,10 +212,14 @@ public class BrugereController : ControllerBase
         [FromQuery] int? deadline,
         [FromQuery] string? rolle,
         [FromQuery] string? status,
-        [FromQuery] int? afdelingId, 
+        [FromQuery] int? afdelingId,
+        [FromQuery] string? aktiv,
         [FromServices] ExcelEksportService excelService)
     {
-        // Henter listen af elever baseret på filtrering
+        bool? parsedAktiv = null;
+        if (bool.TryParse(aktiv, out var aktivBool))
+            parsedAktiv = aktivBool;
+
         var elever = await _repo.HentFiltreredeElever(
             soegeord ?? "",
             kursus ?? "",
@@ -215,8 +227,8 @@ public class BrugereController : ControllerBase
             deadline,
             rolle ?? "Elev",
             status ?? "",
-            afdelingId // ← ændret her
-        );
+            afdelingId,
+            parsedAktiv);
 
         var excelBytes = excelService.GenererExcelMedNavne(elever);
 

@@ -182,7 +182,7 @@ public class BrugereServiceServer : IBrugereService
     }
 
     
-    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string kursus, string erhverv, int? deadline, string rolle, string? status, int? afdelingId)
+    public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string kursus, string erhverv, int? deadline, string rolle, string? status, int? afdelingId, bool? aktiv)
     {
         var url = $"api/brugere/filtreredeelever?soegeord={Uri.EscapeDataString(soegeord)}" +
                   $"&kursus={Uri.EscapeDataString(kursus)}" +
@@ -190,7 +190,8 @@ public class BrugereServiceServer : IBrugereService
                   $"&deadline={(deadline.HasValue ? deadline.Value.ToString() : "")}" +
                   $"&rolle={Uri.EscapeDataString(rolle)}" +
                   $"&status={Uri.EscapeDataString(status ?? "")}" +
-                  $"&afdelingId={(afdelingId.HasValue ? afdelingId.Value.ToString() : "")}";
+                  $"&afdelingId={(afdelingId.HasValue ? afdelingId.Value.ToString() : "")}" +
+                  $"&aktiv={(aktiv.HasValue ? aktiv.Value.ToString().ToLower() : "")}";
         return await http.GetFromJsonAsync<List<Bruger>>(url) ?? new();
     }
 
@@ -201,7 +202,8 @@ public class BrugereServiceServer : IBrugereService
         int? deadline,
         string rolle,
         string? status,
-        int? afdelingId) 
+        int? afdelingId,
+        bool? aktiv) 
     {
         var url = $"api/brugere/eksporter-elever?" +
                   $"soegeord={Uri.EscapeDataString(soegeord)}" +
@@ -210,7 +212,8 @@ public class BrugereServiceServer : IBrugereService
                   $"&deadline={(deadline.HasValue ? deadline.Value.ToString() : "")}" +
                   $"&rolle={Uri.EscapeDataString(rolle)}" +
                   $"&status={Uri.EscapeDataString(status ?? "")}" +
-                  $"&afdelingId={(afdelingId.HasValue ? afdelingId.Value.ToString() : "")}";
+                  $"&afdelingId={(afdelingId.HasValue ? afdelingId.Value.ToString() : "")}" +
+                  $"&aktiv={(aktiv.HasValue ? aktiv.Value.ToString().ToLower() : "")}";
 
         return await http.GetByteArrayAsync(url);
     }

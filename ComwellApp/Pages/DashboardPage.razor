@@ -312,7 +312,8 @@
             valgtDeadline,
             loggedIn.Rolle,
             valgtStatus,
-            afdelingTilFiltrering
+            afdelingTilFiltrering,
+        valgtAktivStatus
         );
 
         StateHasChanged();
@@ -328,6 +329,7 @@
         valgtDeadline = null;
         valgtStatus = "";
         valgtAfdelingId = null;
+        valgtAktivStatus = true;
 
         // Opdater visningen med alle elever
         await OpdaterFiltreredeElever();
@@ -465,7 +467,8 @@
             valgtDeadline,
             loggedIn.Rolle,
             valgtStatus,
-            valgtAfdelingId
+            valgtAfdelingId,
+            valgtAktivStatus
         );
 
         using var streamRef = new DotNetStreamReference(new MemoryStream(excelData));
