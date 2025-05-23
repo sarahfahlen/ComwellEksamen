@@ -71,6 +71,14 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         var filter = Builders<Bruger>.Filter.Eq(b => b.Rolle, "Elev"); // kun der hvor Rolle == "Elev"
         return await BrugerCollection.Find(filter).ToListAsync();
     }
+    
+    //Opdatere bruger oplysninger på elevplan
+    public async Task OpdaterBruger(Bruger bruger)
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b._id, bruger._id);
+        await BrugerCollection.ReplaceOneAsync(filter, bruger);
+    }
+
 
     // Henter alle brugere med rollen "Køkkenchef".
     // Bruges fx når man skal vælge en ansvarlig køkkenchef i opret-elev formularen.
@@ -80,9 +88,6 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         var filter = Builders<Bruger>.Filter.Eq(b => b.Rolle, "Køkkenchef"); // kun brugere med denne rolle
         return await BrugerCollection.Find(filter).ToListAsync();
     }
-
-    
-   
     
     // Henter elevplan ud fra brugerens brugerId
     public async Task<Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId)

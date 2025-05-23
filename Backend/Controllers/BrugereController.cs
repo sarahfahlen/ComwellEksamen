@@ -149,6 +149,13 @@ public class BrugereController : ControllerBase
 
         return Ok(elever);
     }
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> OpdaterBruger(int id, [FromBody] Bruger bruger)
+    {
+        await _repo.OpdaterBruger(bruger);
+        return Ok();
+    }
 
     
     [HttpGet("eksporter-elever")]

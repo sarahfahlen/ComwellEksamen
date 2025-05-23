@@ -136,6 +136,12 @@ public class BrugereServiceServer : IBrugereService
         return await response.Content.ReadFromJsonAsync<Shared.Elevplan?>();
     }
     
+    public async Task OpdaterBruger(Bruger bruger)
+    {
+        var response = await http.PutAsJsonAsync($"api/brugere/{bruger._id}", bruger);
+        response.EnsureSuccessStatusCode(); // fejler med exception hvis noget går galt
+    }
+    
     public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string kursus, string erhverv, int? deadline, string rolle, string? status, int? afdelingId)
     {
         var url = $"api/brugere/filtreredeelever?soegeord={Uri.EscapeDataString(soegeord)}" +

@@ -11,7 +11,7 @@ public interface IBrugereRepository
     Task<List<string>> HentErhverv();
     Task<List<string>> HentKurser();
     Task<Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId);
-
+    Task OpdaterBruger(Bruger bruger);
     Task<List<Bruger>> HentFiltreredeElever(
         string soegeord,
         string kursus,
