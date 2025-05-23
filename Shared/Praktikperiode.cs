@@ -8,6 +8,6 @@ public class Praktikperiode
     public int Praktikvarighed { get; set; }
     public DateOnly? StartDato { get; set; }
     public DateOnly? SlutDato { get; set; }
-    public int? skoleId { get; set; }
+    public int? SkoleId { get; set; }
     public List<Maal> ListMaal { get; set; }
 }
