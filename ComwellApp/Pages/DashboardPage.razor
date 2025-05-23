@@ -80,7 +80,7 @@
         </div>
 
         <div class="filter-row">
-            <div class="filter-item" style="flex: 2.05;">
+            <div class="filter-item" style="flex: 1;">
                 <label>Erhverv</label>
                 <InputSelect class="form-control" @bind-Value="ValgtErhverv" @oninput="OnChangeErhverv">
                     <option value="">Alle erhverv</option>
@@ -90,7 +90,14 @@
                     }
                 </InputSelect>
             </div>
-
+            <div class="filter-item" style="flex: 1;">
+                <label>Aktiv status</label>
+                <InputSelect class="form-control" @bind-Value="ValgtAktivStatusValg" @oninput="OnChangeAktivStatus">
+                    <option value="alle">Alle</option>
+                    <option value="aktive">Aktive elever</option>
+                    <option value="arkiverede">Arkiverede elever</option>
+                </InputSelect>
+            </div>
             <div class="filter-item" style="flex: 1;">
                 <label>Deadline</label>
                 <InputSelect class="form-control" @bind-Value="ValgtDeadlineValg" @oninput="OnChangeDeadline" TValue="string">
@@ -395,6 +402,33 @@
             _ = OpdaterFiltreredeElever();
         }
     }
+    
+    private string ValgtAktivStatusValg
+    {
+        get => valgtAktivStatus switch
+        {
+            true => "aktive",
+            false => "arkiverede",
+            _ => "alle"
+        };
+        set
+        {
+            valgtAktivStatus = value switch
+            {
+                "aktive" => true,
+                "arkiverede" => false,
+                _ => null
+            };
+            _ = OpdaterFiltreredeElever();
+        }
+    }
+
+    private async Task OnChangeAktivStatus(ChangeEventArgs e)
+    {
+        ValgtAktivStatusValg = e.Value?.ToString() ?? "alle";
+        await OpdaterFiltreredeElever();
+    }
+
     
     private async Task OnChangeDeadline(ChangeEventArgs e)
     {
