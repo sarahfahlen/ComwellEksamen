@@ -1,4 +1,6 @@
 using Shared;
+using Shared.DTO;
+
 namespace ComwellApp.Services.Login;
 
 public interface ILoginService
@@ -16,7 +18,6 @@ public interface ILoginService
     Task<List<Bruger>> HentEleverTilElevplanVisning();
 
     Task OpdaterBruger(Bruger bruger);
-    Task<bool> SkiftAdgangskode(int brugerId, string nuværendeKode, string nyKode);
-
+    Task<bool> SkiftAdgangskode(int brugerId, SkiftKodeRequest request);
     
 }   

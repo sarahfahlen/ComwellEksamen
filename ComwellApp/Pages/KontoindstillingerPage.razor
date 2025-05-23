@@ -1,6 +1,7 @@
 @page "/kontoindstillinger"
 @using ComwellApp.Services.Login
 @using Shared
+@using Shared.DTO;
 @using Blazored.LocalStorage
 @using ComwellApp.Components
 @inject ILocalStorageService localStorage
@@ -94,13 +95,13 @@
                     <div class="adgangskode-felt">
                         <!-- Nuværende kode -->
                         <div class="form-floating-group">
-                            <InputText type="password" class="form-control floating-input" placeholder=" " @bind-Value="nuværendeKode" />
+                            <InputText type="password" class="form-control floating-input" placeholder=" " @bind-Value="skiftKodeRequest.NuværendeKode" />
                             <label>Nuværende adgangskode</label>
                         </div>
 
                         <!-- Ny kode -->
                         <div class="form-floating-group">
-                            <InputText type="password" class="form-control floating-input" placeholder=" " @bind-Value="nyKode" />
+                            <InputText type="password" class="form-control floating-input" placeholder=" " @bind-Value="skiftKodeRequest.NyKode" />
                             <label>Ny adgangskode</label>
                         </div>
 
@@ -149,8 +150,6 @@
     private bool visSkiftKodeord = false;
 
     // Felter til adgangskodeændring
-    private string nuværendeKode = "";
-    private string nyKode = "";
     private string bekraeftNyKode = "";
 
     // Fejlbesked hvis noget går galt
@@ -158,6 +157,9 @@
     
     //Bruges til successbesked
     private string successMessage = "";
+    
+    private SkiftKodeRequest skiftKodeRequest = new();
+
 
     // Når siden indlæses, hentes den aktive bruger
     protected override async Task OnInitializedAsync()
@@ -180,26 +182,26 @@
 
         if (visSkiftKodeord)
         {
-            if (string.IsNullOrWhiteSpace(nuværendeKode))
+            if (string.IsNullOrWhiteSpace(skiftKodeRequest.NuværendeKode))
             {
                 fejlbesked = "Indtast din nuværende adgangskode.";
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(nyKode) || nyKode.Length < 4)
+            if (string.IsNullOrWhiteSpace(skiftKodeRequest.NyKode) || skiftKodeRequest.NyKode.Length < 4)
             {
                 fejlbesked = "Den nye adgangskode skal være mindst 4 tegn.";
                 return;
             }
 
-            if (nyKode != bekraeftNyKode)
+            if (skiftKodeRequest.NyKode != bekraeftNyKode)
             {
                 fejlbesked = "De nye adgangskoder matcher ikke hinanden.";
                 return;
             }
 
-            bool success = await LoginService.SkiftAdgangskode(bruger._id, nuværendeKode, nyKode);
-
+            bool success = await LoginService.SkiftAdgangskode(bruger._id, skiftKodeRequest);
+            
             if (!success)
             {
                 fejlbesked = "Den nuværende adgangskode er forkert, eller der opstod en fejl.";
@@ -279,8 +281,10 @@
     {
         visSkiftKodeord = !visSkiftKodeord;
         fejlbesked = "";
-        nuværendeKode = nyKode = bekraeftNyKode = "";
+        skiftKodeRequest = new();
+        bekraeftNyKode = "";
     }
+
     private string GetProfilbilledeSti(string? filnavn)
     {
         if (string.IsNullOrEmpty(filnavn) || filnavn == "billeder/intetprofilbillede.jpg")

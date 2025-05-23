@@ -2,6 +2,7 @@ using Blazored.LocalStorage;
 using ComwellApp.Services.Brugere;
 using ComwellApp.Services.Login;
 using Shared;
+using Shared.DTO;
 
 public class LoginServiceClientSite : ILoginService
 {
@@ -82,7 +83,7 @@ public class LoginServiceClientSite : ILoginService
         }
     }
 
-    public Task<bool> SkiftAdgangskode(int brugerId, string nuværendeKode, string nyKode)
+    public Task<bool> SkiftAdgangskode(int brugerId, SkiftKodeRequest request)
     {
         throw new NotImplementedException();
     }

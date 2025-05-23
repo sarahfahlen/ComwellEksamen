@@ -1,6 +1,7 @@
 using Backend.Repositories.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
+using Shared.DTO;
 
 namespace Backend.Controllers
 {
@@ -23,7 +24,7 @@ namespace Backend.Controllers
         // POST: /api/users/login
         // Bruges når en bruger logger ind – frontend sender email og adgangskode i body
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] ILoginRepository.LoginRequest loginRequest)
+        public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
             // Tjek om data mangler – hvis enten email eller adgangskode ikke er sat, sender vi en 401 Unauthorized
             if (loginRequest == null || string.IsNullOrWhiteSpace(loginRequest.Email) || string.IsNullOrWhiteSpace(loginRequest.Adgangskode))
@@ -101,13 +102,6 @@ namespace Backend.Controllers
                 return BadRequest("Kunne ikke opdatere adgangskoden");
 
             return Ok(); // Skiftet lykkedes
-        }
-
-        // Klasse som matcher det JSON body frontend sender ind, når adgangskode skal skiftes
-        public class SkiftKodeRequest
-        {
-            public string NuværendeKode { get; set; }
-            public string NyKode { get; set; }
         }
     }
 }

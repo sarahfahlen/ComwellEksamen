@@ -2,6 +2,7 @@ using Blazored.LocalStorage;
 using System.Net.Http.Json;
 
 using Shared;
+using Shared.DTO;
 
 namespace ComwellApp.Services.Login;
 
@@ -30,8 +31,13 @@ public class LoginServiceServer : ILoginService
 
     public async Task<bool> Login(string Email, string Adgangskode)
     {
-        // Vi opretter en anonym body med e-mail og adgangskode (samme struktur som backend forventer)
-        var body = new { Email = Email, Adgangskode = Adgangskode };
+        // Vi opretter en LoginRequest som matcher vores DTO
+        var body = new LoginRequest
+        {
+            Email = Email,
+            Adgangskode = Adgangskode
+        };
+
 
         try
         {
@@ -103,15 +109,9 @@ public class LoginServiceServer : ILoginService
     }
     
     // Skifter adgangskode – kræver at man oplyser nuværende kode som sikkerhed
-    public async Task<bool> SkiftAdgangskode(int brugerId, string nuværendeKode, string nyKode)
+    public async Task<bool> SkiftAdgangskode(int brugerId, SkiftKodeRequest request)
     {
-        var requestBody = new
-        {
-            NuværendeKode = nuværendeKode,
-            NyKode = nyKode
-        };
-
-        var response = await client.PutAsJsonAsync($"api/users/{brugerId}/skiftkode", requestBody);
+        var response = await client.PutAsJsonAsync($"api/users/{brugerId}/skiftkode", request);
 
         if (!response.IsSuccessStatusCode)
         {

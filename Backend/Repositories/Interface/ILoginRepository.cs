@@ -8,11 +8,4 @@ public interface ILoginRepository
     Task<Bruger?> Validering(string email, string adgangskode);
     Task<bool> OpdaterBrugerAsync(int id, Bruger bruger);
     Task<Bruger?> HentBrugerViaIdAsync(int id);
-    
-
-    public class LoginRequest
-    {
-        public string Email { get; set; }
-        public string Adgangskode { get; set; }
-    }
 }
