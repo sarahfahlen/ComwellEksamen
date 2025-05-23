@@ -166,6 +166,7 @@ public class BrugereController : ControllerBase
         return Ok(elever);
     }
     
+    //Bliver brugt til at opdater skole lokationen
     [HttpPut("{id}")]
     public async Task<IActionResult> OpdaterBruger(int id, [FromBody] Bruger bruger)
     {

@@ -59,23 +59,7 @@
             </div>
 
             <!-- Viser elevens oplysninger -->
-            <div id="elevoplysning" style="position: relative;">
-                @if (!isReadOnlyElevView && loggedIn?.Rolle != "Elev" && loggedIn?.Rolle != "FaglærtKok")
-                {
-                    <button class="rediger-knap" @onclick="AabenRedigerSkole">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                              class="bi bi-pencil" viewBox="0 0 16 16">
-                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 
-                         10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 
-                         0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 
-                         12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 
-                         0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 
-                         5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 
-                         0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 
-                         0 1-.468-.325"/>
-                        </svg>
-                    </button>
-                }
+            <div id="elevoplysning">
                 <div id="elevdata">
                     <div class="elevdata-grid">
                         <div class="elevdata-label"><strong> Navn </strong></div>
@@ -95,6 +79,37 @@
                             <div class="elevdata-label"><strong> Slutdato for perioden </strong></div>
                             <div class="elevdata-value">@aktivPeriode.SlutDato / Dage tilbage: @BeregnDageTilbage()</div>
                         }
+                        <div class="elevdata-label"><strong> Skole </strong></div>
+                        <div class="elevdata-value skole-linje">
+                            <span>
+                                @if (valgtElev?.SkoleId != null)
+                                {
+                                    var valgtSkole = skoler.FirstOrDefault(s => s._id == valgtElev.SkoleId);
+                                    @((valgtSkole != null) ? valgtSkole.LokationNavn : "Skole ikke valgt")
+                                }
+                                else
+                                {
+                                    <text>Skole ikke valgt</text>
+                                }
+                            </span>
+
+                            @if (!isReadOnlyElevView && loggedIn?.Rolle != "Elev" && loggedIn?.Rolle != "FaglærtKok")
+                            {
+                                <button class="rediger-knap-inline" @onclick="AabenRedigerSkole">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         class="bi bi-pencil" viewBox="0 0 16 16">
+                                        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 
+                         10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 
+                         0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 
+                         12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 
+                         0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 
+                         5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 
+                         0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 
+                         0 1-.468-.325"/>
+                                    </svg>
+                                </button>
+                            }
+                        </div>
                     </div>
                 </div>
 
@@ -234,14 +249,14 @@
             <ModalDialog @ref="skoleDialog" Title="Vælg skole">
                 <div class="modal-form">
                     <label for="skole-select">Vælg skole</label>
-                    <InputSelect id="skole-select" class="form-control" @bind-Value="valgtSkoleId">
-                        <option value="">-- Vælg --</option>
+                    <InputSelect id="skole-select" class="form-control" @bind-Value="valgtSkoleIdAsString" @onchange="OnChangedSkoleValgt"
+                    >
+                    <option value="0">-- Vælg --</option>
                         @foreach (var skole in skoler)
                         {
                             <option value="@skole._id">@skole.LokationNavn</option>
                         }
                     </InputSelect>
-
                     <button class="Gemkommentarknap mt-3" @onclick="GemSkolevalg">Gem skolevalg</button>
                 </div>
             </ModalDialog>
@@ -593,7 +608,6 @@
 
         }
 
-
         // Hvis HR/Admin/Køkkenchef ser en specifik elevplan
         if (elevId.HasValue && elevId != loggedIn._id)
         {
@@ -619,6 +633,7 @@
 
         //Henter elevplan for den pågældene elev
         minPlan = await bService.HentElevplanForBruger(valgtElev._id, loggedIn._id);
+        skoler = await loService.HentSkoleLokationer();
 
         // Tjek om der blev fundet en elevplan
         if (minPlan == null)
@@ -650,17 +665,36 @@
 
     private async Task GemSkolevalg()
     {
-        if (valgtElev == null || valgtSkoleId == null)
+        if (valgtElev == null)
             return;
 
-        valgtElev.SkoleId = valgtSkoleId;
-        await bService.OpdaterBruger(valgtElev); // Skal vi implementere den næste?
+        // Sæt SkoleId til null hvis brugeren ikke har valgt noget (dropdown value == "")
+        valgtElev.SkoleId = valgtSkoleId == 0 ? null : valgtSkoleId;
+
+        await bService.OpdaterBruger(valgtElev);
 
         skoleDialog?.Close();
-
-        // Opdater visningen – du kan også genhente lokationen hvis du viser den i UI
         StateHasChanged();
     }
+    
+    private string valgtSkoleIdAsString
+    {
+        get => valgtSkoleId?.ToString() ?? "0"; // hvis null => "0"
+        set
+        {
+            if (int.TryParse(value, out int id) && id != 0)
+                valgtSkoleId = id;
+            else
+                valgtSkoleId = null;
+        }
+    }
+
+    private Task OnChangedSkoleValgt(ChangeEventArgs e)
+    {
+        valgtSkoleIdAsString = e.Value?.ToString() ?? "0";
+        return Task.CompletedTask;
+    }
+
 
     // Tæller hvor mange delmål der findes i den valgte periode
     private int AntalDelmaalIAlt()

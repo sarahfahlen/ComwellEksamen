@@ -2,24 +2,28 @@
     width: 100%;
 }
 
-.rediger-knap {
-    width: 36px;
-    height: 36px;
+.skole-linje {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.rediger-knap-inline {
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     border: none;
     background-color: #c6a979;
     color: #fff;
-    font-weight: 600;
-    font-size: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease, transform 0.2s ease;
+    padding: 0;
 }
 
-.rediger-knap:hover {
+.rediger-knap-inline:hover {
     background-color: #b89f7d;
     transform: scale(1.05);
 }
@@ -272,11 +276,13 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     animation: fadeIn 0.6s ease;
 }
+
 .kommentar-med-billede {
     display: flex;
     gap: 1rem;
     align-items: flex-start;
 }
+
 /* === Responsive === */
 @media (max-width: 768px) {
     .mobil-soeg-filter {
@@ -296,7 +302,7 @@
     .main-indhold {
         margin: -1rem 0.5rem 1rem -0.5rem;
     }
-    
+
     .kommentar-felt {
         margin-right: -10rem !important;
         margin-left: -1.5rem !important;
@@ -395,7 +401,7 @@
     transition: all 0.3s ease;
     align-self: flex-start;
     margin-top: 1rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .Gemkommentarknap:hover {
@@ -454,6 +460,7 @@
 .filter-boks-anim {
     animation: fadeSlideIn 0.4s ease;
 }
+
 /* === Kommentar Modal Wrapper === */
 .kommentar-modal-wrapper {
     padding: 1.5rem;
@@ -590,6 +597,7 @@ input[type="file"]:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
+
 .lightbox-overlay {
     position: fixed;
     top: 0;
@@ -614,12 +622,22 @@ input[type="file"]:hover {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes zoomIn {
-    from { transform: scale(0.95); opacity: 0.8; }
-    to { transform: scale(1); opacity: 1; }
+    from {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 

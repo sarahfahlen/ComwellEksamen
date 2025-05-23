@@ -84,7 +84,7 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         return await BrugerCollection.Find(filter).ToListAsync();
     }
     
-    //Opdatere bruger oplysninger på elevplan
+    //Opdatere skolelokation oplysninger på elevplan
     public async Task OpdaterBruger(Bruger bruger)
     {
         var filter = Builders<Bruger>.Filter.Eq(b => b._id, bruger._id);
