@@ -9,7 +9,6 @@ namespace ComwellApp.Services.Login;
 public class LoginServiceServer : ILoginService
 {
     // URL til backend-API (kan evt. ændres til en config senere)
-
     private readonly HttpClient client; // Brugt til HTTP-kald til backend
     private readonly ILocalStorageService localStorage; // Brugt til at gemme data lokalt i browseren (fx den loggede bruger)
 
