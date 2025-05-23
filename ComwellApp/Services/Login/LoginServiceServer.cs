@@ -1,5 +1,6 @@
 using Blazored.LocalStorage;
 using System.Net.Http.Json;
+
 using Shared;
 
 namespace ComwellApp.Services.Login;
@@ -8,7 +9,6 @@ namespace ComwellApp.Services.Login;
 public class LoginServiceServer : ILoginService
 {
     // URL til backend-API (kan evt. ændres til en config senere)
-    private readonly string serverUrl = "http://localhost:5237";
 
     private readonly HttpClient client; // Brugt til HTTP-kald til backend
     private readonly ILocalStorageService localStorage; // Brugt til at gemme data lokalt i browseren (fx den loggede bruger)
@@ -37,7 +37,8 @@ public class LoginServiceServer : ILoginService
         try
         {
             // POST til backendens login-endpoint
-            var response = await client.PostAsJsonAsync($"{serverUrl}/api/users/login", body);
+            var response = await client.PostAsJsonAsync("api/users/login", body);
+
 
             // Hvis login fejler (forkert kode, manglende bruger), så returnér false
             if (!response.IsSuccessStatusCode)
@@ -68,7 +69,7 @@ public class LoginServiceServer : ILoginService
 
     public async Task<Bruger[]> GetAll()
     {
-        return await client.GetFromJsonAsync<Bruger[]>($"{serverUrl}/api/users");
+        return await client.GetFromJsonAsync<Bruger[]>("api/users");
     }
 
  
@@ -84,7 +85,7 @@ public class LoginServiceServer : ILoginService
 
     public async Task<List<Bruger>> HentEleverTilElevplanVisning()
     {
-        var elever = await client.GetFromJsonAsync<List<Bruger>>($"{serverUrl}/api/brugere/elever");
+        var elever = await client.GetFromJsonAsync<List<Bruger>>("api/brugere/elever");
         return elever ?? new List<Bruger>();
     }
 
@@ -93,7 +94,7 @@ public class LoginServiceServer : ILoginService
    
     public async Task OpdaterBruger(Bruger bruger)
     {
-        var response = await client.PutAsJsonAsync($"{serverUrl}/api/users/{bruger._id}", bruger);
+        var response = await client.PutAsJsonAsync($"api/users/{bruger._id}", bruger);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -111,7 +112,7 @@ public class LoginServiceServer : ILoginService
             NyKode = nyKode
         };
 
-        var response = await client.PutAsJsonAsync($"{serverUrl}/api/users/{brugerId}/skiftkode", requestBody);
+        var response = await client.PutAsJsonAsync($"api/users/{brugerId}/skiftkode", requestBody);
 
         if (!response.IsSuccessStatusCode)
         {
