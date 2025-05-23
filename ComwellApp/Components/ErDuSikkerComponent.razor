@@ -1,17 +1,20 @@
 @using Microsoft.AspNetCore.Components
 
 <ModalDialog @ref="ModalRef" Title="@Title">
-    <div class="modal-content">
-        <p>@Message</p>
-        <div class="form-footer">
-            <button class="cancel-button" @onclick="Cancel">Annuller</button>
-            <button class="delete-button" @onclick="Confirm">Bekræft sletning</button>
+    <div class="bekraeft-modal-body">
+        <p class="bekraeft-tekst">@Message</p>
+        <div class="bekraeft-knapper">
+            <button class="bekraeft-annuller-knap" @onclick="Cancel">@CancelButtonText</button>
+            <button class="bekraeft-slet-knap" @onclick="Confirm">@ConfirmButtonText</button>
         </div>
     </div>
 </ModalDialog>
 
+
 @code {
     private ModalDialog? ModalRef;
+    [Parameter] public string ConfirmButtonText { get; set; } = "Bekræft sletning";
+    [Parameter] public string CancelButtonText { get; set; } = "Annuller";
 
     [Parameter] public string Title { get; set; } = "Bekræft sletning";
     [Parameter] public string Message { get; set; } = "Er du sikker på, at du vil slette?";

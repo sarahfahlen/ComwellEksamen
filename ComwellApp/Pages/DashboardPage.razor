@@ -9,6 +9,7 @@
 @inject ILokationService loService
 
 
+@using ComwellApp.Components
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Login
 @using ComwellApp.Services.Lokation
@@ -144,9 +145,10 @@
             <div class="item-card">
                 @if ((loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "HR") && elev.Aktiv)
                 {
-                    <button class="arkiver-knap-oevre" @onclick="@(() => Arkiver(elev))">
+                    <button class="arkiver-knap-oevre" @onclick="@(() => ForberedArkivering(elev))">
                         Arkiver
                     </button>
+
                 }
                 <div class="item-grid">
                     <!-- Venstre kolonne med navn og kontakt -->
@@ -190,7 +192,19 @@
             </div>
         }
     }
+    @if (!string.IsNullOrWhiteSpace(successMessage))
+    {
+        <BekræftelsesComponent Message="@successMessage" OnDismiss="@(() => successMessage = null)" />
+    }
+
 </div>
+<ErDuSikkerComponent @ref="arkiverElevDialog"
+                     Title="Bekræft arkivering"
+                     Message="Er du sikker på, at du vil arkivere denne elev?"
+                     ConfirmButtonText="Bekræft arkivering"
+                     CancelButtonText="Annuller"
+                     OnConfirm="BekraeftArkivering" />
+
 @code {
     // Den bruger der er logget ind i systemet
     private Bruger? loggedIn;
@@ -215,6 +229,9 @@
     private List<string> erhvervMuligheder = new();
     //matcher elevens lokationId med lokationen fra backend
     private Dictionary<int, Lokation> lokationLookup = new();
+    private ErDuSikkerComponent? arkiverElevDialog;
+    private Bruger? elevTilArkivering;
+    private string? successMessage;
 
     // Når siden loades (komponent initialiseres), henter vi data
     protected override async Task OnInitializedAsync()
@@ -517,16 +534,31 @@
         return $"{http.BaseAddress?.ToString().TrimEnd('/')}/api/brugere/hent-profilbillede/{Path.GetFileName(filnavn)}";
     }
     
-    private async Task Arkiver(Bruger elev)
+    private void ForberedArkivering(Bruger elev)
     {
+        elevTilArkivering = elev;
+        arkiverElevDialog?.Open();
+    }
+    private async Task BekraeftArkivering()
+    {
+        if (elevTilArkivering == null)
+            return;
+
         try
         {
-            await bService.ArkiverElev(elev); // kalder vores arkiveringsmetode fra service
-            await OpdaterFiltreredeElever(); //opdaterer visningen, så det kun er de aktive der vises
+            await bService.ArkiverElev(elevTilArkivering);
+            await OpdaterFiltreredeElever();
+
+            successMessage = $"Eleven \"{elevTilArkivering.Navn}\" blev arkiveret.";
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[Dashboard] FEJL ved arkivering: {ex.Message}");
         }
+
+        elevTilArkivering = null;
     }
+
+
+
 }

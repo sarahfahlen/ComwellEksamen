@@ -503,7 +503,17 @@
 <ErDuSikkerComponent @ref="sletDelmaalDialog"
                      Title="Bekræft sletning af delmål"
                      Message="Er du sikker på, at du vil slette dette delmål?"
+                     ConfirmButtonText="Bekræft sletning"
+                     CancelButtonText="Annuller"
                      OnConfirm="BekræftSletning" />
+
+
+<ErDuSikkerComponent @ref="fortrydGennemfoertDialog"
+                     Title="Fortryd gennemført delmål"
+                     Message="Er du sikker på, at du vil sætte dette delmål til 'Ikke gennemført'?"
+                     ConfirmButtonText="Skift status"
+                     CancelButtonText="Behold som gennemført"
+                     OnConfirm="BekraeftFortrydGennemfoert" />
 
 
 
@@ -583,6 +593,9 @@
 
     private ErDuSikkerComponent? sletDelmaalDialog;
     private (int maalId, int delmaalId)? delmaalTilSletning;
+    private ErDuSikkerComponent? fortrydGennemfoertDialog;
+    private Delmaal? delmaalTilFortrydelse;
+
 
     // 🟡 Kører hver gang der kommer parametre (fx ved skift af elevId i URL)
     protected override async Task OnParametersSetAsync()
@@ -861,17 +874,20 @@
     //Funktion der bruges til at ændre status på et delmaal
     private async Task ToggleStatus(Delmaal delmaal)
     {
-        //Tjekker om den som er logget ind har rettighederne
         if (loggedIn == null || !(loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "FaglærtKok" || loggedIn.Rolle == "Admin"))
             return;
 
-        //ændrer status på delmålet, og gemmer det i loggen
-        delmaal.Status = !delmaal.Status;
-
+        // Hvis delmålet ER gennemført og man vil fortryde
         if (delmaal.Status)
         {
-            delmaal.StatusLog = $"Gennemført af {loggedIn.Navn} d. {DateTime.Now:dd/MM-yyyy}";
+            delmaalTilFortrydelse = delmaal;
+            fortrydGennemfoertDialog?.Open();
+            return;
         }
+
+        // Ellers toggles til gennemført direkte
+        delmaal.Status = true;
+        delmaal.StatusLog = $"Gennemført af {loggedIn.Navn} d. {DateTime.Now:dd/MM-yyyy}";
 
         try
         {
@@ -884,6 +900,28 @@
 
         StateHasChanged();
     }
+
+    private async Task BekraeftFortrydGennemfoert()
+    {
+        if (delmaalTilFortrydelse == null)
+            return;
+
+        delmaalTilFortrydelse.Status = false;
+        delmaalTilFortrydelse.StatusLog = $"Ikke længere gennemført (ændret af {loggedIn?.Navn} d. {DateTime.Now:dd/MM-yyyy})";
+
+        try
+        {
+            await eService.OpdaterStatus(minPlan, delmaalTilFortrydelse);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[BekraeftFortrydGennemfoert] FEJL: {ex.Message}");
+        }
+
+        delmaalTilFortrydelse = null;
+        StateHasChanged();
+    }
+
 
     private void ToggleOpgaveStatus(Opgaver opgave)
     {
@@ -1058,10 +1096,14 @@
         if (delmaalTilSletning.HasValue)
         {
             var (maalId, delmaalId) = delmaalTilSletning.Value;
+
             await SletDelmaal(minPlan, valgtPeriodeIndex, maalId, delmaalId);
             delmaalTilSletning = null;
+
+            successMessage = "Delmål slettet";
         }
     }
+
  
     //bruges til at åbne opgavevisningen
     private void AabenOpgaver(Delmaal delmaal)

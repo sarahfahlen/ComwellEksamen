@@ -1,0 +1,53 @@
+.bekraeft-modal-body {
+    padding: 2rem;
+    background-color: #fffaf1;
+    border-radius: 16px;
+    box-shadow: 0 6px 24px rgba(210, 184, 148, 0.2);
+    animation: fadeSlideIn 0.4s ease;
+}
+
+.bekraeft-tekst {
+    color: #333;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.bekraeft-knapper {
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+}
+
+.bekraeft-annuller-knap {
+    background-color: #f3ede5;
+    color: #333;
+    border: 2px solid #d2b894;
+    border-radius: 8px;
+    padding: 0.6rem 1.4rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.bekraeft-annuller-knap:hover {
+    background-color: #e6ddcc;
+    transform: translateY(-1px);
+}
+
+.bekraeft-slet-knap {
+    background-color: #c6a979;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.4rem;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.bekraeft-slet-knap:hover {
+    background-color: #b89f7d;
+    transform: translateY(-1px);
+}
