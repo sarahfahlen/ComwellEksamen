@@ -3,6 +3,7 @@
 @using ComwellApp.Services.Elevplan
 @using ComwellApp.Services.Login
 @using Shared
+@using Shared.ViewModeller
 @inject ILocalStorageService localStorage
 @inject NavigationManager navManager
 @inject ILoginService lService
@@ -81,7 +82,7 @@
         <ul class="deadline-list">
             @foreach (var d in deadlines)
             {
-                <li>@d</li>
+                <li>@d.DelmaalTitel - om @d.AntalDageTilDeadline dage</li>
             }
         </ul>
     </div>
@@ -180,7 +181,7 @@
     [Inject] private IElevplanService eService { get; set; }
     [Inject] private IBrugereService bService { get; set; }
 
-    private List<string> deadlines = new();
+    private List<DelmaalDeadlineVisning> deadlines = new();
 
 
     protected override async Task OnInitializedAsync()
@@ -189,12 +190,10 @@
 
         if (currentUser != null && currentUser.Rolle == "Elev")
         {
-            var kommende = await eService.HentKommendeDeadlines(currentUser._id);
-            deadlines = kommende
-                .Select(d => $"{d.Titel} – {d.Deadline?.ToString("dd.MM.yyyy")}")
-                .ToList();
+            deadlines = await eService.HentDeadlinesSomVisning(currentUser._id);
         }
     }
+
 
 
     private void ToggleMenu()

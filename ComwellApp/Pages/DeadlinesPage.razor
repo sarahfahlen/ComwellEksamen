@@ -3,10 +3,12 @@
 @inject ILoginService lService
 @inject IBrugereService bService
 @inject IElevplanService eService
+
 @using ComwellApp.Services.Brugere
 @using ComwellApp.Services.Elevplan
 @using ComwellApp.Services.Login
 @using Shared
+@using Shared.ViewModeller
 
 <div class="overskrift-tilbage">
 <h3 class="overskrift">Oversigt over deadlines</h3>
@@ -28,7 +30,7 @@ else if (!alleDeadlines.Any())
 else
 {
     <div class="elevkort-grid">
-        @foreach (var gruppe in alleDeadlines.GroupBy(d => d.Navn))
+        @foreach (var gruppe in alleDeadlines.GroupBy(d => d.ElevNavn))
         {
             var elevId = gruppe.Key.Replace(" ", "_");
 
@@ -44,8 +46,12 @@ else
                             }
                             else if (loggedIn.Rolle == "Køkkenchef")
                             {
+                                var overskredetAntal = gruppe.Count(d => d.ErOverskredet);
                                 var kommendeAntal = gruppe.Count(d => !d.ErOverskredet);
-                                <span class="badge kommende">@kommendeAntal kommende</span>
+                                @if (overskredetAntal > 0){
+                                    <span class="badge overskredet">@overskredetAntal overskredne</span>
+                                }
+                                <span class="badge kommende">@kommendeAntal deadlines de næste 30 dage</span>
                             }
 
                         </div>
@@ -61,25 +67,18 @@ else
                     @foreach (var d in gruppe)
                     {
                         <div class="deadline-kort">
-                            <div class="titel">@d.Titel</div>
+                            <div class="titel">@d.DelmaalTitel</div>
                             <div class="dato">Deadline: <strong>@d.Deadline?.ToString("dd.MM.yyyy")</strong></div>
                             <div class="status @(d.ErOverskredet ? "overskredet" : "kommende")">
                                 @if (d.ErOverskredet)
                                 {
-                                    var dageSiden = d.Deadline.HasValue
-                                        ? DateOnly.FromDateTime(DateTime.Today).DayNumber - d.Deadline.Value.DayNumber
-                                        : 0;
-                                    <span>Overskredet – @dageSiden @(dageSiden == 1 ? "dag" : "dage") siden</span>
+                                    <span>Overskredet – @d.DageOverskredet @(d.DageOverskredet == 1 ? "dag" : "dage") siden</span>
                                 }
                                 else
                                 {
-                                    <span>Kommende</span>
+                                    <span>Kommende - @d.AntalDageTilDeadline @(d.AntalDageTilDeadline == 1 ? "dag" : "dage") til deadline</span>
                                 }
                             </div>
-                            @if (!string.IsNullOrWhiteSpace(d.DeadlineKommentar))
-                            {
-                                <div class="kommentar">@d.DeadlineKommentar</div>
-                            }
                         </div>
                     }
                 </div>
@@ -90,7 +89,7 @@ else
 
 @code {
     private Bruger? loggedIn;
-    private List<DelmaalVisning> alleDeadlines = new();
+    private List<DelmaalDeadlineVisning> alleDeadlines = new();
     private HashSet<string> åbneElever = new();
 
     protected override async Task OnInitializedAsync()
@@ -98,7 +97,7 @@ else
         loggedIn = await lService.GetUserLoggedIn();
         if (loggedIn == null || loggedIn.Rolle == "Elev") return;
         
-        alleDeadlines = await eService.HentDelmaalVisning(loggedIn._id);
+        alleDeadlines = await eService.HentDeadlinesSomVisning(loggedIn._id);
     }
 
 
@@ -113,16 +112,5 @@ else
     private async Task Tilbage()
     {
         await JS.InvokeVoidAsync("history.back");
-    }
-
-    public class DelmaalVisning
-    {
-        public string Navn { get; set; } = "";
-        public string Lokation { get; set; } = "";
-        public string Erhverv { get; set; } = "";
-        public string Titel { get; set; } = "";
-        public DateOnly? Deadline { get; set; }
-        public string? DeadlineKommentar { get; set; }
-        public bool ErOverskredet { get; set; }
     }
 }

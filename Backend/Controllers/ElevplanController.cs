@@ -1,7 +1,7 @@
 using Backend.Repositories.Interface;
-using ComwellApp.Pages;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
+using Shared.ViewModeller;
 
 namespace Backend.Controllers;
 
@@ -198,37 +198,7 @@ public class ElevplanController : ControllerBase
 
         return typer ?? new List<string>();
     }
-
-    [HttpGet("kommendedeadlines/{brugerId:int}")]
-    public async Task<ActionResult<List<Delmaal>>> HentKommendeDeadlines(int brugerId)
-    {
-        try
-        {
-            var iDag = DateOnly.FromDateTime(DateTime.Today);
-            var om7Dage = iDag.AddDays(7);
-
-            var elevplan = await elevplanRepo.HentElevplanMedMaal(brugerId, -1); // -1 = alle perioder
-            if (elevplan == null)
-                return NotFound("Elevplan ikke fundet.");
-
-            var delmaal = elevplan.ListPerioder
-                .SelectMany(p => p.ListMaal)
-                .SelectMany(m => m.ListDelmaal)
-                .Where(d => d.Deadline.HasValue &&
-                            !d.Status &&
-                            d.Deadline.Value >= iDag &&
-                            d.Deadline.Value <= om7Dage)
-                .OrderBy(d => d.Deadline)
-                .ToList();
-
-            return Ok(delmaal);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[HentKommendeDeadlines] FEJL: {ex.Message}");
-            return BadRequest("Kunne ikke hente kommende deadlines.");
-        }
-    }
+    
     [HttpPut("igangopdatering/{elevplanId:int}")]
     public async Task<IActionResult> OpdaterIgang(int elevplanId, [FromBody] Delmaal delmaal)
     {
@@ -268,106 +238,91 @@ public class ElevplanController : ControllerBase
         var relativePath = Path.Combine("uploads", "billeder", fileName).Replace("\\", "/");
         return Ok(relativePath);
     }
-   
-    [HttpGet("deadlines-raw/{adminId}")]
-    public async Task<ActionResult<Dictionary<string, List<Delmaal>>>> HentDeadlinesRaw(int adminId)
+[HttpGet("visningsdeadlines/{brugerId}")]
+public async Task<ActionResult<List<DelmaalDeadlineVisning>>> HentDeadlinesSomVisning(int brugerId)
+{
+    try{
+    //opretter en tom liste som bruges til at samle alle visnings-objekter til deadline
+    var visninger = new List<DelmaalDeadlineVisning>();
+    var idag = DateOnly.FromDateTime(DateTime.Today);
+
+    var alleBrugere = await brugereRepo.HentAlle();
+    //finder bruger som er logget ind (brugerId) - dette bruges til at styre hvad der skal indgå i listen
+    var currentUser = alleBrugere.FirstOrDefault(b => b._id == brugerId);
+
+    if (currentUser == null)
+        return BadRequest("Bruger ikke fundet.");
+
+    foreach (var elev in alleBrugere)
     {
-        try
+        //Henter hele elevplanen for alle elever (-1 sørger for vi får alle perioder)
+        var plan = await elevplanRepo.HentElevplanMedMaal(elev._id, -1);
+        if (plan == null) continue;
+
+        bool erKoekkenchefForElev = plan.Ansvarlig?._id == currentUser._id;
+
+        var delmaalListe = plan.ListPerioder
+            .SelectMany(p => p.ListMaal)
+            .SelectMany(m => m.ListDelmaal);
+
+        IEnumerable<Delmaal> relevante = Enumerable.Empty<Delmaal>();
+
+        //hvis rolle = adin eller hr, så samles alle delmål som er overskredne og ikke gennemført
+        if (currentUser.Rolle is "Admin" or "HR")
         {
-            var idag = DateOnly.FromDateTime(DateTime.Today);
-            var resultat = new Dictionary<string, List<Delmaal>>();
-
-            var brugere = await brugereRepo.HentAlle();
-
-            foreach (var bruger in brugere)
-            {
-                var plan = await elevplanRepo.HentElevplanMedMaal(bruger._id, 0); // midlertidig
-                if (plan == null || plan.ListPerioder == null) continue;
-
-                foreach (var periode in plan.ListPerioder)
-                {
-                    var delmaalListe = periode.ListMaal
-                        .SelectMany(m => m.ListDelmaal)
-                        .Where(d => d.Deadline.HasValue && !d.Status)
-                        .ToList();
-
-                    if (delmaalListe.Any())
-                    {
-                        if (!resultat.ContainsKey(bruger.Navn))
-                            resultat[bruger.Navn] = new List<Delmaal>();
-
-                        resultat[bruger.Navn].AddRange(delmaalListe);
-                    }
-                }
-            }
-
-            return Ok(resultat);
+            relevante = delmaalListe.Where(d => d.Deadline.HasValue && d.Deadline.Value < idag && !d.Status);
         }
-        catch (Exception ex)
+        //ellers samles alle delmål som ikke er gennemført - og som senest er 30 dage i fremtiden
+        else if (currentUser.Rolle == "Køkkenchef" && erKoekkenchefForElev)
         {
-            Console.WriteLine($"[HentDeadlinesRaw] FEJL: {ex.Message}");
-            return BadRequest("Kunne ikke hente deadlines.");
+            relevante = delmaalListe.Where(d =>
+                d.Deadline.HasValue &&
+                !d.Status &&
+                (
+                    d.Deadline.Value < idag || 
+                    (d.Deadline.Value >= idag && d.Deadline.Value <= idag.AddDays(30)) 
+                ));
+        }
+        else if (currentUser.Rolle == "Elev" && elev._id == currentUser._id)
+        {
+            relevante = delmaalListe.Where(d =>
+                d.Deadline.HasValue &&
+                !d.Status &&
+                d.Deadline.Value >= idag &&
+                d.Deadline.Value <= idag.AddDays(7));
+        }
+        
+        string lokationNavn = "Ukendt";
+        if (elev.AfdelingId.HasValue)
+        {
+            var lokation = await lokationRepo.HentLokationViaId(elev.AfdelingId.Value);
+            lokationNavn = lokation?.LokationNavn ?? "Ukendt";
+        }
+    
+        relevante = relevante.OrderBy(d => d.Deadline).ToList(); //sikrer at vi sorterer i korrekt rækkefølge
+
+        foreach (var d in relevante)
+        {
+            visninger.Add(new Shared.ViewModeller.DelmaalDeadlineVisning
+            {
+                ElevNavn = elev.Navn,
+                Lokation = lokationNavn,
+                Erhverv = elev.Erhverv ?? "Ukendt",
+                DelmaalTitel = d.Titel,
+                Deadline = d.Deadline,
+                ErOverskredet = d.Deadline < idag,
+                DageOverskredet = d.Deadline < idag ? idag.DayNumber - d.Deadline.Value.DayNumber : null,
+                AntalDageTilDeadline = d.Deadline >= idag ? d.Deadline.Value.DayNumber - idag.DayNumber : null
+            });
         }
     }
-    [HttpGet("visningsdeadlines/{brugerId}")]
-    public async Task<ActionResult<List<DeadlinesPage.DelmaalVisning>>> HentDeadlinesSomVisning(int brugerId)
-    {
-        var visninger = new List<DeadlinesPage.DelmaalVisning>();
-        var idag = DateOnly.FromDateTime(DateTime.Today);
-
-        var alleBrugere = await brugereRepo.HentAlle();
-        var currentUser = alleBrugere.FirstOrDefault(b => b._id == brugerId);
-
-        if (currentUser == null)
-            return BadRequest("Bruger ikke fundet.");
-
-        foreach (var elev in alleBrugere)
-        {
-            var plan = await elevplanRepo.HentElevplanMedMaal(elev._id, -1);
-            if (plan == null) continue;
-
-            bool erKoekkenchefForElev = plan.Ansvarlig?._id == currentUser._id;
-
-            var delmaalListe = plan.ListPerioder
-                .SelectMany(p => p.ListMaal)
-                .SelectMany(m => m.ListDelmaal);
-
-            IEnumerable<Delmaal> relevante = Enumerable.Empty<Delmaal>();
-
-            if (currentUser.Rolle is "Admin" or "HR")
-            {
-                relevante = delmaalListe.Where(d => d.Deadline.HasValue && d.Deadline.Value < idag && !d.Status);
-            }
-            else if (currentUser.Rolle == "Køkkenchef" && erKoekkenchefForElev)
-            {
-                relevante = delmaalListe.Where(d => d.Deadline.HasValue && !d.Status);
-            }
-
-            string lokationNavn = "Ukendt";
-            if (elev.AfdelingId.HasValue)
-            {
-                var lokation = await lokationRepo.HentLokationViaId(elev.AfdelingId.Value);
-                lokationNavn = lokation?.LokationNavn ?? "Ukendt";
-            }
-
-            foreach (var d in relevante)
-            {
-                visninger.Add(new DeadlinesPage.DelmaalVisning
-                {
-                    Navn = elev.Navn,
-                    Lokation = lokationNavn,
-                    Erhverv = elev.Erhverv ?? "Ukendt",
-                    Titel = d.Titel,
-                    Deadline = d.Deadline,
-                    DeadlineKommentar = d.DeadlineKommentar,
-                    ErOverskredet = d.Deadline < idag
-                });
-            }
-        }
-
-        return Ok(visninger);
+    //returnerer listen af visnings-objekter som bruges til frotend
+    return Ok(visninger);
     }
-
-
-
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[HentDeadlines] FEJL: {ex.Message}");
+        return BadRequest("Kunne ikke hente deadlines objekter.");
+    }
+}
 }

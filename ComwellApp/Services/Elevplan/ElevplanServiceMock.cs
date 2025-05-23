@@ -1,5 +1,6 @@
 using ComwellApp.Pages;
 using Shared;
+using Shared.ViewModeller;
 
 namespace ComwellApp.Services.Elevplan;
 
@@ -132,17 +133,12 @@ public class ElevplanServiceMock : IElevplanService
         throw new NotImplementedException();
     }
 
-    public Task<List<Delmaal>> HentKommendeDeadlines(int brugerId)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task OpdaterIgang(Shared.Elevplan plan, Delmaal delmaal)
     {
         throw new NotImplementedException();
     }
 
-    public Task<List<DeadlinesPage.DelmaalVisning>> HentDelmaalVisning(int loggedInId)
+    public Task<List<DelmaalDeadlineVisning>> HentDeadlinesSomVisning(int brugerId)
     {
         throw new NotImplementedException();
     }

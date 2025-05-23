@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using ComwellApp.Pages;
 using Shared;
+using Shared.ViewModeller;
 
 namespace ComwellApp.Services.Elevplan;
 
@@ -270,20 +271,6 @@ public class ElevplanServiceServer : IElevplanService
         return await response.Content.ReadFromJsonAsync<List<string>>() ?? new();
     }
 
-    public async Task<List<Delmaal>> HentKommendeDeadlines(int brugerId)
-    {
-        var response = await http.GetAsync($"api/elevplan/kommendedeadlines/{brugerId}");
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var fejl = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"[HentKommendeDeadlines] FEJL: {fejl}");
-            return new();
-        }
-
-        return await response.Content.ReadFromJsonAsync<List<Delmaal>>() ?? new();
-    }
-
     public async Task OpdaterIgang(Elevplan plan, Delmaal delmaal)
     {
         var response = await http.PutAsJsonAsync($"api/elevplan/igangopdatering/{plan._id}", delmaal);
@@ -295,16 +282,19 @@ public class ElevplanServiceServer : IElevplanService
             throw new Exception("Kunne ikke opdatere 'Igang' status.");
         }
     }
-    public async Task<List<DeadlinesPage.DelmaalVisning>> HentDelmaalVisning(int brugerId)
+    public async Task<List<DelmaalDeadlineVisning>> HentDeadlinesSomVisning(int brugerId)
     {
         var response = await http.GetAsync($"api/elevplan/visningsdeadlines/{brugerId}");
+
         if (!response.IsSuccessStatusCode)
         {
-            Console.WriteLine("[HentDelmaalVisning] FEJL: " + await response.Content.ReadAsStringAsync());
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[HentDeadlinesSomVisning] FEJL: {fejl}");
             return new();
         }
 
-        return await response.Content.ReadFromJsonAsync<List<DeadlinesPage.DelmaalVisning>>() ?? new();
+        return await response.Content.ReadFromJsonAsync<List<DelmaalDeadlineVisning>>() ?? new();
     }
+
 
 }

@@ -1,5 +1,6 @@
 using ComwellApp.Pages;
 using Shared;
+using Shared.ViewModeller;
 using ElevplanModel = Shared.Elevplan;
 
 namespace ComwellApp.Services.Elevplan;
@@ -31,10 +32,9 @@ public interface IElevplanService
     
     Task<List<Maal>> HentMaalFraPeriode(int elevplanId, int periodeIndex);
     Task<List<string>> HentDelmaalTyperFraPeriode(int elevplanId, int periodeIndex);
-
-    Task<List<Delmaal>> HentKommendeDeadlines(int brugerId);
     
     Task OpdaterIgang(Shared.Elevplan plan, Delmaal delmaal);
 
-    Task<List<DeadlinesPage.DelmaalVisning>> HentDelmaalVisning(int loggedInId);
+    Task<List<DelmaalDeadlineVisning>> HentDeadlinesSomVisning(int brugerId);
+
 }

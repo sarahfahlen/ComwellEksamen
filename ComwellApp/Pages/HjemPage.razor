@@ -9,6 +9,7 @@
 @using ComwellApp.Services.Login
 @using ComwellApp.Services.Lokation
 @using Shared
+@using Shared.ViewModeller
 
 <PageTitle>Hjem</PageTitle>
 
@@ -33,7 +34,7 @@
                     @foreach (var deadline in kommendeDeadlines.Take(2))
                     {
                         <li>
-                            <strong>@deadline.Titel</strong> – @deadline.Deadline?.ToString("dd.MM.yyyy")
+                            <strong>@deadline.DelmaalTitel</strong> om @deadline.AntalDageTilDeadline dage
                         </li>
                     }
                 </ul>
@@ -82,18 +83,13 @@
     {
         <div class="modal-overlay" @onclick="LukDeadlinesModal">
             <div class="modal-content" @onclick:stopPropagation>
-                <h5>Alle deadlines – næste 7 dage</h5>
+                <h5>Alle deadlines de næste 7 dage</h5>
 
                 <ul>
                     @foreach (var d in kommendeDeadlines)
                     {
                         <li style="margin-bottom: 0.75rem;">
-                            <strong>@d.Titel</strong> – @d.Deadline?.ToString("dd.MM.yyyy")
-                            @if (!string.IsNullOrWhiteSpace(d.DeadlineKommentar))
-                            {
-                                <br/>
-                                <small><em>@d.DeadlineKommentar</em></small>
-                            }
+                            <strong>@d.DelmaalTitel</strong> – @d.AntalDageTilDeadline dage til deadline d. @d.Deadline?.ToString("dd.MM.yyyy")
                         </li>
                     }
                 </ul>
@@ -117,7 +113,7 @@
 
     // Styrer om modalen (kontaktinfo) vises eller ej
     private bool visModal = false;
-    private List<Delmaal> kommendeDeadlines = new();
+    private List<DelmaalDeadlineVisning> kommendeDeadlines = new();
 
     [Inject] private IElevplanService eService { get; set; }
     [Inject] private IBrugereService bService { get; set; }
@@ -134,7 +130,7 @@
 
         if (loggedIn.Rolle == "Elev")
         {
-            kommendeDeadlines = await eService.HentKommendeDeadlines(loggedIn._id);
+            kommendeDeadlines = await eService.HentDeadlinesSomVisning(loggedIn._id);
         }
         
         if (loggedIn.AfdelingId != null)
