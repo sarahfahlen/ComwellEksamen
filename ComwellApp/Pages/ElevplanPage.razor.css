@@ -191,6 +191,10 @@
     transition: clip-path 0.6s ease-in-out, width 1s ease-in-out;
 }
 
+.søgningfejlbesked {
+    margin-top: 7rem !important;
+}
+
 /* === Sidepanel søg og filter === */
 .sidepanel-overskrift {
     font-size: 1.1rem;
@@ -291,7 +295,7 @@
         padding: 1rem;
         border-radius: 12px;
         margin-top: 3rem;
-        margin-bottom: -3rem;
+        margin-bottom: -1rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
@@ -307,6 +311,10 @@
         margin-right: -10rem !important;
         margin-left: -1.5rem !important;
     }
+
+    .tilfoej-delmaal-knap {
+        margin-bottom: -5.5rem;
+    }
 }
 
 .tilfoej-delmaal-knap {
@@ -319,7 +327,7 @@
     font-weight: 500;
     transition: background-color 0.3s ease, transform 0.2s ease;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    margin-bottom: -7.5rem;
+    margin-bottom: -5.5rem;
 }
 
 .tilfoej-delmaal-knap:hover {

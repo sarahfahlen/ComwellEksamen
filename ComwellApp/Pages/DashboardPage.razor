@@ -5,6 +5,7 @@
 @inject ILoginService lService
 @inject IBrugereService bService
 @inject IJSRuntime JS
+@inject HttpClient http
 @inject ILokationService loService
 
 
@@ -79,7 +80,7 @@
         </div>
 
         <div class="filter-row">
-            <div class="filter-item" style="flex: 2.05;">
+            <div class="filter-item" style="flex: 1;">
                 <label>Erhverv</label>
                 <InputSelect class="form-control" @bind-Value="ValgtErhverv" @oninput="OnChangeErhverv">
                     <option value="">Alle erhverv</option>
@@ -89,7 +90,14 @@
                     }
                 </InputSelect>
             </div>
-
+            <div class="filter-item" style="flex: 1;">
+                <label>Aktiv status</label>
+                <InputSelect class="form-control" @bind-Value="ValgtAktivStatusValg" @oninput="OnChangeAktivStatus">
+                    <option value="alle">Alle</option>
+                    <option value="aktive">Aktive elever</option>
+                    <option value="arkiverede">Arkiverede elever</option>
+                </InputSelect>
+            </div>
             <div class="filter-item" style="flex: 1;">
                 <label>Deadline</label>
                 <InputSelect class="form-control" @bind-Value="ValgtDeadlineValg" @oninput="OnChangeDeadline" TValue="string">
@@ -134,6 +142,12 @@
             string gradient = "linear-gradient(to right, #e4a1a1 0%, #e4bfa1 33%, #e4d6a1 66%, #6fa96f 100%)";
 
             <div class="item-card">
+                @if ((loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "HR") && elev.Aktiv)
+                {
+                    <button class="arkiver-knap-oevre" @onclick="@(() => Arkiver(elev))">
+                        Arkiver
+                    </button>
+                }
                 <div class="item-grid">
                     <!-- Venstre kolonne med navn og kontakt -->
                     <div class="item-left">
@@ -154,31 +168,24 @@
 
                     <!-- Højre kolonne med billede -->
                     <div class="item-right">
-                        <img src="@GetProfilbilledeSti(elev.Billede)" alt="Profilbillede" class="profilbillede-dashboard" />
+                        <img src="@GetProfilbilledeSti(elev.Billede)" alt="Profilbillede" class="profilbillede-dashboard"/>
 
                     </div>
                 </div>
 
                 <!-- Knappen til at gå til elevers elevplan -->
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                @if (
-                    (loggedIn.Rolle == "Elev" && elev.AfdelingId == loggedIn.AfdelingId) ||
-                    (loggedIn._id == elev._id && loggedIn.Rolle == "Elev") ||
-                    (loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "FaglærtKok")
-                )
+                    @if (
+                        (loggedIn.Rolle == "Elev" && elev.AfdelingId == loggedIn.AfdelingId) ||
+                        (loggedIn._id == elev._id && loggedIn.Rolle == "Elev") ||
+                        (loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "Køkkenchef" || loggedIn.Rolle == "HR" || loggedIn.Rolle == "FaglærtKok")
+                    )
 
-                {
-                    <button class="btn btn-outline-secondary se-elevplan-knap" @onclick="@(() => GåTilElevplan(elev._id))">
-                        Se elevplan
-                    </button>
-                }
-
-                @if ((loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "HR") && elev.Aktiv)
-                {
-                    <button class="btn btn-outline-danger arkiver-knap" @onclick="@(() => Arkiver(elev))">
-                        Arkiver elev
-                    </button>
-                }
+                    {
+                        <button class="btn btn-outline-secondary se-elevplan-knap" @onclick="@(() => GåTilElevplan(elev._id))">
+                            Se elevplan
+                        </button>
+                    }
                 </div>
             </div>
         }
@@ -312,7 +319,8 @@
             valgtDeadline,
             loggedIn.Rolle,
             valgtStatus,
-            afdelingTilFiltrering
+            afdelingTilFiltrering,
+        valgtAktivStatus
         );
 
         StateHasChanged();
@@ -328,6 +336,7 @@
         valgtDeadline = null;
         valgtStatus = "";
         valgtAfdelingId = null;
+        valgtAktivStatus = true;
 
         // Opdater visningen med alle elever
         await OpdaterFiltreredeElever();
@@ -393,6 +402,33 @@
             _ = OpdaterFiltreredeElever();
         }
     }
+    
+    private string ValgtAktivStatusValg
+    {
+        get => valgtAktivStatus switch
+        {
+            true => "aktive",
+            false => "arkiverede",
+            _ => "alle"
+        };
+        set
+        {
+            valgtAktivStatus = value switch
+            {
+                "aktive" => true,
+                "arkiverede" => false,
+                _ => null
+            };
+            _ = OpdaterFiltreredeElever();
+        }
+    }
+
+    private async Task OnChangeAktivStatus(ChangeEventArgs e)
+    {
+        ValgtAktivStatusValg = e.Value?.ToString() ?? "alle";
+        await OpdaterFiltreredeElever();
+    }
+
     
     private async Task OnChangeDeadline(ChangeEventArgs e)
     {
@@ -465,19 +501,20 @@
             valgtDeadline,
             loggedIn.Rolle,
             valgtStatus,
-            valgtAfdelingId
+            valgtAfdelingId,
+            valgtAktivStatus
         );
 
         using var streamRef = new DotNetStreamReference(new MemoryStream(excelData));
         await JS.InvokeVoidAsync("downloadFileFromStream", "Elever.xlsx", streamRef);
     }
 
-    private string GetProfilbilledeSti(string? sti)
+    private string GetProfilbilledeSti(string? filnavn)
     {
-        if (string.IsNullOrEmpty(sti) || sti == "billeder/intetprofilbillede.jpg")
-            return "/billeder/intetprofilbillede.jpg"; // frontend
+        if (string.IsNullOrEmpty(filnavn) || filnavn == "billeder/intetprofilbillede.jpg")
+            return "/billeder/intetprofilbillede.jpg"; // fallback fra wwwroot
 
-        return $"http://localhost:5237{sti}"; // backend
+        return $"{http.BaseAddress?.ToString().TrimEnd('/')}/api/brugere/hent-profilbillede/{Path.GetFileName(filnavn)}";
     }
     
     private async Task Arkiver(Bruger elev)
@@ -492,8 +529,4 @@
             Console.WriteLine($"[Dashboard] FEJL ved arkivering: {ex.Message}");
         }
     }
-
-
-
-
 }

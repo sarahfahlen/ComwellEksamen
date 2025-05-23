@@ -34,10 +34,8 @@
                     <!-- Profilbillede med ikon-overlay og mulighed for at vælge et nyt billede -->
                     <div class="profilbillede-wrapper">
                         <label for="billedeUpload" class="profilbillede-label">
-                            <img src="@GetProfilbilledeSti()" alt="Profilbillede" class="profilbillede" />
-
-
-
+                            <img src="@GetProfilbilledeSti(bruger?.Billede)" alt="Profilbillede" class="profilbillede" />
+                            
                             <div class="overlay-ikon">
                                 <!-- Tjek-ikon ovenpå billedet -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
@@ -260,18 +258,20 @@
             var response = await http.DeleteAsync($"api/brugere/slet-billede?sti={Uri.EscapeDataString(bruger.Billede)}");
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine("Billede slettet fra serveren.");
+                Console.WriteLine("✅ Billede slettet fra serveren.");
             }
             else
             {
-                Console.WriteLine("Fejl ved sletning af billede.");
+                Console.WriteLine("❌ Fejl ved sletning af billede.");
             }
         }
 
+        // Sæt standardbillede
         bruger!.Billede = "billeder/intetprofilbillede.jpg";
         await localStorage.SetItemAsync("bruger", bruger);
         StateHasChanged();
     }
+
  
 
     // Viser eller skjuler adgangskodeformularen og nulstiller feltdata
@@ -281,14 +281,14 @@
         fejlbesked = "";
         nuværendeKode = nyKode = bekraeftNyKode = "";
     }
-    private string GetProfilbilledeSti()
+    private string GetProfilbilledeSti(string? filnavn)
     {
-        if (string.IsNullOrEmpty(bruger?.Billede) || bruger.Billede == "billeder/intetprofilbillede.jpg")
-        {
-            return "/billeder/intetprofilbillede.jpg"; // hentes fra frontendens wwwroot
-        }
+        if (string.IsNullOrEmpty(filnavn) || filnavn == "billeder/intetprofilbillede.jpg")
+            return "/billeder/intetprofilbillede.jpg"; // fallback fra wwwroot
 
-        return $"http://localhost:5237{bruger.Billede}"; // hentes fra backendens wwwroot
+        return $"{http.BaseAddress?.ToString().TrimEnd('/')}/api/brugere/hent-profilbillede/{Path.GetFileName(filnavn)}";
     }
+
+
 
 }

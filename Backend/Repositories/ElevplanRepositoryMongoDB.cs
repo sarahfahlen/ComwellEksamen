@@ -173,7 +173,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         string? valgtMaalNavn,
         string? valgtDelmaalType,
         string? soegeord,
-        bool? filterStatus)
+        string? filterStatus)
     {
         // Finder brugeren baseret på brugerId
         var bruger = await BrugerCollection.Find(b => b._id == brugerId).FirstOrDefaultAsync();
@@ -205,7 +205,11 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
                     .Where(d =>
                         (string.IsNullOrWhiteSpace(valgtDelmaalType) || d.DelmaalType == valgtDelmaalType) &&
                         (string.IsNullOrWhiteSpace(søg) || d.Titel.ToLower().Contains(søg)) &&
-                        (filterStatus == null || d.Status == filterStatus)
+                        (filterStatus == null
+                         || (filterStatus == "true" && d.Status)
+                         || (filterStatus == "false" && !d.Status)
+                         || (filterStatus == "igang" && d.Igang && !d.Status))
+
                     )
                     .ToList()
             })

@@ -61,16 +61,17 @@ public class ElevplanServiceMock : IElevplanService
         throw new NotImplementedException();
     }
 
-    public List<Maal> HentFiltreredeMaal(Shared.Elevplan plan, int periodeIndex, string? valgtMaalNavn,
-        string? valgtDelmaalType, string? søgeord, bool? filterStatus)
+    public Task<List<Maal>> HentFiltreredeMaal(int brugerId, int periodeIndex, string? valgtMaalNavn,
+        string? valgtDelmaalType, string? soegeord, string? filterStatus)
     {
+        var plan = alleElevplaner.FirstOrDefault(p => p._id == brugerId);
         if (plan == null || plan.ListPerioder.Count <= periodeIndex)
-            return new List<Maal>();
+            return Task.FromResult(new List<Maal>());
 
         var periode = plan.ListPerioder[periodeIndex];
-        var søg = søgeord?.ToLower() ?? "";
+        var søg = soegeord?.ToLower() ?? "";
 
-        return periode.ListMaal
+        var result = periode.ListMaal
             .Where(m => string.IsNullOrWhiteSpace(valgtMaalNavn) || m.MaalNavn == valgtMaalNavn)
             .Select(m => new Maal
             {
@@ -80,12 +81,17 @@ public class ElevplanServiceMock : IElevplanService
                     .Where(d =>
                         (string.IsNullOrWhiteSpace(valgtDelmaalType) || d.DelmaalType == valgtDelmaalType) &&
                         (string.IsNullOrWhiteSpace(søg) || d.Titel.ToLower().Contains(søg)) &&
-                        (filterStatus == null || d.Status == filterStatus)
+                        (filterStatus == null
+                         || (filterStatus == "true" && d.Status)
+                         || (filterStatus == "false" && !d.Status)
+                         || (filterStatus == "igang" && d.Igang && !d.Status))
                     )
                     .ToList()
             })
             .Where(m => m.ListDelmaal.Any())
             .ToList();
+
+        return Task.FromResult(result);
     }
 
 

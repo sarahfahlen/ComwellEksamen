@@ -139,7 +139,7 @@
                              style="background:@gradient; clip-path: inset(0 calc(@(100 - procentInt)%) 0 0);"></div>
                     </div>
 
-                    <p style="margin-bottom: -3rem;">@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den
+                    <p style="margin-bottom: -1rem;">@AntalDelmaalOpnaaet() / @AntalDelmaalIAlt() delmål opnået i den
                         valgte praktikperiode</p>
 
                     <!-- Mobilvisning: søgning og filter -->
@@ -180,11 +180,11 @@
                                     </InputSelect>
 
                                     <label class="mt-2">Status</label>
-                                    <InputSelect class="form-control" @bind-value="ValgtStatus"
-                                                 @oninput="OnChangeStatus">
+                                    <InputSelect class="form-control" @bind-value="ValgtStatus" @oninput="OnChangeStatus">
                                         <option value="">Alle</option>
                                         <option value="true">Gennemført</option>
                                         <option value="false">Ikke gennemført</option>
+                                        <option value="igang">Igangværende</option>
                                     </InputSelect>
                                 </div>
                             }
@@ -251,7 +251,7 @@
                     <label for="skole-select">Vælg skole</label>
                     <InputSelect id="skole-select" class="form-control" @bind-Value="valgtSkoleIdAsString" @onchange="OnChangedSkoleValgt"
                     >
-                    <option value="0">-- Vælg --</option>
+                        <option value="0">-- Vælg --</option>
                         @foreach (var skole in skoler)
                         {
                             <option value="@skole._id">@skole.LokationNavn</option>
@@ -285,7 +285,8 @@
                                               OnToggleIgang="ToggleIgangStatus"
                                               OnRedigerDelmaal="AabenRedigerDelmaal"
                                               OnVisOpgaver="AabenOpgaver"
-                                              OnSletDelmaal="delmaal => SletDelmaal(minPlan, valgtPeriodeIndex, maal._id, delmaal._id)"/>
+                                              OnSletDelmaal="delmaal => ForberedSletning(maal._id, delmaal._id)"
+                            />
                         }
                         else
                         {
@@ -298,7 +299,7 @@
                 }
                 else
                 {
-                    <p><em>Ingen mål matcher dine filtre for denne periode.</em></p>
+                    <p class="søgningfejlbesked"><em>Ingen mål matcher dine filtre for denne periode.</em></p>
                 }
             </div>
 
@@ -331,7 +332,7 @@
                                     @if (!string.IsNullOrEmpty(elevKommentarBillede))
                                     {
                                         <div class="kommentar-billede-container right-align">
-                                            <img src="@GetProfilbilledeSti(elevKommentarBillede)"
+                                            <img src="@GetKommentarSti(elevKommentarBillede)"
                                                  class="kommentar-billede"
                                                  @onclick="@(() => ÅbnStortBillede(elevKommentarBillede))"
                                                  style="cursor: zoom-in;" />
@@ -359,7 +360,7 @@
                                 @if (!string.IsNullOrEmpty(elevKommentarBillede))
                                 {
                                     <div class="kommentar-billede-container right-align">
-                                        <img src="@GetProfilbilledeSti(elevKommentarBillede)"
+                                        <img src="@GetKommentarSti(elevKommentarBillede)"
                                              class="kommentar-billede"
                                              @onclick="@(() => ÅbnStortBillede(elevKommentarBillede))"
                                              style="cursor: zoom-in;" />
@@ -392,7 +393,7 @@
                                     @if (!string.IsNullOrEmpty(kokKommentarBillede))
                                     {
                                         <div class="kommentar-billede-container right-align">
-                                            <img src="@GetProfilbilledeSti(kokKommentarBillede)"
+                                            <img src="@GetKommentarSti(kokKommentarBillede)"
                                                  class="kommentar-billede"
                                                  @onclick="@(() => ÅbnStortBillede(kokKommentarBillede))"
                                                  style="cursor: zoom-in;" />
@@ -419,7 +420,7 @@
                                 @if (!string.IsNullOrEmpty(kokKommentarBillede))
                                 {
                                     <div class="kommentar-billede-container right-align">
-                                        <img src="@GetProfilbilledeSti(kokKommentarBillede)"
+                                        <img src="@GetKommentarSti(kokKommentarBillede)"
                                              class="kommentar-billede"
                                              @onclick="@(() => ÅbnStortBillede(kokKommentarBillede))"
                                              style="cursor: zoom-in;" />
@@ -490,6 +491,7 @@
                             <option value="">Alle</option>
                             <option value="true">Gennemført</option>
                             <option value="false">Ikke gennemført</option>
+                            <option value="igang">Igangværende</option>
                         </InputSelect>
                     </div>
                 }
@@ -498,6 +500,11 @@
         </div>
     }
 </div>
+<ErDuSikkerComponent @ref="sletDelmaalDialog"
+                     Title="Bekræft sletning af delmål"
+                     Message="Er du sikker på, at du vil slette dette delmål?"
+                     OnConfirm="BekræftSletning" />
+
 
 
 @code {
@@ -547,7 +554,7 @@
     private string soegeord = "";
     private string valgtMaalNavn = "";
     private string valgtDelmaalType = "";
-    private bool? valgtStatus = null;
+    private string? valgtStatus = null;
     private bool visFilter = false;
 
     // Det valgte mål ID fra dropdown
@@ -574,6 +581,8 @@
     private List<Lokation> skoler = new();
     private int? valgtSkoleId;
 
+    private ErDuSikkerComponent? sletDelmaalDialog;
+    private (int maalId, int delmaalId)? delmaalTilSletning;
 
     // 🟡 Kører hver gang der kommer parametre (fx ved skift af elevId i URL)
     protected override async Task OnParametersSetAsync()
@@ -657,7 +666,12 @@
     
     private async Task AabenRedigerSkole()
     {
-        skoler = await loService.HentSkoleLokationer();
+        // Hvis skoler allerede er hentet, hent ikke igen
+        if (!skoler.Any())
+        {
+            skoler = await loService.HentSkoleLokationer();
+        }
+
         valgtSkoleId = aktivPeriode?.SkoleId;
         skoleDialog?.Open();
     }
@@ -674,7 +688,7 @@
         }
 
 
-        await bService.OpdaterBruger(valgtElev);
+        await bService.OpdaterSkoleId(valgtElev._id, valgtPeriodeIndex, valgtSkoleId);
 
         skoleDialog?.Close();
         StateHasChanged();
@@ -987,47 +1001,19 @@
 
     private string ValgtStatus
     {
-        get
-        {
-            if (valgtStatus == true) return "true";
-            if (valgtStatus == false) return "false";
-            return ""; // "Alle"
-        }
+        get => valgtStatus ?? "";
         set
         {
-            if (string.IsNullOrWhiteSpace(value))
-                valgtStatus = null;
-            else if (value == "true")
-                valgtStatus = true;
-            else if (value == "false")
-                valgtStatus = false;
-
+            valgtStatus = string.IsNullOrWhiteSpace(value) ? null : value;
             _ = OpdaterFiltreredeMaal();
         }
     }
 
-
     // Kaldes når bruger ændrer status-filteret (gennemført/ikke gennemført)
     private async Task OnChangeStatus(ChangeEventArgs e)
     {
-        var value = e.Value?.ToString();
-
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            valgtStatus = null;
-        }
-        else if (value.Equals("true", StringComparison.OrdinalIgnoreCase))
-        {
-            valgtStatus = true;
-        }
-        else if (value.Equals("false", StringComparison.OrdinalIgnoreCase))
-        {
-            valgtStatus = false;
-        }
-
-        Console.WriteLine($"Status valgt: {valgtStatus}");
-
-        await OpdaterFiltreredeMaal();
+        ValgtStatus = e.Value?.ToString() ?? "";
+        await Task.CompletedTask;
     }
 
     //bruges til at åbne tilføj modal dialog
@@ -1060,7 +1046,23 @@
             Console.WriteLine($"[Elevplan.razor] FEJL ved sletning af delmål: {ex.Message}");
         }
     }
+    private void ForberedSletning(int maalId, int delmaalId)
+    {
+        delmaalTilSletning = (maalId, delmaalId);
+        sletDelmaalDialog?.Open();
+    }
 
+
+    private async Task BekræftSletning()
+    {
+        if (delmaalTilSletning.HasValue)
+        {
+            var (maalId, delmaalId) = delmaalTilSletning.Value;
+            await SletDelmaal(minPlan, valgtPeriodeIndex, maalId, delmaalId);
+            delmaalTilSletning = null;
+        }
+    }
+ 
     //bruges til at åbne opgavevisningen
     private void AabenOpgaver(Delmaal delmaal)
     {
@@ -1090,12 +1092,13 @@
         await eService.OpdaterIgang(minPlan, d);
     }
 
-    private string GetProfilbilledeSti(string? sti)
+    private string GetKommentarSti(string? filnavn)
     {
-        if (string.IsNullOrEmpty(sti) || sti == "billeder/intetprofilbillede.jpg")
-            return "/billeder/intetprofilbillede.jpg"; // hentes fra frontendens wwwroot
+        if (string.IsNullOrEmpty(filnavn) || filnavn == "billeder/intetprofilbillede.jpg")
+            return "/billeder/intetprofilbillede.jpg"; // fallback fra frontendens wwwroot
 
-        return $"http://localhost:5237/{sti.TrimStart('/')}"; // hentes fra backendens wwwroot
+        // Trim evt. afsluttende skråstreg og saml med endpoint
+        return $"{http.BaseAddress?.ToString().TrimEnd('/')}/api/elevplan/hent-kommentarbillede/{filnavn}";
     }
     private async Task<string> UploadKommentarBilledeAsync(IBrowserFile file, string rolle)
     {
@@ -1116,17 +1119,26 @@
 
         return "";
     }
+    
+
 
     private void ÅbnStortBillede(string? sti)
     {
-        stortBilledeUrl = GetProfilbilledeSti(sti);
+        stortBilledeUrl = GetKommentarSti(sti);
     }
 
     private void LukLightbox()
     {
         stortBilledeUrl = null;
     }
-    
+    private string GetProfilbilledeSti(string? filnavn)
+    {
+        if (string.IsNullOrEmpty(filnavn) || filnavn == "billeder/intetprofilbillede.jpg")
+            return "/billeder/intetprofilbillede.jpg"; // fallback fra wwwroot
+
+        return $"{http.BaseAddress?.ToString().TrimEnd('/')}/api/brugere/hent-profilbillede/{Path.GetFileName(filnavn)}";
+    }
+
     private int BeregnDageTilbage()
     {
         var idag = DateOnly.FromDateTime(DateTime.Today);

@@ -35,6 +35,6 @@ public interface IElevplanRepository
         string? valgtMaalNavn, // Mål-navn filter – fx "Intro"
         string? valgtDelmaalType, // Delmålstype filter – fx "Samtale"
         string? soegeord, // Søgeord – bruges til fritekstsøgning i delmålstitel
-        bool? filterStatus // Filter på gennemført-status: true/false/null
+        string? filterStatus // Filter på gennemført-status: true/false/null
     );
 }

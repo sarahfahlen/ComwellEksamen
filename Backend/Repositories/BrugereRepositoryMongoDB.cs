@@ -91,6 +91,20 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         await BrugerCollection.ReplaceOneAsync(filter, bruger);
     }
 
+    public async Task OpdaterSkoleId(int brugerId, int periodeIndex, int? nySkoleId)
+    {
+        // Udregner stien ned til det felt vi vil opdatere
+        var fieldPath = $"MinElevplan.ListPerioder.{periodeIndex}.SkoleId";
+
+        // Filteret sikrer at vi kun opdaterer den bruger med korrekt _id
+        var filter = Builders<Bruger>.Filter.Eq(b => b._id, brugerId);
+
+        // Her bygger vi en update, som kun sætter skoleId for den angivne periode
+        var update = Builders<Bruger>.Update.Set(fieldPath, nySkoleId);
+
+        // Opdaterer kun det ene felt i dokumentet – hurtigere og sikrere end ReplaceOneAsync
+        await BrugerCollection.UpdateOneAsync(filter, update);
+    }
 
     // Henter alle brugere med rollen "Køkkenchef".
     // Bruges fx når man skal vælge en ansvarlig køkkenchef i opret-elev formularen.
@@ -128,7 +142,7 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
     
     public async Task<List<Bruger>> HentFiltreredeElever(
         string soegeord, string kursus, string erhverv,
-        int? deadline, string rolle, string? status, int? afdelingId) 
+        int? deadline, string rolle, string? status, int? afdelingId, bool? aktiv) 
     {
         var filterBuilder = Builders<Bruger>.Filter;
         var filter = filterBuilder.Eq(b => b.Rolle, "Elev"); // Vis kun elever
@@ -138,7 +152,6 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         {
             filter &= filterBuilder.Eq(b => b.AfdelingId, afdelingId.Value);
         }
-
 
         // Almindelige filtre
         if (!string.IsNullOrWhiteSpace(erhverv))
@@ -192,6 +205,11 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
                     .SelectMany(p => p.ListMaal)
                     .SelectMany(m => m.ListDelmaal)
                     .Any(d => d.Status == ønsketStatus));
+        }
+        
+        if (aktiv.HasValue)
+        {
+            filter &= filterBuilder.Eq(b => b.Aktiv, aktiv.Value); // 👈 NYT
         }
         
         return await BrugerCollection.Find(filter).ToListAsync();

@@ -15,6 +15,8 @@ public interface IBrugereRepository
     Task<List<string>> HentKurser();
     Task<Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId);
     Task OpdaterBruger(Bruger bruger);
+    //Bliver brugt til at opdatere skolelokation(id) til en elev på pågældene periode
+    Task OpdaterSkoleId(int brugerId, int periodeIndex, int? nySkoleId);
     Task<List<Bruger>> HentFiltreredeElever(
         string soegeord,
         string kursus,
@@ -22,7 +24,8 @@ public interface IBrugereRepository
         int? deadline,
         string rolle,
         string status,
-        int? afdelingId);
+        int? afdelingId,
+        bool? aktiv);
     // I IBrugereRepository.cs
     Task OpdaterBillede(int brugerId, string sti);
 

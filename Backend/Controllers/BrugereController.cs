@@ -144,13 +144,20 @@ public class BrugereController : ControllerBase
         [FromQuery] int? deadline,
         [FromQuery] string? rolle,
         [FromQuery] string? status,
-        [FromQuery] string? afdelingId) // <-- ny parameter
+        [FromQuery] string? afdelingId,
+        [FromQuery] string? aktiv)
     {
         // Pars afdelingId fra string → int?
         int? parsedAfdelingId = null;
         if (int.TryParse(afdelingId, out int temp))
         {
             parsedAfdelingId = temp;
+        }
+        
+        bool? parsedAktiv = null;
+        if (bool.TryParse(aktiv, out bool aktivBool))
+        {
+            parsedAktiv = aktivBool;
         }
 
         // Kald repository med parsedAfdelingId
@@ -161,7 +168,8 @@ public class BrugereController : ControllerBase
             deadline,
             rolle ?? "",
             status ?? "",
-            parsedAfdelingId);
+            parsedAfdelingId,
+            parsedAktiv);
 
         return Ok(elever);
     }
@@ -174,6 +182,27 @@ public class BrugereController : ControllerBase
         return Ok();
     }
 
+    // Endpoint til at opdatere SkoleId i en specifik praktikperiode
+    [HttpPut("{brugerId}/skole")]
+    public async Task<IActionResult> OpdaterSkoleId(
+        int brugerId,                // ID på brugeren der skal opdateres
+        [FromQuery] int periodeIndex, // Hvilken praktikperiode det gælder (0, 1, 2, ...)
+        [FromQuery] int? nySkoleId)   // Den nye skoleId vi ønsker at sætte (kan være null for at rydde feltet)
+    {
+        try
+        {
+            // Kalder repository-metoden, som opdaterer feltet i MongoDB
+            await _repo.OpdaterSkoleId(brugerId, periodeIndex, nySkoleId);
+
+            // Returnerer 200 OK hvis det lykkes
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            // Hvis noget fejler – fx bruger ikke fundet – send 400 BadRequest med fejlbesked
+            return BadRequest($"Fejl ved opdatering af SkoleId: {ex.Message}");
+        }
+    }
     
     [HttpGet("eksporter-elever")]
     public async Task<IActionResult> EksporterEleverTilExcel(
@@ -183,10 +212,14 @@ public class BrugereController : ControllerBase
         [FromQuery] int? deadline,
         [FromQuery] string? rolle,
         [FromQuery] string? status,
-        [FromQuery] int? afdelingId, 
+        [FromQuery] int? afdelingId,
+        [FromQuery] string? aktiv,
         [FromServices] ExcelEksportService excelService)
     {
-        // Henter listen af elever baseret på filtrering
+        bool? parsedAktiv = null;
+        if (bool.TryParse(aktiv, out var aktivBool))
+            parsedAktiv = aktivBool;
+
         var elever = await _repo.HentFiltreredeElever(
             soegeord ?? "",
             kursus ?? "",
@@ -194,8 +227,8 @@ public class BrugereController : ControllerBase
             deadline,
             rolle ?? "Elev",
             status ?? "",
-            afdelingId // ← ændret her
-        );
+            afdelingId,
+            parsedAktiv);
 
         var excelBytes = excelService.GenererExcelMedNavne(elever);
 
@@ -246,7 +279,10 @@ public class BrugereController : ControllerBase
         if (!allowedExtensions.Contains(fileExtension))
             return BadRequest("Kun JPG og PNG filer er tilladt.");
 
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "billeder", "brugere");
+        // GEMMER IKKE I wwwroot, men i Azure HOME (fx /home/billeder/brugere)
+        var root = Environment.GetEnvironmentVariable("HOME") ?? Directory.GetCurrentDirectory();
+        var uploadsFolder = Path.Combine(root, "billeder", "brugere");
+
         if (!Directory.Exists(uploadsFolder))
             Directory.CreateDirectory(uploadsFolder);
 
@@ -256,34 +292,47 @@ public class BrugereController : ControllerBase
         await using var stream = new FileStream(filePath, FileMode.Create);
         await file.CopyToAsync(stream);
 
-        var relativePath = $"/billeder/brugere/{uniqueFileName}"; // ← DENNE STREG ER VIGTIG
+        // Gem kun filnavn (ikke hele path)
+        var relativePath = $"billeder/brugere/{uniqueFileName}";
 
         await _repo.OpdaterBillede(brugerId, relativePath);
 
         return Ok(relativePath);
     }
-    [HttpDelete("slet-billede")]
-    public IActionResult SletBillede([FromQuery] string sti)
+    [HttpGet("hent-profilbillede/{filnavn}")]
+    public IActionResult HentProfilBillede(string filnavn)
     {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(sti) || sti == "billeder/intetprofilbillede.jpg")
-                return BadRequest("Kan ikke slette standardbilledet.");
+        var root = Environment.GetEnvironmentVariable("HOME") ?? Directory.GetCurrentDirectory();
+        var uploadFolder = Path.Combine(root, "billeder", "brugere");
+        var filePath = Path.Combine(uploadFolder, filnavn);
 
-            var absolutSti = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", sti.TrimStart('/'));
+        if (!System.IO.File.Exists(filePath))
+            return NotFound();
 
-            if (System.IO.File.Exists(absolutSti))
-            {
-                System.IO.File.Delete(absolutSti);
-                return Ok("Billede slettet.");
-            }
-
-            return NotFound("Filen blev ikke fundet.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[SletBillede] FEJL: {ex.Message}");
-            return BadRequest("Der opstod en fejl under sletning.");
-        }
+        var contentType = "image/" + Path.GetExtension(filePath).TrimStart('.');
+        var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        return File(stream, contentType);
     }
+
+    [HttpDelete("slet-billede")]
+    public IActionResult SletProfilbillede([FromQuery] string sti)
+    {
+        if (string.IsNullOrWhiteSpace(sti))
+            return BadRequest("Ingen sti angivet.");
+
+        var filnavn = Path.GetFileName(sti); // sikrer os mod stier udenfor mappen
+
+        var root = Environment.GetEnvironmentVariable("HOME") ?? Directory.GetCurrentDirectory();
+        var uploadFolder = Path.Combine(root, "billeder", "brugere");
+        var filePath = Path.Combine(uploadFolder, filnavn);
+
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.Delete(filePath);
+            return Ok("Billede slettet.");
+        }
+
+        return NotFound("Filen blev ikke fundet.");
+    }
+
 }
