@@ -16,7 +16,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 // HttpClient til API-kald (til backend)
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("http://localhost:5237")
+    BaseAddress = new Uri("https://localhost:5237")
+    // BaseAddress = new Uri("https://comwellworkflow.azurewebsites.net")
 });
 
 // Lokal storage
