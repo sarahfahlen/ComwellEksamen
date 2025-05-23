@@ -26,6 +26,8 @@ public interface IElevplanService
 
     Task TilfoejDelmaal(Shared.Elevplan plan, int maalId, Delmaal nytDelmaal);
     Task OpdaterDelmaal(Shared.Elevplan plan, int periodeIndex, int maalId, Delmaal opdateretDelmaal);
+    Task SletDelmaal(Shared.Elevplan plan, int periodeIndex, int maalId, int delmaalId);
+    
     Task<List<Maal>> HentMaalFraPeriode(int elevplanId, int periodeIndex);
     Task<List<string>> HentDelmaalTyperFraPeriode(int elevplanId, int periodeIndex);
 

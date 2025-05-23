@@ -149,6 +149,22 @@ public class ElevplanController : ControllerBase
             return BadRequest($"Fejl ved opdatering af delmål: {ex.Message}");
         }
     }
+    
+    [HttpDelete("delmaal/{elevplanId:int}/{periodeIndex:int}/{maalId:int}/{delmaalId:int}")]
+    public async Task<IActionResult> SletDelmaal(int elevplanId, int periodeIndex, int maalId, int delmaalId)
+    {
+        try
+        {
+            await elevplanRepo.SletDelmaal(elevplanId, periodeIndex, maalId, delmaalId);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Fejl ved sletning af delmål: {ex.Message}");
+
+        }
+    }
+
 
 
     [HttpGet("maal/{elevplanId:int}/{periodeIndex:int}")]

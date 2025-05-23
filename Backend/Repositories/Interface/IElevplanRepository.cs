@@ -23,7 +23,8 @@ public interface IElevplanRepository
 
     Task OpdaterDelmaal(int elevplanId, int periodeIndex, int maalId, int delmaalId, Delmaal opdateretDelmaal);
 
-
+    Task<bool> SletDelmaal(int elevplanId, int periodeIndex, int maalId, int delmaalId);
+    
     Task<Elevplan?> HentElevplanMedMaal(int elevplanId, int periodeIndex);
 
     Task OpdaterIgangAsync(int elevplanId, Delmaal delmaal);

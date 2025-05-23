@@ -240,6 +240,21 @@ public class ElevplanServiceServer : IElevplanService
             throw new Exception("Kunne ikke opdatere delmål.");
         }
     }
+    
+    public async Task SletDelmaal(Elevplan plan, int periodeIndex, int maalId, int delmaalId)
+    {
+        var response = await http.DeleteAsync(
+            $"api/elevplan/delmaal/{plan._id}/{periodeIndex}/{maalId}/{delmaalId}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var fejl = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[SletDelmaal] FEJL: {fejl}");
+            throw new Exception("Kunne ikke slette delmål.");
+        }
+    }
+
+
 
 
     public async Task<List<Maal>> HentMaalFraPeriode(int elevplanId, int periodeIndex)

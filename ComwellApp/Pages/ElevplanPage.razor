@@ -238,7 +238,8 @@
                                               OnToggleStatus="ToggleStatus"
                                               OnToggleIgang="ToggleIgangStatus"
                                               OnRedigerDelmaal="AabenRedigerDelmaal"
-                                              OnVisOpgaver="AabenOpgaver"/>
+                                              OnVisOpgaver="AabenOpgaver"
+                                              OnSletDelmaal="delmaal => SletDelmaal(minPlan, valgtPeriodeIndex, maal._id, delmaal._id)"/>
                         }
                         else
                         {
@@ -950,6 +951,19 @@
         await InvokeAsync(StateHasChanged);
 
         tilfoejDelmaalDialog?.Open();
+    }
+    
+    private async Task SletDelmaal(Elevplan plan, int periodeIndex, int maalId, int delmaalId)
+    {
+        try
+        {
+            await eService.SletDelmaal(plan, periodeIndex, maalId, delmaalId);
+            await OpdaterFiltreredeMaal(); 
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Elevplan.razor] FEJL ved sletning af delmål: {ex.Message}");
+        }
     }
 
     //bruges til at åbne opgavevisningen

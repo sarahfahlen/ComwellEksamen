@@ -128,6 +128,21 @@
     transform: scale(1.05);
 }
 
+.slet-delmaal-knap {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: transparent;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.slet-delmaal-knap:hover {
+    color: #8c4d4d;
+}
+
+
 @media (max-width: 768px) {
     .delmaal-container {
         grid-template-columns: 1fr; /* én kolonne på mobil */

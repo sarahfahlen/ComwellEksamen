@@ -2,7 +2,16 @@
 <div class="delmaal-container">
     @foreach (var delmaal in maal.ListDelmaal)
     {
-        <div class="delmaal">
+        <div class="delmaal" style="position: relative;">
+            @if (BrugerRolle == "Køkkenchef" || BrugerRolle == "Admin")
+            {
+                <button @onclick="() => OnSletDelmaal.InvokeAsync(delmaal)"
+                        class="slet-delmaal-knap"
+                        title="Slet delmål">
+                    x
+                </button>
+            }
+
 
             <h4 class="delmaal-overskrift">@delmaal.Titel</h4>
             <p>Beskrivelse: @delmaal.Beskrivelse</p>
@@ -102,6 +111,9 @@
 
     //Bruges til at sende delmålet til parent komponenten, så vi kan redigere i det
     [Parameter] public EventCallback<Delmaal> OnRedigerDelmaal { get; set; }
-
+    
+    //Bruges til at sende delmålet til parent, så vi kan slette det
+    [Parameter] public EventCallback<Delmaal> OnSletDelmaal { get; set; }
+    
     [Parameter] public EventCallback<Delmaal> OnToggleIgang { get; set; }
 }

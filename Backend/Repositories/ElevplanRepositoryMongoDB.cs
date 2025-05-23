@@ -270,6 +270,30 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
         await BrugerCollection.ReplaceOneAsync(filter, bruger);
     }
 
+    public async Task<bool> SletDelmaal(int elevplanId, int periodeIndex, int maalId, int delmaalId)
+    {
+        var filter = Builders<Bruger>.Filter.Eq(b => b._id, elevplanId);
+        var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
+        var plan = bruger?.MinElevplan;
+
+        if (plan == null)
+            throw new Exception("Elevplan ikke fundet.");
+
+        var periode = plan.ListPerioder.ElementAtOrDefault(periodeIndex);
+        if (periode == null)
+            throw new Exception("Periode ikke fundet.");
+
+        var maal = periode.ListMaal.FirstOrDefault(m => m._id == maalId);
+        if (maal == null)
+            throw new Exception("Mål ikke fundet.");
+
+        var fjernet = maal.ListDelmaal.RemoveAll(d => d._id == delmaalId);
+        if (fjernet == 0)
+            throw new Exception("Delmål ikke fundet eller kunne ikke fjernes.");
+
+        await BrugerCollection.ReplaceOneAsync(filter, bruger);
+        return true;
+    }
 
     
     public async Task<Elevplan?> HentElevplanMedMaal(int elevplanId, int periodeIndex)
