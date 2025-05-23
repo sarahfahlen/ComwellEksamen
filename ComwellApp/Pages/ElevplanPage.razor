@@ -251,7 +251,7 @@
                     <label for="skole-select">Vælg skole</label>
                     <InputSelect id="skole-select" class="form-control" @bind-Value="valgtSkoleIdAsString" @onchange="OnChangedSkoleValgt"
                     >
-                    <option value="0">-- Vælg --</option>
+                        <option value="0">-- Vælg --</option>
                         @foreach (var skole in skoler)
                         {
                             <option value="@skole._id">@skole.LokationNavn</option>
@@ -285,7 +285,8 @@
                                               OnToggleIgang="ToggleIgangStatus"
                                               OnRedigerDelmaal="AabenRedigerDelmaal"
                                               OnVisOpgaver="AabenOpgaver"
-                                              OnSletDelmaal="delmaal => SletDelmaal(minPlan, valgtPeriodeIndex, maal._id, delmaal._id)"/>
+                                              OnSletDelmaal="delmaal => ForberedSletning(maal._id, delmaal._id)"
+                            />
                         }
                         else
                         {
@@ -498,6 +499,11 @@
         </div>
     }
 </div>
+<ErDuSikkerComponent @ref="sletDelmaalDialog"
+                     Title="Bekræft sletning af delmål"
+                     Message="Er du sikker på, at du vil slette dette delmål?"
+                     OnConfirm="BekræftSletning" />
+
 
 
 @code {
@@ -574,6 +580,8 @@
     private List<Lokation> skoler = new();
     private int? valgtSkoleId;
 
+    private ErDuSikkerComponent? sletDelmaalDialog;
+    private (int maalId, int delmaalId)? delmaalTilSletning;
 
     // 🟡 Kører hver gang der kommer parametre (fx ved skift af elevId i URL)
     protected override async Task OnParametersSetAsync()
@@ -1058,6 +1066,22 @@
         catch (Exception ex)
         {
             Console.WriteLine($"[Elevplan.razor] FEJL ved sletning af delmål: {ex.Message}");
+        }
+    }
+    private void ForberedSletning(int maalId, int delmaalId)
+    {
+        delmaalTilSletning = (maalId, delmaalId);
+        sletDelmaalDialog?.Open();
+    }
+
+
+    private async Task BekræftSletning()
+    {
+        if (delmaalTilSletning.HasValue)
+        {
+            var (maalId, delmaalId) = delmaalTilSletning.Value;
+            await SletDelmaal(minPlan, valgtPeriodeIndex, maalId, delmaalId);
+            delmaalTilSletning = null;
         }
     }
 
