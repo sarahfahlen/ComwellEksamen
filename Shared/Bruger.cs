@@ -24,8 +24,6 @@ public class Bruger
     public DateOnly? StartDato { get; set; }
     
     public DateOnly? SlutDato { get; set;}
-    
-    public string? Kursus { get; set; }
     public int? AfdelingId { get; set; }
     public Elevplan? MinElevplan { get; set; }
 }
