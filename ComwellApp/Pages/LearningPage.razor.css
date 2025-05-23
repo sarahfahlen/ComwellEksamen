@@ -1,3 +1,4 @@
+
 .laering-wrapper {
     display: flex;
     gap: 2rem;
@@ -12,11 +13,12 @@
     border-radius: 10px;
     padding: 1rem;
     height: 75vh;
-    overflow-y: auto; /* tilføjer scroll, hvis det bliver for højt */
+    overflow-y: auto;
     transition: max-height 0.4s ease;
     animation: slideInLeft 0.8s ease;
 }
-.fagområde-navn{
+
+.fagområde-navn {
     color: #fff !important;
     font-size: large !important;
 }
@@ -37,7 +39,7 @@
 }
 
 .laering-dropdown-boks.vis {
-    max-height: 500px; /* tilpas efter behov */
+    max-height: 500px;
     opacity: 1;
     transform: scaleY(1);
     padding-bottom: 1rem;
@@ -48,7 +50,7 @@
     animation: fadeIn 0.8s ease;
 }
 
-.laering-dropdown-knap{
+.laering-dropdown-knap {
     display: flex;
     width: 100%;
     padding: 0.6rem 1rem;
@@ -62,7 +64,7 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
     z-index: 2;
-    position: relative ;
+    position: relative;
     white-space: normal;
     word-wrap: break-word;
     justify-content: space-between;
@@ -80,16 +82,15 @@
     transform: rotate(90deg);
 }
 
-
-.laering-underemne-knap{
+.laering-underemne-knap {
     background-color: #fff;
-    color: #d2b894; 
+    color: #d2b894;
     font-size: 1rem;
     text-align: left;
     border: none;
 }
 
-.laering-dropdown-knap:hover{
+.laering-dropdown-knap:hover {
     background-color: #c6a979;
 }
 
@@ -186,49 +187,6 @@
     animation: fadeIn 0.4s ease;
 }
 
-.quiz-spoergsmaal {
-    margin-bottom: 0.8rem;
-    font-size: 1.05rem;
-    color: #1C2B38;
-}
-
-.quiz-svarliste {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.quiz-svar {
-    background-color: #f9f6f2;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-}
-
-.quiz-svar:hover {
-    background-color: #e8d2b5;;
-    transform: translateY(-1px);
-}
-.quiz-svar:has(input[type="radio"]:checked):hover {
-    background-color: #e8d2b5;
-    transform: translateY(-1px);
-}
-
-.quiz-svar input[type="radio"] {
-    display: none;
-}
-
-.quiz-svar:has(input[type="radio"]:checked) {
-    background-color: #d2b894;
-    color: white;
-    font-weight: bold;
-}
-
 .opskrift-container {
     background-color: #fdf9f4;
     border-left: 4px solid #d2b894;
@@ -245,39 +203,7 @@
     color: #1C2B38;
 }
 
-.opskrift-liste {
-    padding-left: 1.2rem;
-    list-style-type: decimal;
-}
-
-.opskrift-liste li {
-    margin-bottom: 0.4rem;
-    line-height: 1.5;
-}
-
-.opskrift-container {
-    background-color: #fdf9f4;
-    border-left: 4px solid #d2b894;
-    padding: 1rem;
-    margin-top: 1rem;
-    border-radius: 8px;
-    animation: fadeIn 0.4s ease;
-}
-
-.opskrift-titel {
-    margin-bottom: 0.6rem;
-    font-size: 1.05rem;
-    font-weight: bold;
-    color: #1C2B38;
-}
-
 .opskrift-tekst {
-    white-space: pre-wrap;
-    line-height: 1.6;
-    font-size: 0.95rem;
-}
-
-.opskrift-tekst-pre {
     white-space: pre-wrap;
     line-height: 1.6;
     font-size: 0.95rem;
@@ -288,23 +214,7 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideInRight {
-    from { opacity: 0; transform: translateX(20px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
 @keyframes slideInLeft {
     from { opacity: 0; transform: translateX(-20px); }
     to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }

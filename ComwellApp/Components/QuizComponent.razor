@@ -1,0 +1,84 @@
+@using Shared
+
+@if (!erAfsluttet)
+{
+    var spg = Spoergsmaal[aktueltIndex];
+    var valgt = brugerSvar[aktueltIndex];
+
+    <p class="quiz-spoergsmaal">@spg.Tekst</p>
+
+    <div class="quiz-svarliste" @key=aktueltIndex>
+        @for (int i = 0; i < spg.Svar.Count; i++)
+        {
+            <label class="quiz-svar">
+                <input type="radio"
+                       name="@($"spg_{ElementNavn}_{aktueltIndex}")"
+                       value="@i"
+                       checked="@(valgt == i)"
+                       @onchange="(ChangeEventArgs e) => SvarValgt(int.Parse(e.Value.ToString()))" />
+                @spg.Svar[i].Tekst
+            </label>
+        }
+    </div>
+
+    <button class="btn btn-primary" @onclick="Næste">Næste</button>
+
+    <div class="quiz-fremdrift">
+        @for (int i = 0; i < Spoergsmaal.Count; i++)
+        {
+            <span class="quiz-prik @(i == aktueltIndex ? "aktiv" : "")">●</span>
+        }
+    </div>
+}
+else
+{
+    <div class="quiz-resultat">
+        <h5>Du har gennemført quizzen!</h5>
+        <p>Du fik <strong>@AntalKorrekte()</strong> ud af @Spoergsmaal.Count mulige rigtige.</p>
+    </div>
+}
+
+@code {
+    [Parameter] public string ElementNavn { get; set; } = "";
+    [Parameter] public List<Spoergsmaal> Spoergsmaal { get; set; } = new();
+
+    private int aktueltIndex = 0;
+    private List<int?> brugerSvar = new();
+    private bool erAfsluttet = false;
+
+    protected override void OnInitialized()
+    {
+        brugerSvar = Enumerable.Repeat<int?>(null, Spoergsmaal.Count).ToList();
+    }
+
+    private void SvarValgt(int valgtIndex)
+    {
+        brugerSvar[aktueltIndex] = valgtIndex;
+    }
+
+
+    private void Næste()
+    {
+        if (aktueltIndex < Spoergsmaal.Count - 1)
+        {
+            aktueltIndex++;
+        }
+        else
+        {
+            erAfsluttet = true;
+        }
+    }
+
+    private int AntalKorrekte()
+    {
+        int point = 0;
+        for (int i = 0; i < Spoergsmaal.Count; i++)
+        {
+            if (brugerSvar[i].HasValue && brugerSvar[i].Value == Spoergsmaal[i].KorrektIndex)
+            {
+                point++;
+            }
+        }
+        return point;
+    }
+}

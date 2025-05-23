@@ -1,0 +1,70 @@
+/* --- CSS til QuizComponent.razor --- */
+.quiz-spoergsmaal {
+    margin-bottom: 0.8rem;
+    font-size: 1.05rem;
+    color: #1C2B38;
+}
+
+.quiz-svarliste {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.quiz-svar {
+    background-color: #f9f6f2;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.quiz-svar:hover {
+    background-color: #e8d2b5;
+    transform: translateY(-1px);
+}
+
+.quiz-svar input[type="radio"] {
+    display: none;
+}
+
+.quiz-svar:has(input[type="radio"]:checked) {
+    background-color: #d2b894;
+    color: white;
+    font-weight: bold;
+}
+
+.quiz-fremdrift {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.quiz-prik {
+    font-size: 1.2rem;
+    color: #bbb;
+    transition: color 0.3s ease;
+}
+
+.quiz-prik.aktiv {
+    color: #d2b894;
+    font-weight: bold;
+}
+
+.quiz-resultat {
+    margin-top: 1rem;
+    background-color: #fdf9f4;
+    border: 1px solid #d2b894;
+    padding: 1.5rem;
+    border-radius: 10px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

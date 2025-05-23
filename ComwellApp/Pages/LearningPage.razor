@@ -1,5 +1,6 @@
 @page "/learning"
 @using ComwellApp.Services.Learning
+@using ComwellApp.Components
 @using Shared
 
 @inject ILearningService leService
@@ -29,7 +30,6 @@
                         }
                     </div>
                 </div>
-
             }
         }
     </div>
@@ -49,28 +49,16 @@
                         @if (ElementErAaben(element.ElementNavn))
                         {
                             <div class="element-indhold">
-                                @if (element.ElementType == "quiz")
-                                {
-                                    @foreach (var spg in element.ListSpoergsmaal)
-                                    {
-                                        <p class="quiz-spoergsmaal">@spg.Tekst</p>
-                                        <div class="quiz-svarliste">
-                                            @foreach (var svar in spg.Svar)
-                                            {
-                                                <label class="quiz-svar">
-                                                    <input type="radio" name="@spg.Tekst" />
-                                                    @svar.Tekst
-                                                </label>
-                                            }
-                                        </div>
-                                    }
-                                }
-                                else if (element.ElementType == "opskrift")
+                                @if (element.ElementType == "opskrift")
                                 {
                                     <div class="opskrift-container">
                                         <h6 class="opskrift-titel">@element.ElementNavn</h6>
                                         <p class="opskrift-tekst">@element.Beskrivelse</p>
                                     </div>
+                                }
+                                else if (element.ElementType == "quiz")
+                                {
+                                    <QuizComponent ElementNavn="@element.ElementNavn" Spoergsmaal="@element.ListSpoergsmaal" />
                                 }
                             </div>
                         }
@@ -91,6 +79,7 @@
     private Underemne? valgtUnderemne;
     private Dictionary<string, bool> elementAaben = new();
 
+    // Henter alle fagområder ved start og initialiserer dropdown-state
     protected override async Task OnInitializedAsync()
     {
         alleFag = await leService.HentAlleFagomraader();
@@ -100,11 +89,13 @@
         }
     }
 
+    // Åbner/lukker dropdown for fagområde
     private void ToggleDropdown(string fagNavn)
     {
         dropdownAaben[fagNavn] = !dropdownAaben.GetValueOrDefault(fagNavn, false);
     }
-    
+
+    // Åbner/lukker visning af elementindhold (opskrift eller quiz)
     private void ToggleElement(string elementNavn)
     {
         if (elementAaben.ContainsKey(elementNavn))
@@ -113,8 +104,10 @@
             elementAaben[elementNavn] = true;
     }
 
+    // Tjekker om et element er åbent
     private bool ElementErAaben(string elementNavn)
     {
         return elementAaben.TryGetValue(elementNavn, out var erAaben) && erAaben;
     }
 }
+
