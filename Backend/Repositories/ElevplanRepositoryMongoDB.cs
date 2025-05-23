@@ -80,7 +80,7 @@ public class ElevplanRepositoryMongoDB : IElevplanRepository
     public async Task<Kommentar?> GetKommentarAsync(int elevplanId, int delmaalId, string brugerRolle)
     {
         //Finder den rette elevplan, ved at matche elevplanID med det medsendte ID
-        var filter = Builders<Bruger>.Filter.Eq("MinElevplan.ElevplanId", elevplanId);
+        var filter = Builders<Bruger>.Filter.Eq(b => b.MinElevplan._id, elevplanId);
         var bruger = await BrugerCollection.Find(filter).FirstOrDefaultAsync();
 
         if (bruger?.MinElevplan == null)
