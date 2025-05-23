@@ -157,6 +157,31 @@ public class BrugereServiceServer : IBrugereService
         response.EnsureSuccessStatusCode(); // fejler med exception hvis noget går galt
     }
     
+    // Denne metode opdaterer SkoleId for en specifik praktikperiode i en brugers elevplan
+    public async Task OpdaterSkoleId(int brugerId, int periodeIndex, int? nySkoleId)
+    {
+        // Bygger URL’en til API-kaldet. Eksempel:
+        // Hvis nySkoleId er null, sendes 0 for at signalere "ingen skole valgt"
+        var url = $"api/brugere/{brugerId}/skole?periodeIndex={periodeIndex}&nySkoleId={(nySkoleId ?? 0)}";
+
+        // Sender en HTTP PUT-request til backend-API’et (body er null – al data ligger i URL’en)
+        var response = await http.PutAsync(url, null);
+
+        // Tjekker om serveren returnerede succes (statuskode 200 OK)
+        if (!response.IsSuccessStatusCode)
+        {
+            // Læser fejlbesked fra serveren
+            var fejl = await response.Content.ReadAsStringAsync();
+
+            // Logger fejlen i konsollen
+            Console.WriteLine($"[OpdaterSkoleId] FEJL: {fejl}");
+
+            // Smider en exception så frontend ved, at opdateringen mislykkedes
+            throw new Exception("Kunne ikke opdatere SkoleId.");
+        }
+    }
+
+    
     public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string kursus, string erhverv, int? deadline, string rolle, string? status, int? afdelingId)
     {
         var url = $"api/brugere/filtreredeelever?soegeord={Uri.EscapeDataString(soegeord)}" +
