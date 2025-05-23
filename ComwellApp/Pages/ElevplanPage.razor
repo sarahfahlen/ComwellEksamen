@@ -657,7 +657,12 @@
     
     private async Task AabenRedigerSkole()
     {
-        skoler = await loService.HentSkoleLokationer();
+        // Hvis skoler allerede er hentet, hent ikke igen
+        if (!skoler.Any())
+        {
+            skoler = await loService.HentSkoleLokationer();
+        }
+
         valgtSkoleId = aktivPeriode?.SkoleId;
         skoleDialog?.Open();
     }
@@ -674,7 +679,7 @@
         }
 
 
-        await bService.OpdaterBruger(valgtElev);
+        await bService.OpdaterSkoleId(valgtElev._id, valgtPeriodeIndex, valgtSkoleId);
 
         skoleDialog?.Close();
         StateHasChanged();

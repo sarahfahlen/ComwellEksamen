@@ -174,6 +174,27 @@ public class BrugereController : ControllerBase
         return Ok();
     }
 
+    // Endpoint til at opdatere SkoleId i en specifik praktikperiode
+    [HttpPut("{brugerId}/skole")]
+    public async Task<IActionResult> OpdaterSkoleId(
+        int brugerId,                // ID på brugeren der skal opdateres
+        [FromQuery] int periodeIndex, // Hvilken praktikperiode det gælder (0, 1, 2, ...)
+        [FromQuery] int? nySkoleId)   // Den nye skoleId vi ønsker at sætte (kan være null for at rydde feltet)
+    {
+        try
+        {
+            // Kalder repository-metoden, som opdaterer feltet i MongoDB
+            await _repo.OpdaterSkoleId(brugerId, periodeIndex, nySkoleId);
+
+            // Returnerer 200 OK hvis det lykkes
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            // Hvis noget fejler – fx bruger ikke fundet – send 400 BadRequest med fejlbesked
+            return BadRequest($"Fejl ved opdatering af SkoleId: {ex.Message}");
+        }
+    }
     
     [HttpGet("eksporter-elever")]
     public async Task<IActionResult> EksporterEleverTilExcel(

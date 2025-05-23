@@ -91,6 +91,20 @@ public class BrugereRepositoryMongoDB : IBrugereRepository
         await BrugerCollection.ReplaceOneAsync(filter, bruger);
     }
 
+    public async Task OpdaterSkoleId(int brugerId, int periodeIndex, int? nySkoleId)
+    {
+        // Udregner stien ned til det felt vi vil opdatere
+        var fieldPath = $"MinElevplan.ListPerioder.{periodeIndex}.SkoleId";
+
+        // Filteret sikrer at vi kun opdaterer den bruger med korrekt _id
+        var filter = Builders<Bruger>.Filter.Eq(b => b._id, brugerId);
+
+        // Her bygger vi en update, som kun sætter skoleId for den angivne periode
+        var update = Builders<Bruger>.Update.Set(fieldPath, nySkoleId);
+
+        // Opdaterer kun det ene felt i dokumentet – hurtigere og sikrere end ReplaceOneAsync
+        await BrugerCollection.UpdateOneAsync(filter, update);
+    }
 
     // Henter alle brugere med rollen "Køkkenchef".
     // Bruges fx når man skal vælge en ansvarlig køkkenchef i opret-elev formularen.

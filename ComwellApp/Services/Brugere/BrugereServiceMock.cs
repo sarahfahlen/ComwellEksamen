@@ -123,6 +123,11 @@ public class BrugereServiceMock : IBrugereService
         throw new NotImplementedException();
     }
 
+    public Task OpdaterSkoleId(int brugerId, int periodeIndex, int? nySkoleId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<List<Bruger>> HentFiltreredeElever(string soegeord, string kursus, string erhverv, int? deadline, string rolle, string? status, int? afdelingId)
     {
         throw new NotImplementedException();
