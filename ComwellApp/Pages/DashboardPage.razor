@@ -160,6 +160,7 @@
                 </div>
 
                 <!-- Knappen til at gå til elevers elevplan -->
+                <div style="display: flex; justify-content: space-between; align-items: center;">
                 @if (
                     (loggedIn.Rolle == "Elev" && elev.AfdelingId == loggedIn.AfdelingId) ||
                     (loggedIn._id == elev._id && loggedIn.Rolle == "Elev") ||
@@ -171,6 +172,14 @@
                         Se elevplan
                     </button>
                 }
+
+                @if ((loggedIn?.Rolle == "Admin" || loggedIn.Rolle == "HR") && elev.Aktiv)
+                {
+                    <button class="btn btn-outline-danger arkiver-knap" @onclick="@(() => Arkiver(elev))">
+                        Arkiver elev
+                    </button>
+                }
+                </div>
             </div>
         }
     }
@@ -191,6 +200,7 @@
     private string valgtErhverv = "";
     private string valgtDeadlineValg = ""; // "overskredet" eller ""
     private int? valgtDeadline = null;
+    private bool? valgtAktivStatus = true; // true = kun aktive vises, false = kun arkiverede
     private List<string> kurser = new();
     private string valgtStatus = "";
     private bool visFilter = false;
@@ -221,23 +231,20 @@
         FiltrerElever(); // sortér elever baseret på rolle/lokation
     }
 
-    //  elever: fx kun dem med samme lokation som brugeren – hvis rollen kræver det
+    //HR/Admin får vist alle elever med aktiv status, elev/faglært/køkkenchef får alle aktive på egen lokation
     private void FiltrerElever()
     {
         if (loggedIn == null) return;
 
-        // For elev, faglært kok og køkkenchef vises kun elever fra samme lokation
-        if (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok" || loggedIn.Rolle == "Køkkenchef")
-        {
-            elever = alleElever
-                .Where(e => e.AfdelingId != null && e.AfdelingId == loggedIn.AfdelingId)
-                .ToList();
-        }
-        else
-        {
-            elever = alleElever;
-        }
+        var eleverFraAfdeling = (loggedIn.Rolle == "Elev" || loggedIn.Rolle == "FaglærtKok" || loggedIn.Rolle == "Køkkenchef")
+            ? alleElever.Where(e => e.AfdelingId == loggedIn.AfdelingId)
+            : alleElever;
+
+        elever = eleverFraAfdeling
+            .Where(e => valgtAktivStatus == null || e.Aktiv == valgtAktivStatus)
+            .ToList();
     }
+
 
 
     // Navigerer til opret-elev siden, når man trykker "Opret elev"
@@ -472,6 +479,20 @@
 
         return $"http://localhost:5237{sti}"; // backend
     }
+    
+    private async Task Arkiver(Bruger elev)
+    {
+        try
+        {
+            await bService.ArkiverElev(elev); // kalder vores arkiveringsmetode fra service
+            await OpdaterFiltreredeElever(); //opdaterer visningen, så det kun er de aktive der vises
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Dashboard] FEJL ved arkivering: {ex.Message}");
+        }
+    }
+
 
 
 

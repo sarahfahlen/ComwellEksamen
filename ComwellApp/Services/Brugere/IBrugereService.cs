@@ -4,7 +4,10 @@ namespace ComwellApp.Services.Brugere;
 
 public interface IBrugereService
 {
-    public Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig, string skabelonType);
+    Task TilfoejElev(Bruger nyBruger, Bruger ansvarlig, string skabelonType);
+
+    Task ArkiverElev(Bruger elev);
+    
     Task<List<Bruger>> HentAlle();
     Task<List<Bruger>> HentAlleElever();
     Task<Shared.Elevplan?> HentElevplanForBruger(int brugerId, int forespoergerId);
