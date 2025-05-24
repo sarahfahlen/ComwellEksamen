@@ -1,9 +1,12 @@
 @page "/learning"
 @using ComwellApp.Services.Learning
 @using ComwellApp.Components
+@using ComwellApp.Services.Login
 @using Shared
 
 @inject ILearningService leService
+@inject ILoginService lService
+@inject NavigationManager navManager
 
 <h1>Læringsmoduler</h1>
 <div class="laering-wrapper">
@@ -78,10 +81,18 @@
     private Dictionary<string, bool> dropdownAaben = new();
     private Underemne? valgtUnderemne;
     private Dictionary<string, bool> elementAaben = new();
+    private Bruger? loggedIn;
 
     // Henter alle fagområder ved start og initialiserer dropdown-state
     protected override async Task OnInitializedAsync()
     {
+        loggedIn = await lService.GetUserLoggedIn();
+
+        if (loggedIn == null)
+        {
+            navManager.NavigateTo("login/learning");
+            return;
+        }
         alleFag = await leService.HentAlleFagomraader();
         foreach (var fag in alleFag)
         {
